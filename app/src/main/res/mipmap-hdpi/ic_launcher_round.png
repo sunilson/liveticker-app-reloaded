@@ -1,0 +1,121 @@
+package at.arkulpa.bestsmile.shared.views.bottomsheet
+
+import android.animation.ValueAnimator
+import android.content.Context
+import android.content.Context.WINDOW_SERVICE
+import android.graphics.Point
+import android.util.AttributeSet
+import android.view.View
+import android.view.ViewGroup.LayoutParams.MATCH_PARENT
+import android.view.WindowManager
+import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.core.content.ContextCompat
+import androidx.core.view.marginTop
+import androidx.databinding.BindingAdapter
+import androidx.fragment.app.FragmentManager
+import androidx.transition.Fade
+import androidx.transition.TransitionManager
+import at.arkulpa.bestsmile.R
+import at.arkulpa.bestsmile.shared.baseClasses.BaseFragment
+import at.arkulpa.bestsmile.shared.baseClasses.BottomSheetFragmentWithVisibleArea
+import at.arkulpa.bestsmile.shared.baseClasses.NestedBaseFragment
+import com.google.android.material.bottomsheet.BottomSheetBehavior
+import kotlinx.android.synthetic.main.bottom_sheet.view.*
+import timber.log.Timber
+
+class BottomSheet @JvmOverloads constructor(context: Context, attributeSet: AttributeSet? = null, style: Int = 0) :
+    ConstraintLayout(context, attributeSet, style) {
+
+    private var currentFragment: BaseFragment? = null
+        set(value) {
+            field = value
+            (currentFragment as? BottomSheetFragmentWithVisibleArea)?.setVisibleHeight(minimizedAvailableSpace)
+        }
+
+    /**
+     * This value determines how high the content that should be visible when the bottom sheet is minimized should be.
+     * The value is calculated by subtracting the anchor and margins from the total minimized bottom sheet height.
+     */
+    var minimizedAvailableSpace: Int? = null
+        set(value) {
+            field = if (value == null) {
+                null
+            } else {
+                value - (bottom_sheet_drag_anchor.height + bottom_sheet_drag_anchor.marginTop + bottom_sheet_fragment.marginTop)
+            }
+            (currentFragment as? BottomSheetFragmentWithVisibleArea)?.setVisibleHeight(field)
+        }
+
+    fun setFragment(fragment: BaseFragment, fm: FragmentManager?) {
+        if (bottom_sheet_loading_indicator.visibility == View.VISIBLE) {
+            TransitionManager.beginDelayedTransition(this, Fade())
+            bottom_sheet_loading_indicator.visibility = View.GONE
+            bottom_sheet_fragment.visibility = View.VISIBLE
+        }
+
+        (fragment as? NestedBaseFragment)?.transitionsDisabled = true
+        (currentFragment as? NestedBaseFragment)?.transitionsDisabled = true
+
+        fm?.apply {
+            beginTransaction()
+                .setCustomAnimations(R.anim.fade_in, R.anim.fade_out)
+                .replace(
+                    R.id.bottom_sheet_fragment,
+                    fragment,
+                    BOTTOM_SHEET_FRAGMENT_TAG
+                )
+                .commit()
+            executePendingTransactions()
+
+            (fragment as? NestedBaseFragment)?.transitionsDisabled = false
+            (currentFragment as? NestedBaseFragment)?.transitionsDisabled = false
+
+            currentFragment = fragment
+            (currentFragment as? BottomSheetFragmentWithVisibleArea)?.setVisibleHeight(minimizedAvailableSpace)
+        }
+    }
+
+    init {
+        val windowManager = context.getSystemService(WINDOW_SERVICE) as WindowManager
+        val point = Point()
+        windowManager.defaultDisplay.getRealSize(point)
+
+        layoutParams = LayoutParams(MATCH_PARENT, MATCH_PARENT)
+        clipToPadding = false
+        clipChildren = false
+        background = ContextCompat.getDrawable(context, R.drawable.bottom_sheet_background)
+
+        inflate(context, R.layout.bottom_sheet, this)
+    }
+
+    override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
+        super.onMeasure(
+            widthMeasureSpec,
+            heightMeasureSpec - resources.getDimensionPixelSize(R.dimen.bottom_sheet_top_margin)
+        )
+    }
+
+    companion object {
+        const val BOTTOM_SHEET_FRAGMENT_TAG = "bottomSheet"
+    }
+}
+
+fun BottomSheet.enter(finalPeekHeight: Int) {
+    Timber.d("Animating Bottom Sheet to peek height $finalPeekHeight")
+    val animator = ValueAnimator.ofInt(0, finalPeekHeight).apply { duration = 500 }
+    animator.addUpdateListener { BottomSheetBehavior.from(this).peekHeight = it.animatedValue as Int }
+    animator.start()
+}
+
+fun BottomSheet.close(): Boolean {
+    val behaviour = BottomSheetBehavior.from(this)
+    return if (behaviour.state == BottomSheetBehavior.STATE_EXPANDED) {
+        behaviour.state = BottomSheetBehavior.STATE_COLLAPSED
+        Timber.d("Closing Bottom Sheet")
+        true
+    } else false
+}
+
+@BindingAdapter("app:locked")
+fun BottomSheet.lock(locked: Boolean?) {
+    val behavior = BottomSheetBehavior.f

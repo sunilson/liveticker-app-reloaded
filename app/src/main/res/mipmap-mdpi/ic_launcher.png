@@ -1,0 +1,48 @@
+package at.arkulpa.bestsmile.features.photodiarygrid
+
+import android.content.Intent
+import android.graphics.Bitmap
+import android.graphics.drawable.Drawable
+import android.os.Bundle
+import android.os.Parcelable
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import androidx.core.content.ContextCompat
+import androidx.databinding.DataBindingUtil
+import androidx.lifecycle.Observer
+import androidx.recyclerview.widget.GridLayoutManager
+import at.arkulpa.bestsmile.R
+import at.arkulpa.bestsmile.databinding.FragmentPhotoDiaryGridBinding
+import at.arkulpa.bestsmile.shared.baseClasses.BaseFragment
+import at.arkulpa.bestsmile.shared.util.showConfirmationDialog
+import at.arkulpa.bestsmile.shared.util.showToast
+import at.arkulpa.bestsmile.shared.util.storeToCache
+import at.arkulpa.domain.models.Photo
+import com.bumptech.glide.Glide
+import com.bumptech.glide.request.target.CustomTarget
+import com.bumptech.glide.request.transition.Transition
+import kotlinx.android.synthetic.main.fragment_photo_diary_grid.*
+import kotlinx.android.synthetic.main.fragment_photo_diary_grid.view.*
+import org.koin.android.ext.android.inject
+import org.koin.androidx.viewmodel.dsl.viewModel
+import org.koin.androidx.viewmodel.ext.android.viewModel
+import org.koin.dsl.module
+
+class PhotoDiaryGridFragment : BaseFragment() {
+
+    val viewModel: PhotoDiaryGridViewModel by viewModel()
+    private val adapter: GridRecyclerviewAdapter<Photo> by inject()
+    private val images: ArrayList<Parcelable> = arrayListOf()
+    private var imagesTargetSize = 0
+
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+        val binding = DataBindingUtil.inflate<FragmentPhotoDiaryGridBinding>(
+            inflater,
+            R.layout.fragment_photo_diary_grid,
+            container,
+            false
+        )
+
+        binding.root.toolbar.inflateMenu(R.menu.photo_grid_menu)
+        binding.root.toolbar.setOnMenuItemClickListener {

@@ -1,0 +1,42 @@
+<resources>
+    <string name="app_name">BestSmile</string>
+    <string name="bestsmile_logo">Bestsmile Logo</string>
+    <string name="made_in_switzerland_content_description">Image with text \'Made in Switzerland\'</string>
+    <string name="email_address">E-Mail Adresse</string>
+    <string name="register_email_title">Das schönste Lächeln der Welt -</string>
+    <string name="register_email_subtitle">Gehört bald dir.</string>
+    <string name="register_email_description">Los gehts! Gib einfach deine E-Mail Adresse an, die du bei uns im Best Smile
+        Store hinterlegt hast.
+    </string>
+    <string name="register_email_next">Registrieren</string>
+    <string name="register_password_title">Dein Lächeln ist uns wichtig.-</string>
+    <string name="register_password_subtitle">Deine Sicherheit auch.</string>
+    <string name="register_password_description">Um deine Daten zu schützen und um dich wieder einloggen zu können, vergib bitte ein Passwort.
+    </string>
+    <string name="register_password_next">Mit Best Smile starten</string>
+    <string name="login_subtitle">Schön dich wieder zu sehen!</string>
+    <string name="login_move_to_register">Registrieren</string>
+    <string name="login_title">Guten Morgen -</string>
+    <string name="password">Passwort</string>
+    <string name="login">Login</string>
+    <string name="forgot_password_sub_headline">Gib bitte deine E-Mail Adresse an, die du bei uns im Best Smile Store
+        hinterlegt hast. An diese E-Mail Adresse senden wir dir dein neues Passwort.
+    </string>
+    <string name="forgot_password_headline">Bitte gib deine E-Mail Adresse ein.</string>
+    <string name="request_new_password">Neues Password anfordern</string>
+    <string name="email_invalid">Email Adresse ist nicht gültig!</string>
+    <string name="password_invalid">Passwort ist zu kurz oder ungültig!</string>
+    <string name="password_too_short">Passwort ist zu kurz!</string>
+    <string name="password_wrong">Passwort ist falsch!</string>
+    <string name="email_not_exist">Email existiert nicht!</string>
+    <string name="error_dialog_title">Ups! Da ist was schiefgelaufen</string>
+    <string name="network_error">Tut uns Leid! Es scheint so als würst du nicht mit dem Internet verbunden. Prüfe deine Einstellungen und versuche es noch einmal.</string>
+    <string name="general_error">Tut uns Leid! Da ist leider etwas schief gelaufen. Prüfedein Internet und versuche es bitte noch einmal.</string>
+    <string name="general_error_short">Ups! Da ist was schiefgelaufen</string>
+    <string name="cancel">Abbrechen</string>
+    <string name="settings">Einstellungen</string>
+    <string name="push_notification_permission_explanation">Erlaube uns dir Mitteilungen zu senden, um dich regelmäßíg
+        an das Tragen der Best Smile Aligner zu erinnern.
+    </string>
+    <string name="next">Weiter</string>
+    <string name="skip">Überspringen</s

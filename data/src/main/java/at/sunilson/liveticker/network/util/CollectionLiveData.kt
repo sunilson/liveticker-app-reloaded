@@ -14,8 +14,7 @@ class CollectionLiveData<T>(
     private val clazz: Class<T>,
     private val reference: CollectionReference? = null,
     private val query: Query? = null
-) :
-    BaseLiveData<List<T>>() {
+) : BaseLiveData<List<T>>() {
 
     override val listener: EventListener<QuerySnapshot> = EventListener { snapshot, error ->
         if (error != null) {

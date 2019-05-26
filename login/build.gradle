@@ -22,12 +22,16 @@ android {
         }
     }
 
+    dataBinding {
+        enabled = true
+    }
 }
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
     implementation project(path: ":presentation")
+    implementation project(path: ":authentication")
 
     implementation AndroidX.appcompat
     implementation AndroidX.constraintLayout
@@ -37,6 +41,8 @@ dependencies {
 
     implementation DILibs.koin
     implementation DILibs.koinLifecycle
+    implementation DILibs.koinViewModel
+    implementation GoogleLibs.material_components
 }
 repositories {
     mavenCentral()

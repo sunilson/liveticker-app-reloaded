@@ -5,9 +5,9 @@ import at.sunilson.liveticker.firebasecore.ActionResult
 import com.google.firebase.auth.FirebaseUser
 
 interface IAuthenticationRepository {
-    val currentUser: LiveData<FirebaseUser?>
+    val currentUser: LiveData<User?>
 
-    fun getCurrentUserNow(): FirebaseUser?
+    fun getCurrentUserNow(): User?
     suspend fun login(email: String, password: String): ActionResult
     suspend fun register(email: String, password: String): ActionResult
 }

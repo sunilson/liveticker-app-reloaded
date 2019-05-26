@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+            xmlns:app="http://schemas.android.com/apk/res-auto"
+            android:id="@+id/home_graph"
+            xmlns:tools="http://schemas.android.com/tools"
+            app:startDestination="@id/homeFragment">
+
+    <fragment
+            android:id="@+id/homeFragment"
+            tools:layout="@layout/fragment_home"
+            android:name="at.sunilson.liveticker.home.presentation.home.HomeFragment"
+            android:label="HomeFragment">
+        <action
+                android:id="@+id/action_homeFragment_to_livetickerCreationFragment"
+                app:destination="@id/livetickerCreationFragment"/>
+    </fragment>
+    <fragment
+            android:id="@+id/livetickerCreationFragment"
+            tools:layout="@layout/fragment_liveticker_creation"
+            android:name="at.sunilson.liveticker.home.presentation.livetickerCreation.LivetickerCreationFragment"
+            android:label="LivetickerCreationFragment"/>
+</navigation>

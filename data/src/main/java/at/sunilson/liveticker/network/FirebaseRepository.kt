@@ -4,37 +4,35 @@ import at.sunilson.liveticker.core.models.Comment
 import at.sunilson.liveticker.core.models.LiveTicker
 import at.sunilson.liveticker.core.models.LiveTickerEntry
 import at.sunilson.liveticker.firebasecore.ActionResult
-import at.sunilson.liveticker.network.util.CollectionLiveData
-import at.sunilson.liveticker.network.util.DocumentLiveData
-import at.sunilson.liveticker.network.util.awaitAdd
-import at.sunilson.liveticker.network.util.awaitSet
+import at.sunilson.liveticker.network.util.*
 import com.google.firebase.firestore.FirebaseFirestore
+import kotlinx.coroutines.channels.ReceiveChannel
 
-class FirebaseRepository(private val fireStore: FirebaseFirestore) : IRemoteRepository {
+internal class FirebaseRepository(private val fireStore: FirebaseFirestore) : IRemoteRepository {
 
-    override fun getComments(id: String): CollectionLiveData<Comment> {
-        return CollectionLiveData(
-            Comment::class.java,
-            reference = fireStore.collection("livetickers/$id/comments")
-        )
+    override fun getComments(id: String): ReceiveChannel<List<Comment>> {
+        return fireStore
+            .collection("livetickers/$id/comments")
+            .observe(Comment::class.java)
     }
 
-    override fun getLivetickers(userId: String): CollectionLiveData<LiveTicker> {
-        return CollectionLiveData(
-            LiveTicker::class.java,
-            query = fireStore.collection("livetickers").whereEqualTo("authorId", userId)
-        )
+    override fun getLivetickers(userId: String): ReceiveChannel<List<LiveTicker>> {
+        return fireStore
+            .collection("livetickers")
+            .whereEqualTo("authorId", userId)
+            .observe(LiveTicker::class.java)
     }
 
-    override fun getLiveTicker(id: String): DocumentLiveData<LiveTicker> {
-        return DocumentLiveData(fireStore.document("livetickers/$id"), LiveTicker::class.java)
+    override fun getLiveTicker(id: String): ReceiveChannel<LiveTicker> {
+        return fireStore
+            .document("livetickers/$id")
+            .observe(LiveTicker::class.java)
     }
 
-    override fun getLiveTickerEntries(id: String): CollectionLiveData<LiveTickerEntry> {
-        return CollectionLiveData(
-            LiveTickerEntry::class.java,
-            reference = fireStore.collection("livetickers/$id/entries")
-        )
+    override fun getLiveTickerEntries(id: String): ReceiveChannel<List<LiveTickerEntry>> {
+        return fireStore
+            .collection("livetickers/$id/entries")
+            .observe(LiveTickerEntry::class.java)
     }
 
 

@@ -20,6 +20,10 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
+
+    dataBinding {
+        enabled = true
+    }
 }
 
 dependencies {
@@ -29,6 +33,7 @@ dependencies {
     implementation project(path: ":data")
     implementation project(path: ":authentication")
     implementation project(path: ":login")
+    implementation project(path: ":home")
 
     implementation AndroidX.lifecycle_extensions
     implementation AndroidX.appcompat
@@ -36,8 +41,13 @@ dependencies {
     implementation AndroidX.androidx_core
     implementation AndroidX.navigation_fragment
     implementation AndroidX.navigation_ui
+
+    implementation FirebaseLibs.core
+
     implementation DILibs.koin
     implementation DILibs.koinLifecycle
     implementation ThirdPartyAndroidLibs.timber
     implementation GoogleLibs.material_components
 }
+
+apply plugin: 'com.google.gms.google-services'

@@ -27,8 +27,8 @@ android {
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
-    implementation project(path: ":core")
-    implementation project(path: ":firebasecore")
+    api project(path: ":core")
+    api project(path: ":firebasecore")
 
     implementation DILibs.koin
     implementation FirebaseLibs.core
@@ -39,5 +39,3 @@ dependencies {
 repositories {
     mavenCentral()
 }
-
-apply plugin: 'com.google.gms.google-services'

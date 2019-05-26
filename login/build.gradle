@@ -1,43 +1,47 @@
-apply plugin: 'com.android.application'
-
-apply plugin: 'kotlin-android'
-
+apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android-extensions'
+apply plugin: 'kotlin-android'
 
 android {
     compileSdkVersion 28
+
+
     defaultConfig {
-        applicationId "at.sunilson.liveticker"
         minSdkVersion 21
         targetSdkVersion 28
         versionCode 1
         versionName "1.0"
+
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+
     }
+
     buildTypes {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
+
 }
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+    implementation project(path: ":presentation")
 
-    implementation project(path: ":data")
-    implementation project(path: ":authentication")
-    implementation project(path: ":login")
-
-    implementation AndroidX.lifecycle_extensions
     implementation AndroidX.appcompat
     implementation AndroidX.constraintLayout
     implementation AndroidX.androidx_core
     implementation AndroidX.navigation_fragment
     implementation AndroidX.navigation_ui
+
+    implementation UILibs.viewPager_pagination
     implementation DILibs.koin
     implementation DILibs.koinLifecycle
-    implementation ThirdPartyAndroidLibs.timber
+
     implementation GoogleLibs.material_components
+}
+repositories {
+    mavenCentral()
 }

@@ -2,21 +2,6 @@ const val room_version = "2.1.0-beta01"
 const val nav_version = "2.1.0-alpha04"
 const val koin_version = "2.0.0-GA6"
 
-object Modules {
-    val presentation = ":presentation"
-    val network = ":network"
-    val database = ":database"
-    val authentication = ":authentication"
-    val onboarding = ":onboarding"
-    val app = ":app"
-    val core = ":core"
-    val dashboard = ":dashboard"
-    val rides = ":rides"
-    val settings = ":settings"
-    val profile = ":profile"
-    val help = ":help"
-}
-
 object AndroidX {
     val constraintLayout = "androidx.constraintlayout:constraintlayout:2.0.0-beta1"
     val appcompat = "androidx.appcompat:appcompat:1.1.0-alpha05"
@@ -39,11 +24,6 @@ object Kotlin {
 
 object UILibs {
     val viewPager_pagination = "com.tbuonomo.andrui:viewpagerdotsindicator:3.0.3"
-}
-
-object NetworkLibs {
-    val retrofit = "com.squareup.retrofit2:retrofit:2.5.0"
-    val gson = "com.google.code.gson:gson:2.8.5"
 }
 
 object DILibs {
@@ -74,4 +54,5 @@ object GoogleLibs {
 object FirebaseLibs {
     val core = "com.google.firebase:firebase-core:16.0.9"
     val fireStore = "com.google.firebase:firebase-firestore:19.0.0"
+    val authentication = "com.google.firebase:firebase-auth:17.0.0"
 }

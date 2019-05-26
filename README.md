@@ -1,1 +1,0 @@
-# liveticker-app-reloaded

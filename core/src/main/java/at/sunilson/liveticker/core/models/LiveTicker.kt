@@ -11,5 +11,6 @@ data class LiveTicker(
     val finishedDate: Date,
     val imageUrl: String,
     val started: Boolean,
-    val finished: Boolean
+    val finished: Boolean,
+    val location: Pair<Long, Long>? = null
 )

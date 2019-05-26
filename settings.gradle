@@ -1,1 +1,1 @@
-include ':app', ':database', ':network', ':presentation', ':core'
+include ':app', ':data', ':presentation', ':core', ':authentication', ':firebasecore', ':login'

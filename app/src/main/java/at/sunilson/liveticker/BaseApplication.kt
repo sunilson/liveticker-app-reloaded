@@ -2,6 +2,8 @@ package at.sunilson.liveticker
 
 
 import android.app.Application
+import at.sunilson.liveticker.authentication.authenticationModule
+import at.sunilson.liveticker.network.dataModule
 import org.koin.core.context.startKoin
 import timber.log.Timber
 
@@ -13,7 +15,9 @@ class BaseApplication : Application() {
 
         startKoin {
             modules(
-                appModule
+                appModule,
+                dataModule,
+                authenticationModule
             )
         }
     }

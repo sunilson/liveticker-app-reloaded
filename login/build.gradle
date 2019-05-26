@@ -5,7 +5,6 @@ apply plugin: 'kotlin-android'
 android {
     compileSdkVersion 28
 
-
     defaultConfig {
         minSdkVersion 21
         targetSdkVersion 28
@@ -36,11 +35,8 @@ dependencies {
     implementation AndroidX.navigation_fragment
     implementation AndroidX.navigation_ui
 
-    implementation UILibs.viewPager_pagination
     implementation DILibs.koin
     implementation DILibs.koinLifecycle
-
-    implementation GoogleLibs.material_components
 }
 repositories {
     mavenCentral()

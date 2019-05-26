@@ -35,7 +35,6 @@ dependencies {
     implementation AndroidX.navigation_fragment
     implementation AndroidX.navigation_ui
 
-    implementation UILibs.viewPager_pagination
     implementation DILibs.koin
     implementation DILibs.koinLifecycle
 }

@@ -6,6 +6,9 @@
         <variable
                 name="viewModel"
                 type="at.sunilson.liveticker.home.presentation.home.HomeViewModel"/>
+
+        <import type="at.sunilson.liveticker.core.models.LiveTicker"/>
+        <import type="at.sunilson.liveticker.home.presentation.home.LivetickerSelectedAction"/>
     </data>
 
     <androidx.coordinatorlayout.widget.CoordinatorLayout
@@ -18,10 +21,36 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent">
 
+            <!--
+
+            <View
+                    android:id="@+id/fragment_home_top_hero"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:background="#03A9F4"
+                    app:layout_constraintTop_toTopOf="parent"
+                    />
+
+            <TextView
+                    android:id="@+id/fragment_home_top_text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:layout_constraintLeft_toLeftOf="parent"
+                    app:layout_constraintRight_toRightOf="parent"
+                    app:layout_constraintTop_toTopOf="@+id/fragment_home_top_hero"
+                    app:layout_constraintBottom_toBottomOf="@+id/fragment_home_top_hero"
+                    android:text="Liveticker"
+                    android:textSize="32sp"
+                    android:textStyle="bold"
+                    />
+                    -->
+
             <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/fragment_home_liveticker_list"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     app:entries="@{viewModel.livetickers}"
+                    app:onLivetickerSelected="@{(item) -> viewModel.livetickerSelected((LivetickerSelectedAction) item)}"
                     />
         </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -29,8 +58,10 @@
                 android:id="@+id/bar"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:fabAlignmentMode="end"
+                app:fabAlignmentMode="center"
                 android:layout_gravity="bottom"
+                app:title="Liveticker App"
+                app:hideOnScroll="true"
                 app:navigationIcon="@drawable/ic_search_black_24dp"
                 />
 
@@ -39,7 +70,9 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 app:layout_anchor="@id/bar"
-                android:src="@drawable/ic_add_black_24dp"
+                app:srcCompat="@drawable/ic_add_black_24dp"
+                app:tint="@android:color/white"
+                app:backgroundTint="@color/colorAccent"
                 android:onClick="@{viewModel::addLiveticker}"
                 />
 

@@ -5,6 +5,10 @@
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
 
+        <item name="android:colorBackground">@android:color/white</item>
         <item name="android:textViewStyle">@style/BaseText</item>
+        <item name="editTextStyle">@style/BaseEditText</item>
+        <item name="textInputStyle">@style/BaseTextInputLayout</item>
+        <item name="materialButtonStyle">@style/BaseButtonStyle</item>
     </style>
 </resources>

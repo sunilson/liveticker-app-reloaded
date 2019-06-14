@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout
+        xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+
+        <variable
+                name="viewModel"
+                type="at.sunilson.liveticker.livetickercreation.presentation.livetickerCreation.LivetickerCreationViewModel"/>
+    </data>
+
+
+    <androidx.coordinatorlayout.widget.CoordinatorLayout
+            xmlns:android="http://schemas.android.com/apk/res/android"
+            android:id="@+id/fragment_liveticker_creation_content"
+            android:orientation="vertical"
+            android:background="@color/defaultBackgroundColor"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+
+        <com.google.android.material.appbar.AppBarLayout
+                android:id="@+id/toolbar_layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:liftOnScroll="true">
+
+            <com.google.android.material.appbar.MaterialToolbar
+                    android:id="@+id/toolbar"
+                    android:layout_width="match_parent"
+                    android:layout_height="?attr/actionBarSize"
+                    app:title="Neuer Liveticker"
+                    app:titleTextColor="@android:color/white"
+                    app:navigationIcon="@drawable/ic_arrow_back_white_24dp"
+                    />
+
+        </com.google.android.material.appbar.AppBarLayout>
+
+        <androidx.core.widget.NestedScrollView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@android:color/white"
+                app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+            <LinearLayout
+                    android:id="@+id/fragment_liveticker_creation_inputs"
+                    android:orientation="vertical"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="@dimen/container_padding"
+                    android:clipToPadding="false">
+
+                <at.sunilson.liveticker.presentation.views.CustomFontTextInputLayout
+                        style="@style/BaseTextInputLayout"
+                        app:startIconDrawable="@drawable/ic_title_black_24dp"
+                        app:startIconTint="@color/baseTextColor"
+                        android:hint="@string/enter_title"
+                        app:counterEnabled="true"
+                        app:counterMaxLength="120"
+                        >
+
+                    <com.google.android.material.textfield.TextInputEditText
+                            style="@style/BaseEditText"
+                            android:text="@={viewModel.title}"
+                            />
+                </at.sunilson.liveticker.presentation.views.CustomFontTextInputLayout>
+
+                <at.sunilson.liveticker.presentation.views.CustomFontTextInputLayout
+                        style="@style/BaseTextInputLayout"
+                        app:startIconDrawable="@drawable/ic_text_fields_black_24dp"
+                        app:startIconTint="@color/baseTextColor"
+                        android:hint="@string/enter_short_description"
+                        app:counterEnabled="true"
+                        app:counterMaxLength="120"
+                        >
+
+                    <com.google.android.material.textfield.TextInputEditText
+                            style="@style/BaseEditText"
+                            android:text="@={viewModel.shortDescription}"
+                            />
+                </at.sunilson.liveticker.presentation.views.CustomFontTextInputLayout>
+
+                <at.sunilson.liveticker.presentation.views.CustomFontTextInputLayout
+                        style="@style/BaseTextInputLayout"
+                        app:startIconDrawable="@drawable/ic_description_black_24dp"
+                        app:startIconTint="@color/baseTextColor"
+                        android:hint="@string/enter_description">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                            style="@style/BaseEditText"
+                            android:inputType="textMultiLine"
+                            android:minLines="3"
+                            android:text="@={viewModel.description}"
+                            />
+                </at.sunilson.liveticker.presentation.views.CustomFontTextInputLayout>
+
+                <RelativeLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        >
+
+                    <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/choose_location"
+                            android:layout_alignParentStart="true"
+                            android:layout_centerVertical="true"
+                            android:layout_marginBottom="@dimen/smallest_margin"
+                            />
+
+                    <com.google.android.material.switchmaterial.SwitchMaterial
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:checked="@={viewModel.usePosition}"
+                            android:layout_alignParentEnd="true"
+                            android:layout_centerVertical="true"
+                            />
+
+                </RelativeLayout>
+
+                <FrameLayout
+                        android:id="@+id/fragment_liveticker_creation_map_container"
+                        android:layout_width="match_parent"
+                        android:layout_height="200dp"
+                        android:layout_marginBottom="@dimen/big_margin"
+                        app:showIf="@{viewModel.usePosition}"
+                        >
+
+                    <FrameLayout
+                            android:id="@+id/fragment_liveticker_creation_map"
+                            android:layout_width="match_parent"
+                            android:layout_height="200dp"
+                            android:background="@color/disabledBackgroundColor"
+                            />
+                </FrameLayout>
+
+                <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@{viewModel.location.toString()}"
+                        />
+
+
+                <com.google.android.material.button.MaterialButton
+                        android:layout_width="match_parent"
+                        android:layout_height="@dimen/default_button_height"
+                        android:text="@string/create"
+                        android:onClick="@{viewModel::createLiveTicker}"
+                        app:iconGravity="textStart"
+                        app:icon="@drawable/ic_check_black_24dp"
+                        app:iconTint="@android:color/white"
+                        />
+
+            </LinearLayout>
+        </androidx.core.widget.NestedScrollView>
+    </androidx.coordinatorlayout.widget.CoordinatorLayout>
+</layout>

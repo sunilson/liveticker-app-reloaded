@@ -1,8 +1,66 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+
     <style name="BaseText">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:fontFamily">@font/font</item>
+        <item name="android:textColor">@color/baseTextColor</item>
+    </style>
+
+    <style name="BaseText.SmallHeader">
+        <item name="android:textSize">@dimen/small_header_text_size</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="BaseText.SubHeader">
+        <item name="android:textSize">@dimen/sub_header_text_size</item>
+        <item name="android:textColor">@color/subHeaderTextColor</item>
+    </style>
+
+    <style name="BaseText.Header">
+        <item name="android:textSize">@dimen/header_text_size</item>
+        <item name="android:textStyle">bold</item>R
+    </style>
+
+    <style name="BaseTextInputLayout" parent="Widget.MaterialComponents.TextInputLayout.FilledBox">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginBottom">@dimen/big_margin</item>
+        <item name="android:fontFamily">@font/font</item>
+    </style>
+
+    <style name="BaseEditText">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:fontFamily">@font/font</item>
+    </style>
+
+    <style name="BaseButtonStyle" parent="Widget.MaterialComponents.Button">
+        <item name="android:layout_height">@dimen/default_button_height</item>
+        <item name="android:textStyle">bold</item>
+        <item name="backgroundTint">@color/colorAccent</item>
+        <item name="cornerRadius">10dp</item>
+    </style>
+
+    <style name="Toolbar">
+        <item name="android:layout_height">?attr/actionBarSize</item>
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:background">@color/colorPrimary</item>
+    </style>
+
+    <style name="ToolbarTitle" parent="BaseText.SmallHeader">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textAllCaps">true</item>
+        <item name="android:textColor">@android:color/white</item>
+    </style>
+
+    <style name="ToolbarIcon">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:tint">@android:color/white</item>
+        <item name="android:padding">@dimen/medium_margin</item>
+        <item name="android:background">?selectableItemBackgroundBorderless</item>
     </style>
 </resources>

@@ -1,13 +1,10 @@
 package at.sunilson.liveticker.authentication
 
 import androidx.lifecycle.MutableLiveData
-import at.sunilson.liveticker.firebasecore.ActionResult
-import at.sunilson.liveticker.firebasecore.generateCompleteListener
+import at.sunilson.liveticker.firebasecore.generateAddCompletionListener
+import com.github.kittinunf.result.Result
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.FirebaseUser
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.suspendCancellableCoroutine
-import kotlinx.coroutines.withContext
 
 internal class FirebaseAuthenticationRepository(private val firebaseAuth: FirebaseAuth) : IAuthenticationRepository {
 
@@ -26,17 +23,17 @@ internal class FirebaseAuthenticationRepository(private val firebaseAuth: Fireba
         return null
     }
 
-    override suspend fun login(email: String, password: String): ActionResult {
+    override suspend fun login(email: String, password: String): Result<Unit, Exception> {
         return suspendCancellableCoroutine {
             firebaseAuth.signInWithEmailAndPassword(email, password)
-                .addOnCompleteListener(generateCompleteListener(it))
+                .addOnCompleteListener(generateAddCompletionListener(it))
         }
     }
 
-    override suspend fun register(email: String, password: String): ActionResult {
+    override suspend fun register(email: String, password: String): Result<Unit, Exception> {
         return suspendCancellableCoroutine {
             firebaseAuth.createUserWithEmailAndPassword(email, password)
-                .addOnCompleteListener(generateCompleteListener(it))
+                .addOnCompleteListener(generateAddCompletionListener(it))
         }
     }
 }

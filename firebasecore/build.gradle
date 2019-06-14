@@ -27,9 +27,14 @@ android {
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+    implementation project(path: ":core")
 
-    implementation FirebaseLibs.core
-    implementation Kotlin.coroutines
+    implementation DILibs.koin
+    api FirebaseLibs.core
+    api FirebaseLibs.fireStore
+    api Kotlin.coroutines
+    api ThirdPartyLibs.result
+    api ThirdPartyLibs.resultCoroutines
 
 }
 repositories {

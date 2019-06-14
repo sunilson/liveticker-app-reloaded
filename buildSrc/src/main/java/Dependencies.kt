@@ -1,10 +1,10 @@
 const val room_version = "2.1.0-beta01"
-const val nav_version = "2.1.0-alpha04"
-const val koin_version = "2.0.0-GA6"
+const val nav_version = "2.1.0-alpha05"
+const val koin_version = "2.0.0"
 
 object AndroidX {
     val constraintLayout = "androidx.constraintlayout:constraintlayout:2.0.0-beta1"
-    val appcompat = "androidx.appcompat:appcompat:1.1.0-alpha05"
+    val appcompat = "androidx.appcompat:appcompat:1.1.0-beta01"
     val androidx_core = "androidx.core:core-ktx:1.1.0-beta01"
 
     val lifecycle_extensions = "androidx.lifecycle:lifecycle-extensions:2.0.0"
@@ -24,6 +24,7 @@ object Kotlin {
 
 object UILibs {
     val viewPager_pagination = "com.tbuonomo.andrui:viewpagerdotsindicator:3.0.3"
+    val recyclerView_animations = "jp.wasabeef:recyclerview-animators:3.0.0"
 }
 
 object DILibs {
@@ -32,9 +33,12 @@ object DILibs {
     val koinViewModel = "org.koin:koin-androidx-viewmodel:$koin_version"
 }
 
-object ThirdPartyAndroidLibs {
+object ThirdPartyLibs {
     val timber = "com.jakewharton.timber:timber:4.7.1"
     val joda = "joda-time:joda-time:2.10.2"
+    val result = "com.github.kittinunf.result:result:2.2.0"
+    val resultCoroutines = "com.github.kittinunf.result:result-coroutines:2.2.0"
+    val glide = "com.github.bumptech.glide:glide:4.9.0"
 }
 
 object TestLibs {
@@ -48,7 +52,10 @@ object TestLibs {
 
 object GoogleLibs {
     val auth = "com.google.android.gms:play-services-auth:16.0.1"
-    val material_components = "com.google.android.material:material:1.1.0-alpha06"
+    val material_components = "com.google.android.material:material:1.1.0-alpha07"
+    val maps = "com.google.android.gms:play-services-maps:16.1.0"
+    val places = "com.google.android.libraries.places:places:1.1.0"
+
 }
 
 object FirebaseLibs {

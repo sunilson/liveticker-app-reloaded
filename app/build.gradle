@@ -34,6 +34,12 @@ dependencies {
     implementation project(path: ":authentication")
     implementation project(path: ":login")
     implementation project(path: ":home")
+    implementation project(path: ":sharing")
+    implementation project(path: ":location")
+    implementation project(path: ":presentation")
+    implementation project(path: ":liveticker")
+    implementation project(path: ":firebasecore")
+    implementation project(path: ":livetickercreation")
 
     implementation AndroidX.lifecycle_extensions
     implementation AndroidX.appcompat
@@ -46,7 +52,7 @@ dependencies {
 
     implementation DILibs.koin
     implementation DILibs.koinLifecycle
-    implementation ThirdPartyAndroidLibs.timber
+    implementation ThirdPartyLibs.timber
     implementation GoogleLibs.material_components
 }
 

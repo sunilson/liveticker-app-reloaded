@@ -34,7 +34,6 @@ dependencies {
     implementation FirebaseLibs.fireStore
     implementation DILibs.koin
     implementation Kotlin.coroutines
-
 }
 repositories {
     mavenCentral()

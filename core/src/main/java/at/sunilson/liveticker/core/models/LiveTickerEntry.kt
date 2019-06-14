@@ -1,12 +1,19 @@
 package at.sunilson.liveticker.core.models
 
-import java.util.*
+interface LiveTickerEntry : ModelWithId {
+    val time: Long
+}
 
-data class LiveTickerEntry(
+data class TextLiveTickerEntry(
     override var id: String,
+    override val time: Long,
     val reaction: String,
-    val time: Date,
+    val text: String
+) : LiveTickerEntry
+
+data class ImageLivetickerEntry(
+    override var id: String,
+    override val time: Long,
     val text: String,
-    val image: String?,
-    val style: Int = 0
-): ModelWithId
+    val image: String?
+) : LiveTickerEntry

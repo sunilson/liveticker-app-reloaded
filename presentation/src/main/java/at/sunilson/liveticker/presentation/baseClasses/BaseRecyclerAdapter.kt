@@ -9,7 +9,8 @@ import androidx.databinding.ViewDataBinding
 import androidx.recyclerview.widget.RecyclerView
 import kotlin.reflect.KClass
 
-abstract class BaseRecyclerAdapter<T>(private val data: MutableList<T>, val br: Int) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+abstract class BaseRecyclerAdapter<T>(val data: MutableList<T>, val br: Int) :
+    RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     var onItemClicked: (View) -> Unit = {}
     var onItemLongPressed: (View) -> Unit = {}
@@ -22,7 +23,7 @@ abstract class BaseRecyclerAdapter<T>(private val data: MutableList<T>, val br: 
     open fun addAll(elements: List<T>) {
         this.data.clear()
         this.data.addAll(elements)
-        notifyDataSetChanged()
+        notifyItemRangeChanged(0, this.data.size - 1)
     }
 
     override fun getItemCount(): Int = data.size

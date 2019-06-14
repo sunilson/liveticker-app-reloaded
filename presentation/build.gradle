@@ -33,16 +33,18 @@ android {
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+    implementation project(path: ":core")
 
     implementation AndroidX.appcompat
     implementation AndroidX.constraintLayout
     implementation AndroidX.androidx_core
     implementation AndroidX.navigation_fragment
     implementation AndroidX.navigation_ui
+    implementation ThirdPartyLibs.glide
 
     implementation DILibs.koin
     implementation DILibs.koinLifecycle
-    implementation ThirdPartyAndroidLibs.timber
+    implementation ThirdPartyLibs.timber
     compile "org.jetbrains.kotlin:kotlin-reflect:1.3.31"
 }
 repositories {

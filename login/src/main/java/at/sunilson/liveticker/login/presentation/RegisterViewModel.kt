@@ -33,7 +33,7 @@ class RegisterViewModelImpl(private val authentication: IAuthenticationRepositor
         viewModelScope.launch {
             try {
                 loading.postValue(true)
-                authentication.register("", "")
+                authentication.register(email.value ?: return@launch, password.value ?: return@launch)
             } catch (error: Throwable) {
                 errors.postValue(error.message)
             }

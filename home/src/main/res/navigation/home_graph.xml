@@ -9,14 +9,5 @@
             android:id="@+id/homeFragment"
             tools:layout="@layout/fragment_home"
             android:name="at.sunilson.liveticker.home.presentation.home.HomeFragment"
-            android:label="HomeFragment">
-        <action
-                android:id="@+id/action_homeFragment_to_livetickerCreationFragment"
-                app:destination="@id/livetickerCreationFragment"/>
-    </fragment>
-    <fragment
-            android:id="@+id/livetickerCreationFragment"
-            tools:layout="@layout/fragment_liveticker_creation"
-            android:name="at.sunilson.liveticker.home.presentation.livetickerCreation.LivetickerCreationFragment"
-            android:label="LivetickerCreationFragment"/>
+            android:label="HomeFragment"/>
 </navigation>

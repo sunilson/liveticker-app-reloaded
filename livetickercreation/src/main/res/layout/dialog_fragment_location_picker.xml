@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout
+        xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+
+        <variable
+                name="viewModel"
+                type="at.sunilson.liveticker.livetickercreation.presentation.locationPickerDialog.LocationPickerDialogViewModel"/>
+    </data>
+
+    <androidx.coordinatorlayout.widget.CoordinatorLayout
+            xmlns:android="http://schemas.android.com/apk/res/android"
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@android:color/white">
+
+        <FrameLayout
+                android:id="@+id/dialog_fragment_location_picker_map"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"/>
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom|left"
+                android:layout_margin="@dimen/medium_margin"
+                app:srcCompat="@drawable/ic_search_black_24dp"
+                app:tint="@android:color/white"
+                app:backgroundTint="@color/colorPrimary"
+                android:onClick="@{viewModel::searchClicked}"
+                />
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom|right"
+                android:layout_margin="@dimen/medium_margin"
+                app:srcCompat="@drawable/ic_check_black_24dp"
+                app:tint="@android:color/white"
+                app:backgroundTint="@color/colorAccent"
+                android:onClick="@{viewModel::tryFinish}"
+                />
+
+    </androidx.coordinatorlayout.widget.CoordinatorLayout>
+</layout>

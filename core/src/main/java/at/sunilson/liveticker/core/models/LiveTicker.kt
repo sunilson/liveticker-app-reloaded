@@ -12,5 +12,5 @@ class LiveTicker(
     val imageUrl: String = "",
     val started: Boolean = false,
     val finished: Boolean = false,
-    val location: Pair<Long, Long>? = null
+    val location: Location? = null
 ): ModelWithId {}

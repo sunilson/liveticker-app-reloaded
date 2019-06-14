@@ -1,4 +1,9 @@
 <resources>
     <string name="app_name">home</string>
     <string name="create">Create</string>
+    <string name="enter_title">Titel eingeben</string>
+    <string name="enter_short_description">Kurzbeschreibung eingeben</string>
+    <string name="enter_location">Ort eingeben</string>
+    <string name="enter_description">Beschreibung eingeben (optional)</string>
+    <string name="choose_location">Ort auswählen (optional)</string>
 </resources>

@@ -13,7 +13,5 @@ import org.koin.dsl.module
 val homeModule = module {
     viewModel<HomeViewModel> { HomeViewModelImpl(get(), get()) }
     single<HomeRepository> { HomeRepositoryImpl(get()) }
-    scope(named<HomeFragment>()) {
-        scoped { LivetickerRecyclerAdapter() }
-    }
+    factory { LivetickerRecyclerAdapter() }
 }

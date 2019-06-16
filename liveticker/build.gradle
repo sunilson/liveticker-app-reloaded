@@ -46,6 +46,7 @@ dependencies {
     implementation DILibs.koinLifecycle
     implementation DILibs.koinViewModel
     implementation GoogleLibs.material_components
+    implementation ThirdPartyLibs.timber
 
     implementation UILibs.recyclerView_animations
 }

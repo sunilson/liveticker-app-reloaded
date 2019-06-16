@@ -14,7 +14,7 @@
             android:orientation="vertical"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:background="@android:color/white">
+            android:background="@color/baseTextColorInverted">
 
         <FrameLayout
                 android:id="@+id/dialog_fragment_location_picker_map"
@@ -27,7 +27,7 @@
                 android:layout_gravity="bottom|left"
                 android:layout_margin="@dimen/medium_margin"
                 app:srcCompat="@drawable/ic_search_black_24dp"
-                app:tint="@android:color/white"
+                app:tint="@color/baseTextColorInverted"
                 app:backgroundTint="@color/colorPrimary"
                 android:onClick="@{viewModel::searchClicked}"
                 />
@@ -38,7 +38,7 @@
                 android:layout_gravity="bottom|right"
                 android:layout_margin="@dimen/medium_margin"
                 app:srcCompat="@drawable/ic_check_black_24dp"
-                app:tint="@android:color/white"
+                app:tint="@color/baseTextColorInverted"
                 app:backgroundTint="@color/colorAccent"
                 android:onClick="@{viewModel::tryFinish}"
                 />

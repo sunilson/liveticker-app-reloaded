@@ -15,13 +15,13 @@ class DiagonalCutView @JvmOverloads constructor(context: Context, attributeSet: 
     private val pdMode = PorterDuffXfermode(PorterDuff.Mode.CLEAR)
     private val path = Path()
 
-    private var offset: Float = 0f
+    var offset: Float = 0f
         set(value) {
             field = value
             invalidate()
         }
 
-    private var direction: Int = 0
+    var direction: Int = 0
         set(value) {
             field = value
             invalidate()

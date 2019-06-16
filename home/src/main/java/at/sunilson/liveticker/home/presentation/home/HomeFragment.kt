@@ -23,7 +23,7 @@ class HomeFragment : BaseFragment() {
 
     private val viewModel: HomeViewModel by viewModel()
     private val homeNavigation: HomeNavigation by inject()
-    private val adapter: LivetickerRecyclerAdapter by currentScope.inject()
+    private val adapter: LivetickerRecyclerAdapter by inject()
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val binding = generateBinding<FragmentHomeBinding>(inflater, R.layout.fragment_home, container)
@@ -45,6 +45,7 @@ class HomeFragment : BaseFragment() {
             when (it) {
                 HomeViewModel.AddLiveTicker -> homeNavigation.createLiveticker()
                 is HomeViewModel.ShareLiveticker -> homeNavigation.showSharingDialog()
+                is HomeViewModel.OpenLiveticker -> homeNavigation.openLiveticker()
             }
         })
     }

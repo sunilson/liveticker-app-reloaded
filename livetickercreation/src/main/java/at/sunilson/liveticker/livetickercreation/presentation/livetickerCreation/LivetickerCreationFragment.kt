@@ -35,7 +35,6 @@ class LivetickerCreationFragment : BaseFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        ViewCompat.setTranslationZ(view, 100f)
 
         viewModel.navigationEvents.observe(viewLifecycleOwner, Observer { findNavController().popBackStack() })
 

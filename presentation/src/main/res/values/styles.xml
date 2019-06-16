@@ -49,17 +49,18 @@
         <item name="android:background">@color/colorPrimary</item>
     </style>
 
-    <style name="ToolbarTitle" parent="BaseText.SmallHeader">
+    <style name="BaseText.ToolbarText" parent="BaseText">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
-        <item name="android:textAllCaps">true</item>
-        <item name="android:textColor">@android:color/white</item>
+        <item name="android:textSize">20sp</item>
+        <item name="android:textColor">@color/baseTextColorInverted</item>
+        <item name="android:textStyle">bold</item>
     </style>
 
     <style name="ToolbarIcon">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
-        <item name="android:tint">@android:color/white</item>
+        <item name="android:tint">@color/baseTextColorInverted</item>
         <item name="android:padding">@dimen/medium_margin</item>
         <item name="android:background">?selectableItemBackgroundBorderless</item>
     </style>

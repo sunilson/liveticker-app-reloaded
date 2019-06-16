@@ -18,7 +18,7 @@
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintHorizontal_bias="0.25"
-            android:tint="@android:color/white"
+            android:tint="@color/baseTextColorInverted"
             />
 
     <ImageView
@@ -31,7 +31,7 @@
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintHorizontal_bias="0.75"
-            android:tint="@android:color/white"
+            android:tint="@color/baseTextColorInverted"
             />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -30,7 +30,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="?attr/actionBarSize"
                     app:title="Neuer Liveticker"
-                    app:titleTextColor="@android:color/white"
+                    app:titleTextColor="@color/baseTextColorInverted"
                     app:navigationIcon="@drawable/ic_arrow_back_white_24dp"
                     />
 
@@ -39,7 +39,7 @@
         <androidx.core.widget.NestedScrollView
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:background="@android:color/white"
+                android:background="@color/baseTextColorInverted"
                 app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
             <LinearLayout
@@ -148,7 +148,7 @@
                         android:onClick="@{viewModel::createLiveTicker}"
                         app:iconGravity="textStart"
                         app:icon="@drawable/ic_check_black_24dp"
-                        app:iconTint="@android:color/white"
+                        app:iconTint="@color/baseTextColorInverted"
                         />
 
             </LinearLayout>

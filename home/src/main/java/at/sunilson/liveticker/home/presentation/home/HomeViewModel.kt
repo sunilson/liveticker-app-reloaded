@@ -19,6 +19,7 @@ abstract class HomeViewModel : BaseViewModel() {
 
     object AddLiveTicker : NavigationEvent()
     data class ShareLiveticker(val liveTicker: LiveTicker) : NavigationEvent()
+    data class OpenLiveticker(val liveTicker: LiveTicker) : NavigationEvent()
 }
 
 
@@ -40,6 +41,7 @@ class HomeViewModelImpl(
     override fun livetickerSelected(action: LivetickerSelectedAction) {
         when (action) {
             is ShareClicked -> navigationEvents.postValue(ShareLiveticker(action.liveticker))
+            is LivetickerClicked -> navigationEvents.postValue(OpenLiveticker(action.liveticker))
         }
     }
 

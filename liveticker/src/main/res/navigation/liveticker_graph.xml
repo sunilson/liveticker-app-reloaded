@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+            xmlns:app="http://schemas.android.com/apk/res-auto"
+            android:id="@+id/liveticker_graph"
+            xmlns:tools="http://schemas.android.com/tools"
+            app:startDestination="@id/livetickerFragment">
+
+    <fragment
+            android:id="@+id/livetickerFragment"
+            android:name="at.sunilson.liveticker.liveticker.presentation.LivetickerFragment"
+            tools:layout="@layout/fragment_liveticker"
+            android:label="LivetickerFragment"/>
+</navigation>

@@ -62,8 +62,6 @@ class LocationPickerFragment : BaseFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        //Show above previous fragment for animation purposes
-        ViewCompat.setTranslationZ(view, 200f)
 
         val mapFragment = mapCreator(MapOptions(false))
 

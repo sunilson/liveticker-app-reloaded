@@ -21,6 +21,15 @@
             app:popEnterAnim="@anim/move_in_from_left_slightly"
             app:popExitAnim="@anim/move_out_to_right"/>
 
+    <action
+            android:id="@+id/move_to_liveticker"
+            app:destination="@id/liveticker_graph"
+            app:enterAnim="@anim/move_in_from_right"
+            app:exitAnim="@anim/move_out_to_left_slightly"
+            app:popEnterAnim="@anim/move_in_from_left_slightly"
+            app:popExitAnim="@anim/move_out_to_right"/>
+
     <include app:graph="@navigation/liveticker_creation_graph"/>
+    <include app:graph="@navigation/liveticker_graph"/>
 
 </navigation>

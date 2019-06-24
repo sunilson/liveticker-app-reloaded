@@ -1,16 +1,22 @@
 package at.sunilson.liveticker
 
+import android.os.Build
 import android.os.Bundle
+import android.view.View
+import android.view.WindowManager
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
 import at.sunilson.liveticker.authentication.IAuthenticationRepository
+import at.sunilson.liveticker.presentation.MainViewModel
 import kotlinx.android.synthetic.main.activity_main.*
 import org.koin.android.ext.android.inject
+import org.koin.androidx.viewmodel.ext.android.viewModel
+import timber.log.Timber
 
 class MainActivity : AppCompatActivity() {
 
-    private val authenticationRepository: IAuthenticationRepository by inject()
+    private val activityViewModel: MainViewModel by viewModel()
     private val navigator: Navigator by inject()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -18,11 +24,13 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        authenticationRepository.currentUser.observe(this, Observer {
+        activityViewModel.currentUser.observe(this, Observer {
             if (it == null) {
-                //TODO
+                Timber.d("No user logged in, trying anonymous...")
+                //No user logged in, use anonymous user
+                activityViewModel.anonymousLogin()
             } else {
-
+                Timber.d("User $it is logged in")
             }
         })
     }
@@ -36,4 +44,6 @@ class MainActivity : AppCompatActivity() {
         super.onPause()
         navigator.unbind()
     }
+
+
 }

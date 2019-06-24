@@ -6,6 +6,8 @@ import android.os.Build
 import android.util.DisplayMetrics
 import android.view.View
 import android.view.ViewTreeObserver
+import android.widget.Button
+import androidx.appcompat.app.AlertDialog
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
@@ -50,6 +52,34 @@ fun Context.hasPermission(permission: String): Boolean {
         true
     }
 }
+
+/**
+ * Displays an alert to the user
+ *
+ * @param title
+ * @param message
+ * @param positiveButton Text of the confirmation button
+ * @param onAction Callback that emits true if dialog was cancelled and false if confirmed
+ * @return True if confirmed
+ */
+fun Context.showConfirmationDialog(
+    title: String,
+    message: String,
+    positiveButton: String,
+    onAction: (Boolean) -> Unit = {}
+): AlertDialog {
+    val dialog = AlertDialog.Builder(this)
+        .setTitle(title)
+        .setMessage(message)
+        .setPositiveButton(positiveButton) { _, _ -> onAction(true) }
+        .setNegativeButton(R.string.cance) { _, _ -> onAction(false) }.show()
+    val button1 = dialog.findViewById<Button>(android.R.id.button1)
+    val button2 = dialog.findViewById<Button>(android.R.id.button2)
+    button1?.setTextColor(ContextCompat.getColor(this, R.color.baseTextColor))
+    button2?.setTextColor(ContextCompat.getColor(this, R.color.baseTextColor))
+    return dialog
+}
+
 val View.centerX
     get() = x + width / 2
 

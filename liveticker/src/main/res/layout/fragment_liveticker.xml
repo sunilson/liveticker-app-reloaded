@@ -1,165 +1,256 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.motion.widget.MotionLayout
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:app="http://schemas.android.com/apk/res-auto"
-        xmlns:tools="http://schemas.android.com/tools"
-        android:id="@+id/liveticker_motionlayout"
-        android:orientation="vertical"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="@color/disabledBackgroundColor"
-        app:layoutDescription="@xml/liveticker_scroll_animation"
-        >
-
-    <at.sunilson.liveticker.presentation.views.DiagonalCutView
-            android:id="@+id/liveticker_header_container"
+<layout>
+    <data>
+        <variable
+                name="viewModel"
+                type="at.sunilson.liveticker.liveticker.presentation.LivetickerViewModel"/>
+    </data>
+    <androidx.constraintlayout.motion.widget.MotionLayout
+            xmlns:android="http://schemas.android.com/apk/res/android"
+            xmlns:app="http://schemas.android.com/apk/res-auto"
+            xmlns:tools="http://schemas.android.com/tools"
+            android:id="@+id/liveticker_motionlayout"
+            android:orientation="vertical"
             android:layout_width="match_parent"
-            android:layout_height="250dp"
-            android:background="@color/colorPrimary"
-            app:layout_constraintTop_toTopOf="parent"
-            app:direction="bottom"
-            app:offset="50"
-            />
-
-
-    <TextView
-            android:id="@+id/liveticker_title"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:text="Liveticker Titel"
-            style="@style/BaseText.ToolbarText"
-            app:layout_constraintVertical_chainStyle="packed"
-            app:layout_constraintLeft_toLeftOf="@id/liveticker_header_container"
-            app:layout_constraintRight_toRightOf="@id/liveticker_header_container"
-            app:layout_constraintTop_toTopOf="@+id/liveticker_header_container"
-            app:layout_constraintBottom_toTopOf="@+id/liveticker_short_description"/>
-
-    <TextView
-            android:id="@+id/liveticker_short_description"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Dies ist eine Kurzbeschreibung"
-            style="@style/BaseText.SubHeader"
-            app:layout_constraintTop_toBottomOf="@+id/liveticker_title"
-            app:layout_constraintLeft_toLeftOf="@id/liveticker_title"
-            app:layout_constraintRight_toRightOf="@id/liveticker_title"
-            app:layout_constraintBottom_toBottomOf="@id/liveticker_header_container"/>
-
-    <ImageView
-            android:id="@+id/liveticker_info_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:src="@drawable/ic_info_outline_black_24dp"
-            android:tint="@color/baseTextColorInverted"
-            android:padding="@dimen/medium_margin"
-            android:background="?selectableItemBackgroundBorderless"
-            app:layout_constraintTop_toTopOf="@id/liveticker_header_container"
-            app:layout_constraintRight_toRightOf="@id/liveticker_header_container"
-            />
-
-    <at.sunilson.liveticker.presentation.views.LockableRecyclerview
-            android:id="@+id/liveticker_list"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-            tools:itemCount="10"
-            tools:listitem="@layout/liveticker_text_entry"
+            android:layout_height="match_parent"
             android:background="@color/disabledBackgroundColor"
-            app:layout_constraintTop_toBottomOf="@id/liveticker_header_container"
-            app:layout_constraintBottom_toBottomOf="parent"
-            />
-
-    <androidx.coordinatorlayout.widget.CoordinatorLayout
-            android:id="@+id/liveticker_content"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            app:layout_constraintTop_toBottomOf="@id/liveticker_header_container"
-            app:layout_constraintBottom_toBottomOf="parent"
+            app:layoutDescription="@xml/liveticker_scroll_animation"
             >
 
-        <View
-                android:id="@+id/bottom_sheet_backdrop"
+        <LinearLayout
+                android:id="@+id/liveticker_preview_controls"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:alpha="0"
-                android:background="@android:color/black"
-                />
+                android:layout_height="@dimen/controls_height"
+                app:layout_constraintTop_toBottomOf="@id/liveticker_preview_container"
+                android:background="@color/defaultBackgroundColor"
+                android:orientation="horizontal"
+                android:gravity="center"
+                >
 
-        <androidx.constraintlayout.widget.ConstraintLayout
-                android:id="@+id/liveticker_bottom_sheet"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                app:behavior_peekHeight="@dimen/bottom_sheet_peek_height"
-                app:behavior_hideable="true"
-                app:layout_behavior="at.sunilson.liveticker.presentation.views.LockableBottomSheetBehavior">
-
-            <View
-                    android:layout_width="match_parent"
-                    android:layout_height="20dp"
-                    android:background="@drawable/shadow"
-                    app:layout_constraintTop_toTopOf="parent"
-                    />
-
-            <View
-                    android:id="@+id/liveticker_bottom_sheet_content_container"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:background="@drawable/bottom_sheet_background"
-                    app:layout_constraintTop_toTopOf="parent"
-                    android:layout_marginTop="10dp"/>
-
-            <View
-                    android:id="@+id/liveticker_bottom_sheet_anchor"
-                    android:layout_width="75dp"
-                    android:layout_height="3dp"
-                    android:background="#ededed"
-                    app:layout_constraintLeft_toLeftOf="@id/liveticker_bottom_sheet_content_container"
-                    app:layout_constraintRight_toRightOf="@id/liveticker_bottom_sheet_content_container"
-                    app:layout_constraintTop_toTopOf="@id/liveticker_bottom_sheet_content_container"
-                    android:layout_marginTop="10dp"
-                    />
-
-            <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:padding="@dimen/medium_margin"
-                    android:layout_marginTop="@dimen/small_margin"
-                    android:orientation="vertical"
-                    app:layout_constraintTop_toBottomOf="@id/liveticker_bottom_sheet_anchor"
-                    app:layout_constraintLeft_toLeftOf="parent"
+            <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/bla"
+                    style="@style/CardImageButton"
                     >
 
-                <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center_horizontal"
-                        android:text="Kommentare"
+                <ImageView
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:src="@drawable/ic_comment_black_24dp"
+                        android:tint="@color/iconColor"
                         />
-            </LinearLayout>
-        </androidx.constraintlayout.widget.ConstraintLayout>
+            </com.google.android.material.card.MaterialCardView>
 
-        <com.google.android.material.floatingactionbutton.FloatingActionButton
-                android:id="@+id/liveticker_fab"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="bottom|right"
-                android:layout_margin="16dp"
-                app:backgroundTint="@color/colorAccent"
-                app:tint="@color/baseTextColorInverted"
-                app:srcCompat="@drawable/ic_arrow_downward_black_24dp"
+
+            <com.google.android.material.card.MaterialCardView style="@style/CardImageButton">
+
+                <ImageView
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:src="@drawable/ic_share_black_24dp"
+                        android:tint="@color/iconColor"
+                        />
+            </com.google.android.material.card.MaterialCardView>
+
+            <com.google.android.material.card.MaterialCardView style="@style/CardImageButton">
+
+                <ImageView
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:src="@drawable/ic_notifications_black_24dp"
+                        android:tint="@color/iconColor"
+                        />
+            </com.google.android.material.card.MaterialCardView>
+
+            <com.google.android.material.card.MaterialCardView style="@style/CardImageButton">
+
+                <ImageView
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:src="@drawable/ic_favorite_black_24dp"
+                        android:tint="@color/iconColor"
+                        />
+            </com.google.android.material.card.MaterialCardView>
+        </LinearLayout>
+
+        <FrameLayout
+                android:id="@+id/liveticker_preview_container"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/map_height"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toTopOf="@id/map_spacer"
+                android:background="@android:color/white"
                 />
 
-    </androidx.coordinatorlayout.widget.CoordinatorLayout>
+        <Space
+                android:id="@+id/map_spacer"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/arc_height"
+                app:layout_constraintBottom_toBottomOf="@id/liveticker_header_container"
+                />
 
-    <ImageView
-            android:id="@+id/liveticker_profile_image"
-            android:layout_width="75dp"
-            android:layout_height="75dp"
-            app:layout_constraintTop_toBottomOf="@id/liveticker_header_container"
-            app:layout_constraintBottom_toBottomOf="@id/liveticker_header_container"
-            app:layout_constraintLeft_toLeftOf="parent"
-            android:layout_marginLeft="@dimen/container_padding"
-            android:src="@drawable/circle"
-            />
+        <at.sunilson.liveticker.presentation.views.ArcView
+                android:id="@+id/liveticker_header_container"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/header_container_height"
+                android:background="@color/colorPrimary"
+                app:layout_constraintTop_toTopOf="parent"
+                />
 
-</androidx.constraintlayout.motion.widget.MotionLayout>
+        <TextView
+                android:id="@+id/liveticker_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:layout_constraintVertical_chainStyle="packed"
+                app:layout_constraintLeft_toLeftOf="@id/liveticker_header_container"
+                app:layout_constraintRight_toRightOf="@id/liveticker_header_container"
+                app:layout_constraintTop_toTopOf="@+id/liveticker_header_container"
+                app:layout_constraintBottom_toTopOf="@+id/liveticker_short_description"
+                android:text="Liveticker Titel"
+                style="@style/BaseText.ToolbarText"/>
+
+        <TextView
+                android:id="@+id/liveticker_short_description"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Dies ist eine Kurzbeschreibung"
+                style="@style/BaseText.SubHeader"
+                app:layout_constraintTop_toBottomOf="@+id/liveticker_title"
+                app:layout_constraintLeft_toLeftOf="@id/liveticker_title"
+                app:layout_constraintRight_toRightOf="@id/liveticker_title"
+                app:layout_constraintBottom_toBottomOf="@id/liveticker_header_container"/>
+
+        <ImageView
+                android:id="@+id/liveticker_info_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="@dimen/medium_margin"
+                app:layout_constraintTop_toTopOf="@id/liveticker_header_container"
+                app:layout_constraintRight_toRightOf="@id/liveticker_header_container"
+                android:src="@drawable/ic_info_outline_black_24dp"
+                android:tint="@color/baseTextColorInverted"
+                android:background="?selectableItemBackgroundBorderless"
+                />
+
+        <at.sunilson.liveticker.presentation.views.LockableRecyclerview
+                android:id="@+id/liveticker_list"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:paddingBottom="@dimen/bottom_sheet_peek_height"
+                android:clipToPadding="false"
+                android:clipChildren="false"
+                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                tools:itemCount="10"
+                tools:listitem="@layout/liveticker_text_entry"
+                app:layout_constraintTop_toBottomOf="@id/liveticker_preview_controls"
+                app:layout_constraintBottom_toBottomOf="parent"
+                />
+
+        <androidx.coordinatorlayout.widget.CoordinatorLayout
+                android:id="@+id/liveticker_content"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                app:layout_constraintTop_toBottomOf="@id/liveticker_header_container"
+                app:layout_constraintBottom_toBottomOf="parent"
+                >
+
+            <View
+                    android:id="@+id/bottom_sheet_backdrop"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:alpha="0"
+                    android:background="@android:color/black"
+                    />
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                    android:id="@+id/liveticker_bottom_sheet"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    app:behavior_peekHeight="@dimen/bottom_sheet_peek_height"
+                    app:behavior_hideable="true"
+                    app:layout_behavior="at.sunilson.liveticker.presentation.views.LockableBottomSheetBehavior">
+
+                <View
+                        android:layout_width="match_parent"
+                        android:layout_height="20dp"
+                        android:background="@drawable/shadow"
+                        app:layout_constraintTop_toTopOf="parent"
+                        />
+
+                <View
+                        android:id="@+id/liveticker_bottom_sheet_content_container"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:background="@drawable/bottom_sheet_background"
+                        app:layout_constraintTop_toTopOf="parent"
+                        android:layout_marginTop="10dp"/>
+
+                <View
+                        android:id="@+id/liveticker_bottom_sheet_anchor"
+                        android:layout_width="75dp"
+                        android:layout_height="3dp"
+                        android:background="#ededed"
+                        app:layout_constraintLeft_toLeftOf="@id/liveticker_bottom_sheet_content_container"
+                        app:layout_constraintRight_toRightOf="@id/liveticker_bottom_sheet_content_container"
+                        app:layout_constraintTop_toTopOf="@id/liveticker_bottom_sheet_content_container"
+                        android:layout_marginTop="10dp"
+                        />
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:padding="@dimen/medium_margin"
+                        android:layout_marginTop="@dimen/small_margin"
+                        android:orientation="vertical"
+                        app:layout_constraintTop_toBottomOf="@id/liveticker_bottom_sheet_anchor"
+                        app:layout_constraintBottom_toBottomOf="parent">
+
+                    <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            app:layout_constraintTop_toTopOf="parent"
+                            app:layout_constraintLeft_toLeftOf="parent"
+                            app:layout_constraintRight_toRightOf="parent"
+                            android:text="Kommentare"
+                            />
+
+                    <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_margin="@dimen/medium_margin"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintLeft_toLeftOf="parent"
+                            app:layout_constraintRight_toRightOf="parent"
+                            android:text="Hinzufügen"
+                            />
+                </androidx.constraintlayout.widget.ConstraintLayout>
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
+                    android:id="@+id/liveticker_fab"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="bottom|right"
+                    android:layout_margin="16dp"
+                    app:backgroundTint="@color/colorAccent"
+                    app:tint="@color/baseTextColorInverted"
+                    app:srcCompat="@drawable/ic_arrow_downward_black_24dp"
+                    />
+
+        </androidx.coordinatorlayout.widget.CoordinatorLayout>
+
+        <de.hdodenhof.circleimageview.CircleImageView
+                android:id="@+id/liveticker_profile_image"
+                android:layout_width="75dp"
+                android:layout_height="75dp"
+                app:layout_constraintTop_toBottomOf="@id/liveticker_header_container"
+                app:layout_constraintBottom_toBottomOf="@id/liveticker_header_container"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintLeft_toLeftOf="parent"
+                android:src="@drawable/avatar_placeholder"
+                android:padding="2dp"
+                android:background="@drawable/circle"
+                />
+
+    </androidx.constraintlayout.motion.widget.MotionLayout>
+</layout>

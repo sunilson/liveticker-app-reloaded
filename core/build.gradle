@@ -30,6 +30,8 @@ dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
     implementation ThirdPartyLibs.joda
     implementation DILibs.koin
+    implementation Kotlin.coroutines
+    implementation ThirdPartyLibs.result
 }
 repositories {
     mavenCentral()

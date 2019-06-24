@@ -39,7 +39,7 @@
         <androidx.core.widget.NestedScrollView
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:background="@color/baseTextColorInverted"
+                android:background="@color/defaultBackgroundColor"
                 app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
             <LinearLayout
@@ -118,40 +118,58 @@
 
                 </RelativeLayout>
 
-                <FrameLayout
+                <androidx.constraintlayout.widget.ConstraintLayout
                         android:id="@+id/fragment_liveticker_creation_map_container"
                         android:layout_width="match_parent"
                         android:layout_height="200dp"
                         android:layout_marginBottom="@dimen/big_margin"
                         app:showIf="@{viewModel.usePosition}"
+                        android:animateLayoutChanges="true"
                         >
 
                     <FrameLayout
                             android:id="@+id/fragment_liveticker_creation_map"
                             android:layout_width="match_parent"
-                            android:layout_height="200dp"
+                            android:layout_height="match_parent"
                             android:background="@color/disabledBackgroundColor"
                             />
-                </FrameLayout>
 
-                <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@{viewModel.location.toString()}"
-                        />
+                    <View
+                            android:id="@+id/fragment_liveticker_creation_map_text_container"
+                            android:layout_width="match_parent"
+                            android:layout_height="50dp"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:hideIf="@{viewModel.location == null}"
+                            android:background="#80000000"/>
 
+                    <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:padding="@dimen/small_margin"
+                            android:text="@{viewModel.location.name}"
+                            android:textColor="@color/baseTextColorInverted"
+                            app:layout_constraintTop_toTopOf="@id/fragment_liveticker_creation_map_text_container"
+                            app:layout_constraintBottom_toBottomOf="@id/fragment_liveticker_creation_map_text_container"
+                            app:layout_constraintLeft_toLeftOf="parent"
+                            />
 
-                <com.google.android.material.button.MaterialButton
-                        android:layout_width="match_parent"
-                        android:layout_height="@dimen/default_button_height"
-                        android:text="@string/create"
-                        android:onClick="@{viewModel::createLiveTicker}"
-                        app:iconGravity="textStart"
-                        app:icon="@drawable/ic_check_black_24dp"
-                        app:iconTint="@color/baseTextColorInverted"
-                        />
-
+                </androidx.constraintlayout.widget.ConstraintLayout>
             </LinearLayout>
         </androidx.core.widget.NestedScrollView>
+
+        <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+                android:id="@+id/fragment_register_register"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/create"
+                android:onClick="@{viewModel::createLiveTicker}"
+                android:textColor="@color/baseTextColorInverted"
+                app:icon="@drawable/ic_check_black_24dp"
+                app:iconTint="@color/baseTextColorInverted"
+                app:backgroundTint="@color/colorAccent"
+                android:layout_margin="@dimen/medium_margin"
+                android:layout_gravity="bottom|center_horizontal"
+                />
+
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 </layout>

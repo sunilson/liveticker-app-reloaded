@@ -1,5 +1,7 @@
 package at.sunilson.liveticker.liveticker.presentation
 
+import androidx.databinding.ObservableArrayList
+import androidx.databinding.ObservableList
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import at.sunilson.liveticker.core.models.Comment
@@ -12,6 +14,7 @@ import kotlinx.coroutines.launch
 
 abstract class LivetickerViewModel : BaseViewModel() {
     abstract val liveTicker: MutableLiveData<LiveTicker>
+    abstract val entries: ObservableList<LiveTickerEntry>
 
     abstract fun loadLiveticker(id: String)
     abstract fun postLivetickerEntry(liveTickerEntry: LiveTickerEntry)
@@ -24,6 +27,7 @@ class LivetickerViewModelImpl(private val livetickerRepository: LivetickerReposi
     private var livetickerJob: Job? = null
 
     override val liveTicker: MutableLiveData<LiveTicker> = MutableLiveData()
+    override val entries: ObservableList<LiveTickerEntry> = ObservableArrayList()
 
     override fun loadLiveticker(id: String) {
         livetickerJob?.cancel()

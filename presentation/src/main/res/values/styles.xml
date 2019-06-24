@@ -28,6 +28,7 @@
         <item name="android:layout_height">wrap_content</item>
         <item name="android:layout_marginBottom">@dimen/big_margin</item>
         <item name="android:fontFamily">@font/font</item>
+        <item name="android:typeface">@font/font</item>
     </style>
 
     <style name="BaseEditText">

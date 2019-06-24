@@ -14,13 +14,13 @@ import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
 import at.sunilson.liveticker.core.REQUEST_PERMISSIONS
+import at.sunilson.liveticker.core.models.Coordinates
 import at.sunilson.liveticker.livetickercreation.R
 import at.sunilson.liveticker.livetickercreation.databinding.DialogFragmentLocationPickerBinding
 import at.sunilson.liveticker.livetickercreation.presentation.livetickerCreation.LivetickerCreationViewModel
-import at.sunilson.liveticker.location.LocationFinder
-import at.sunilson.liveticker.location.MapFragmentCreator
-import at.sunilson.liveticker.location.MapOptions
+import at.sunilson.liveticker.location.*
 import at.sunilson.liveticker.presentation.baseClasses.BaseFragment
+import at.sunilson.liveticker.presentation.baseClasses.NavigationEvent
 import at.sunilson.liveticker.presentation.hasPermission
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
@@ -38,12 +38,11 @@ import org.koin.androidx.viewmodel.ext.android.viewModel
 /**
  * Displays a map and a search bar to the user in which a location can be selected
  */
-class LocationPickerFragment : BaseFragment() {
+class LocationPickerFragment : BaseFragment<LocationPickerDialogViewModel>() {
 
+    override val viewModel: LocationPickerDialogViewModel by viewModel()
     private val livetickerCreationViewModel: LivetickerCreationViewModel by sharedViewModel()
-    private val viewModel: LocationPickerDialogViewModel by viewModel()
     private val mapCreator: MapFragmentCreator by inject()
-    private val locationFinder: LocationFinder by inject()
 
     private var map: GoogleMap? = null
     private var marker: Marker? = null
@@ -70,35 +69,45 @@ class LocationPickerFragment : BaseFragment() {
             .replace(R.id.dialog_fragment_location_picker_map, mapFragment)
             .commit()
 
-        viewModel.navigationEvents.observe(viewLifecycleOwner, Observer {
-            when (it) {
-                is LocationPickerDialogViewModel.SearchClicked -> {
-                    //Show google autocomplete to user, where a location can be selected
-                    startActivityForResult(
-                        Autocomplete.IntentBuilder(
-                            AutocompleteActivityMode.OVERLAY,
-                            listOf(Place.Field.ID, Place.Field.NAME)
-                        ).build(context ?: return@Observer),
-                        AUTOCOMPLETE_REQUEST_CODE
-                    )
-                }
-                is LocationPickerDialogViewModel.LocationFound -> {
-                    //Return result and close
-                    livetickerCreationViewModel.location.postValue(it.location)
-                    findNavController().popBackStack()
-                }
-            }
-        })
-
+        //Observe user selections and set marker
         viewModel.selectedLocation.observe(viewLifecycleOwner, Observer {
             marker?.remove()
-            marker = map?.addMarker(MarkerOptions().position(it))
+            marker = map?.addMarker(MarkerOptions().position(it.toLatLng()))
         })
 
+        //Wait until map is initialized
         mapFragment.getMapAsync {
             map = it
             findUser()
-            it.setOnMapClickListener { viewModel.selectedLocation.postValue(it) }
+            it.setOnMapClickListener { viewModel.selectedLocation.postValue(it.toCoordinates()) }
+
+            //Load previous data
+            livetickerCreationViewModel.location.value?.let {
+                viewModel.selectedLocation.postValue(it.coordinates)
+            }
+        }
+    }
+
+    override fun onNavigationEvent(event: NavigationEvent) {
+        when (event) {
+            is LocationPickerDialogViewModel.SearchClicked -> {
+                //Show google autocomplete to user, where a location can be selected
+                startActivityForResult(
+                    Autocomplete.IntentBuilder(
+                        AutocompleteActivityMode.OVERLAY,
+                        listOf(Place.Field.ID, Place.Field.NAME)
+                    ).build(context ?: return),
+                    AUTOCOMPLETE_REQUEST_CODE
+                )
+            }
+            is LocationPickerDialogViewModel.LocationFound -> {
+                //Return result and close
+                livetickerCreationViewModel.location.postValue(event.location)
+                findNavController().popBackStack()
+            }
+            is LocationPickerDialogViewModel.UserFound -> {
+                map?.moveCamera(CameraUpdateFactory.newLatLngZoom(event.coordinates.toLatLng(), DEFAULT_ZOOM_LEVEL))
+            }
         }
     }
 
@@ -110,13 +119,7 @@ class LocationPickerFragment : BaseFragment() {
             return
         }
 
-        locationFinder {
-            it.fold({ result ->
-                map?.moveCamera(CameraUpdateFactory.newLatLngZoom(LatLng(result.latitude, result.longitude), 10f))
-            }, {
-                //TODO Show error message
-            })
-        }
+        viewModel.searchUser()
     }
 
     //Handle autocomplete result
@@ -124,8 +127,8 @@ class LocationPickerFragment : BaseFragment() {
         if (requestCode == AUTOCOMPLETE_REQUEST_CODE) {
             if (resultCode == RESULT_OK) {
                 //Move to selected place
-                val place = Autocomplete.getPlaceFromIntent(data ?: return)
-                map?.moveCamera(CameraUpdateFactory.newLatLngZoom(place.latLng, 5f))
+                val place = Autocomplete.getPlaceFromIntent(data ?: return) ?: return
+                map?.moveCamera(CameraUpdateFactory.newLatLngZoom(place.latLng, DEFAULT_ZOOM_LEVEL))
             } else if (resultCode == AutocompleteActivity.RESULT_ERROR) {
                 //TODO Show error message
             }
@@ -145,5 +148,6 @@ class LocationPickerFragment : BaseFragment() {
 
     companion object {
         const val AUTOCOMPLETE_REQUEST_CODE = 1
+        const val DEFAULT_ZOOM_LEVEL = 10f
     }
 }

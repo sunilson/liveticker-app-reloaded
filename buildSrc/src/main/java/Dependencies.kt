@@ -38,6 +38,7 @@ object ThirdPartyLibs {
     val joda = "joda-time:joda-time:2.10.2"
     val result = "com.github.kittinunf.result:result:2.2.0"
     val resultCoroutines = "com.github.kittinunf.result:result-coroutines:2.2.0"
+    val circularImageView = "de.hdodenhof:circleimageview:3.0.0"
     val glide = "com.github.bumptech.glide:glide:4.9.0"
 }
 

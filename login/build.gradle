@@ -42,6 +42,7 @@ dependencies {
     implementation DILibs.koin
     implementation DILibs.koinLifecycle
     implementation DILibs.koinViewModel
+    implementation ThirdPartyLibs.timber
     implementation GoogleLibs.material_components
 }
 repositories {

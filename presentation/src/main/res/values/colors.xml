@@ -7,6 +7,10 @@
     <color name="defaultBackgroundColor">#fff</color>
     <color name="disabledBackgroundColor">#ededed</color>
     <color name="baseTextColor">#333333</color>
+    <color name="iconColor">#777777</color>
     <color name="baseTextColorInverted">@android:color/white</color>
     <color name="subHeaderTextColor">#A8A8A8</color>
+
+    <color name="lightStatusBarColor">#ededed</color>
+    <color name="statusBarColor">#182024</color>
 </resources>

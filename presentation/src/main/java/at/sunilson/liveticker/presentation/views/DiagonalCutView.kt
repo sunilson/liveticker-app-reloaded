@@ -15,7 +15,7 @@ class DiagonalCutView @JvmOverloads constructor(context: Context, attributeSet: 
     private val pdMode = PorterDuffXfermode(PorterDuff.Mode.CLEAR)
     private val path = Path()
 
-    var offset: Float = 0f
+    var offset: Int = 0
         set(value) {
             field = value
             invalidate()
@@ -35,7 +35,7 @@ class DiagonalCutView @JvmOverloads constructor(context: Context, attributeSet: 
             0, 0
         ).apply {
             try {
-                offset = getFloat(R.styleable.DiagonalCutView_offset, 100f)
+                offset = getDimensionPixelSize(R.styleable.DiagonalCutView_offset, 0)
                 direction = getInt(R.styleable.DiagonalCutView_direction, 0)
             } finally {
                 recycle()
@@ -58,12 +58,12 @@ class DiagonalCutView @JvmOverloads constructor(context: Context, attributeSet: 
             }
             1 -> {
                 path.moveTo(0f, 0f)
-                path.lineTo(width.toFloat(), offset)
+                path.lineTo(width.toFloat(), offset.toFloat())
                 path.lineTo(width.toFloat(), 0f)
             }
             2 -> {
                 path.moveTo(0f, height.toFloat())
-                path.lineTo(offset, 0f)
+                path.lineTo(offset.toFloat(), 0f)
                 path.lineTo(0f, 0f)
             }
             3 -> {

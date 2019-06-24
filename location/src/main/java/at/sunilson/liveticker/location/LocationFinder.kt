@@ -17,7 +17,7 @@ internal class LocationFinderImpl(private val client: FusedLocationProviderClien
     override fun findUserLocation(cb: (Result<Location, Exception>) -> Unit) {
         client.lastLocation.addOnCompleteListener {
             when {
-                it.isSuccessful -> cb(Result.of(it.result ?: return@addOnCompleteListener))
+                it.isSuccessful -> cb(Result.success(it.result ?: return@addOnCompleteListener))
                 it.exception != null -> cb(Result.error(it.exception ?: return@addOnCompleteListener))
                 else -> cb(Result.error(Exception()))
             }

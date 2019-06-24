@@ -1,16 +1,24 @@
 package at.sunilson.liveticker.core.models
 
+import java.text.SimpleDateFormat
 import java.util.*
 
 class LiveTicker(
     override var id: String = "",
     val authorId: String = "",
+    val authorName: String = "",
     val title: String = "",
-    val organizer: String = "",
-    val plannedStartDate: Date = Date(),
-    val finishedDate: Date = Date(),
-    val imageUrl: String = "",
+    val shortDescription: String = "",
+    val description: String = "",
+    val creationDate: Date? = Date(),
+    val plannedStartDate: Date? = null,
+    val finishedDate: Date? = null,
     val started: Boolean = false,
     val finished: Boolean = false,
     val location: Location? = null
-): ModelWithId {}
+) : ModelWithId {
+    val formattedCreationDate: String
+        get() {
+            return SimpleDateFormat("dd.mm.YYYY", Locale.getDefault()).format(creationDate)
+        }
+}

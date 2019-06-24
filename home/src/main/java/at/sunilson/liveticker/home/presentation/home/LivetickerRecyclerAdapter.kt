@@ -4,6 +4,7 @@ import android.view.ViewGroup
 import androidx.databinding.ViewDataBinding
 import androidx.recyclerview.widget.RecyclerView
 import at.sunilson.liveticker.core.models.LiveTicker
+import at.sunilson.liveticker.home.BR
 import at.sunilson.liveticker.home.R
 import at.sunilson.liveticker.presentation.baseClasses.BaseRecyclerAdapter
 import kotlinx.android.synthetic.main.liveticker_list_item.view.*
@@ -27,8 +28,10 @@ class LivetickerRecyclerAdapter : BaseRecyclerAdapter<LiveTicker>(mutableListOf(
     }
 
     override fun bindViewHolder(binding: ViewDataBinding, obj: LiveTicker) {
+        binding.setVariable(BR.obj, obj)
     }
 
     override fun unbindViewHolder(binding: ViewDataBinding) {
+        binding.setVariable(BR.obj, null)
     }
 }

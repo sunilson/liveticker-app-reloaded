@@ -35,6 +35,7 @@ dependencies {
     implementation project(path: ":sharing")
     implementation project(path: ":core")
     implementation project(path: ":firebasecore")
+    implementation project(path: ":location")
 
     implementation AndroidX.appcompat
     implementation AndroidX.constraintLayout
@@ -47,6 +48,7 @@ dependencies {
     implementation DILibs.koinViewModel
     implementation GoogleLibs.material_components
     implementation ThirdPartyLibs.timber
+    implementation ThirdPartyLibs.circularImageView
 
     implementation UILibs.recyclerView_animations
 }

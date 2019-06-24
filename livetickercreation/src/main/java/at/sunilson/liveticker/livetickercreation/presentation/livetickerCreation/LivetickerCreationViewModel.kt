@@ -6,6 +6,8 @@ import androidx.lifecycle.viewModelScope
 import at.sunilson.liveticker.core.models.LiveTicker
 import at.sunilson.liveticker.core.models.Location
 import at.sunilson.liveticker.livetickercreation.data.LivetickerCreationRepository
+import at.sunilson.liveticker.livetickercreation.domain.CreateLivetickerParams
+import at.sunilson.liveticker.livetickercreation.domain.CreateLivetickerUseCase
 import at.sunilson.liveticker.presentation.baseClasses.Back
 import at.sunilson.liveticker.presentation.baseClasses.BaseViewModel
 import kotlinx.coroutines.launch
@@ -22,7 +24,8 @@ abstract class LivetickerCreationViewModel : BaseViewModel() {
     abstract fun reset()
 }
 
-class LivetickerCreationViewModelImpl(private val repository: LivetickerCreationRepository) : LivetickerCreationViewModel() {
+class LivetickerCreationViewModelImpl(private val createLivetickerUseCase: CreateLivetickerUseCase) :
+    LivetickerCreationViewModel() {
     override val usePosition: MutableLiveData<Boolean> = MutableLiveData()
     override val title: MutableLiveData<String> = MutableLiveData()
     override val shortDescription: MutableLiveData<String> = MutableLiveData()
@@ -34,10 +37,23 @@ class LivetickerCreationViewModelImpl(private val repository: LivetickerCreation
     }
 
     override fun createLiveTicker(view: View?) {
+        loading.postValue(true)
+
         viewModelScope.launch {
-            //val id = authenticationRepository.getCurrentUserNow()?.id ?: return@launch
-            repository.createLiveticker(LiveTicker("", "", "", "", Date(), Date(), "", false, false))
-            navigationEvents.postValue(Back)
+            createLivetickerUseCase(
+                CreateLivetickerParams(
+                    title.value,
+                    shortDescription.value,
+                    description.value,
+                    location.value
+                )
+            ).fold(
+                { navigationEvents.postValue(Back) },
+                {
+                    //TODO
+                    loading.postValue(false)
+                }
+            )
         }
     }
 

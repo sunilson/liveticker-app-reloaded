@@ -5,6 +5,7 @@ import android.view.View.GONE
 import android.view.View.VISIBLE
 import android.widget.ImageView
 import androidx.databinding.BindingAdapter
+import androidx.databinding.ObservableList
 import androidx.recyclerview.widget.RecyclerView
 import at.sunilson.liveticker.presentation.baseClasses.BaseRecyclerAdapter
 import at.sunilson.liveticker.presentation.interfaces.ItemSelectedListener
@@ -40,9 +41,17 @@ fun View.hide(value: Boolean?) {
 
 @BindingAdapter("app:entries")
 fun <T> RecyclerView.setEntries(entries: List<T>?) {
-    if (entries != null && entries.isNotEmpty()) {
+    if (entries != null) {
         val adapter = this.adapter as? BaseRecyclerAdapter<T>
         adapter?.addAll(entries)
+    }
+}
+
+@BindingAdapter("app:observableEntries")
+fun <T> RecyclerView.setObservableEntries(entries: ObservableList<T>?) {
+    if (entries != null) {
+        val adapter = this.adapter as? BaseRecyclerAdapter<T>
+        adapter?.addObservableList(entries)
     }
 }
 

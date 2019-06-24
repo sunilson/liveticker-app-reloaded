@@ -9,29 +9,40 @@ import androidx.constraintlayout.motion.widget.MotionLayout
 import androidx.constraintlayout.motion.widget.MotionScene
 import androidx.constraintlayout.widget.ConstraintLayout
 import at.sunilson.liveticker.liveticker.R
+import at.sunilson.liveticker.liveticker.databinding.FragmentLivetickerBinding
+import at.sunilson.liveticker.location.MapFragmentCreator
+import at.sunilson.liveticker.location.MapOptions
 import at.sunilson.liveticker.presentation.baseClasses.BaseFragment
+import at.sunilson.liveticker.presentation.baseClasses.BaseViewModel
 import at.sunilson.liveticker.presentation.views.LockableBottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetBehavior.STATE_COLLAPSED
 import com.google.android.material.bottomsheet.BottomSheetBehavior.STATE_HIDDEN
 import kotlinx.android.synthetic.main.fragment_liveticker.*
 import org.koin.android.ext.android.inject
+import org.koin.androidx.viewmodel.ext.android.viewModel
 import timber.log.Timber
 
-class LivetickerFragment : BaseFragment() {
+class LivetickerFragment : BaseFragment<LivetickerViewModel>() {
 
+    override val viewModel: LivetickerViewModel by viewModel()
     private val adapter: LivetickerRecyclerAdapter by inject()
+    private val mapFragmentCreator: MapFragmentCreator by inject()
 
     private val bottomSheetBehavior: LockableBottomSheetBehavior<ConstraintLayout> by lazy {
         BottomSheetBehavior.from(liveticker_bottom_sheet) as LockableBottomSheetBehavior
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        return inflater.inflate(R.layout.fragment_liveticker, container, false)
+        val binding = generateBinding<FragmentLivetickerBinding>(inflater, R.layout.fragment_liveticker, container)
+        binding.viewModel = viewModel
+        return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        setStatusBarColor(R.color.statusBarColor)
 
         liveticker_list.adapter = adapter.apply {
             //TODO
@@ -75,5 +86,14 @@ class LivetickerFragment : BaseFragment() {
                 }
             }
         })
+
+        if (!isStateSaved && isAdded) {
+            childFragmentManager
+                .beginTransaction()
+                .replace(R.id.liveticker_preview_container, mapFragmentCreator(MapOptions(true)))
+                .commit()
+        }
+
+        bla.setOnClickListener { }
     }
 }

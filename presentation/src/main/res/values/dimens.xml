@@ -9,7 +9,9 @@
     <dimen name="medium_margin">16dp</dimen>
     <dimen name="big_margin">20dp</dimen>
     <dimen name="bigger_margin">32dp</dimen>
-
+    <dimen name="container_margin">@dimen/big_margin</dimen>
+    <dimen name="card_radius">10dp</dimen>
+    <dimen name="card_elevation">3dp</dimen>
     <dimen name="small_header_text_size">16sp</dimen>
     <dimen name="header_text_size">28sp</dimen>
     <dimen name="sub_header_text_size">12sp</dimen>

@@ -7,9 +7,7 @@ import com.google.firebase.firestore.*
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.ReceiveChannel
-import kotlinx.coroutines.channels.produce
 import kotlinx.coroutines.channels.sendBlocking
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlin.coroutines.Continuation
 import kotlin.coroutines.resume
@@ -19,13 +17,7 @@ import kotlin.coroutines.resume
  */
 suspend fun DocumentReference.awaitDelete(): Result<Unit, Exception> {
     return suspendCancellableCoroutine { cont ->
-        delete().addOnCompleteListener(generateAddCompletionListener(cont))
-    }
-}
-
-suspend inline fun <reified T : Any> DocumentReference.awaitDeleteResult(data: Any): Result<T, Exception> {
-    return suspendCancellableCoroutine { cont ->
-        delete().addOnCompleteListener(generateAddResultCompletionListener(cont))
+        delete().addOnCompleteListener(generateCompletionListener(cont))
     }
 }
 
@@ -34,34 +26,27 @@ suspend inline fun <reified T : Any> DocumentReference.awaitDeleteResult(data: A
  */
 suspend fun DocumentReference.awaitSet(data: Any): Result<Unit, Exception> {
     return suspendCancellableCoroutine { cont ->
-        set(data).addOnCompleteListener(generateAddCompletionListener(cont))
-    }
-}
-
-suspend inline fun <reified T : Any> DocumentReference.awaitSetResult(data: Any): Result<T, Exception> {
-    return suspendCancellableCoroutine { cont ->
-        set(data).addOnCompleteListener(generateAddResultCompletionListener(cont))
+        set(data).addOnCompleteListener(generateCompletionListener(cont))
     }
 }
 
 /**
  * Adds to a [CollectionReference] the given [data] and waits for the callback to finish.
  */
-suspend fun CollectionReference.awaitAdd(data: Any): Result<Unit, Exception> {
+suspend fun CollectionReference.awaitAdd(data: Any): Result<String, Exception> {
     return suspendCancellableCoroutine { cont ->
-        add(data).addOnCompleteListener(generateAddCompletionListener(cont))
+        add(data).addOnCompleteListener(generateIdCompletionListener(cont))
     }
 }
 
-suspend inline fun <reified T : Any> CollectionReference.awaitAddResult(data: Any): Result<T, Exception> {
-    return suspendCancellableCoroutine { cont ->
-        add(data).addOnCompleteListener(generateAddResultCompletionListener(cont))
-    }
-}
-
+@ExperimentalCoroutinesApi
 inline fun <reified T : ModelWithId> Query.observe(): ReceiveChannel<List<T>> {
-    val channel = Channel<List<T>>()
     var listener: ListenerRegistration? = null
+    val channel = Channel<List<T>>().apply {
+        invokeOnClose {
+            listener?.remove()
+        }
+    }
 
     listener = addSnapshotListener { querySnapshot, exception ->
         exception?.let {
@@ -73,6 +58,38 @@ inline fun <reified T : ModelWithId> Query.observe(): ReceiveChannel<List<T>> {
         channel.sendBlocking(querySnapshot?.map { document ->
             document.toObject(T::class.java).apply { id = document.id }
         } ?: return@addSnapshotListener)
+    }
+
+    return channel
+}
+
+@ExperimentalCoroutinesApi
+inline fun <reified T : ModelWithId> Query.observeChanges(): ReceiveChannel<ObservationResult<T>> {
+    var listener: ListenerRegistration? = null
+    val channel = Channel<ObservationResult<T>>().apply {
+        invokeOnClose {
+            listener?.remove()
+        }
+    }
+
+    listener = addSnapshotListener { querySnapshot, exception ->
+        exception?.let {
+            listener?.remove()
+            channel.close(it)
+            return@addSnapshotListener
+        }
+
+        querySnapshot?.documentChanges?.forEach {
+            val data = it.document.toObject(T::class.java).apply { id = it.document.id }
+
+            channel.sendBlocking(
+                when (it.type) {
+                    DocumentChange.Type.ADDED -> ObservationResult.Added(data)
+                    DocumentChange.Type.REMOVED -> ObservationResult.Deleted(data)
+                    DocumentChange.Type.MODIFIED -> ObservationResult.Modified(data)
+                }
+            )
+        }
     }
 
     return channel
@@ -102,30 +119,48 @@ inline fun <reified T : ModelWithId> DocumentReference.observe(): ReceiveChannel
     return channel
 }
 
-fun <T> generateAddCompletionListener(cont: Continuation<Result<Unit, Exception>>): OnCompleteListener<T> {
+fun <T> generateCompletionListener(cont: Continuation<Result<Unit, FirebaseOperationException>>): OnCompleteListener<T> {
     return OnCompleteListener {
         when {
-            it.isSuccessful -> cont.resume(Result.of(Unit))
-            it.isCanceled -> cont.resume(Result.error(FirebaseCancelledException()))
-            else -> cont.resume(Result.error(it.exception ?: Exception("A firebase error has occured!")))
+            it.exception != null -> cont.resume(Result.error(Failed(it.exception?.message)))
+            it.isCanceled -> cont.resume(Result.error(Cancelled()))
+            it.isSuccessful -> cont.resume(Result.success(Unit))
+            else -> cont.resume(Result.error(Failed("")))
         }
     }
 }
 
-inline fun <T, reified R : Any> generateAddResultCompletionListener(cont: Continuation<Result<R, Exception>>): OnCompleteListener<T> {
+fun <T> generateIdCompletionListener(cont: Continuation<Result<String, FirebaseOperationException>>): OnCompleteListener<T> {
     return OnCompleteListener {
-        val result = it.result as? R
+
+        val id = (it.result as? DocumentReference)?.id
 
         when {
-            result == null -> {
-                cont.resume(Result.error(EmptyResultException()))
-            }
+            it.exception != null -> cont.resume(Result.error(Failed(it.exception?.message)))
+            it.isCanceled -> cont.resume(Result.error(Cancelled()))
+            id == null -> cont.resume(Result.error(EmptyResult()))
+            it.isSuccessful -> cont.resume(Result.success(id))
+            else -> cont.resume(Result.error(Failed("")))
+        }
+    }
+}
+
+fun <T : Any> generateResultCompletionListener(cont: Continuation<Result<T, FirebaseOperationException>>): OnCompleteListener<T> {
+    return OnCompleteListener {
+        val result = it.result
+
+        when {
+            it.exception != null -> cont.resume(Result.error(Failed(it.exception?.message)))
+            it.isCanceled -> cont.resume(Result.error(Cancelled()))
+            result == null -> cont.resume(Result.error(EmptyResult()))
             it.isSuccessful -> cont.resume(Result.success(result))
-            it.isCanceled -> cont.resume(Result.error(FirebaseCancelledException()))
-            else -> cont.resume(Result.error(it.exception ?: Exception("A firebase error has occured!")))
+            else -> cont.resume(Result.error(Failed("")))
         }
     }
 }
 
-class FirebaseCancelledException : Exception()
-class EmptyResultException : Exception()
+
+sealed class FirebaseOperationException(message: String? = null) : Exception(message)
+class Cancelled : FirebaseOperationException()
+class EmptyResult : FirebaseOperationException()
+class Failed(message: String?) : FirebaseOperationException(message)

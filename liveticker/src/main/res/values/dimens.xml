@@ -1,4 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <dimen name="bottom_sheet_peek_height">75dp</dimen>
+    <dimen name="bottom_sheet_peek_height_with_padding">90dp</dimen>
+    <dimen name="test">100dp</dimen>
+    <dimen name="arc_height">35dp</dimen>
+    <dimen name="map_height">200dp</dimen>
+    <dimen name="header_container_height">150dp</dimen>
+    <dimen name="controls_height">60dp</dimen>
+    <dimen name="controls_height_negative">-60dp</dimen>
 </resources>

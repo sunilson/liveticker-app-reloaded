@@ -14,12 +14,28 @@
             />
 
     <action
+            android:id="@+id/move_to_login"
+            app:destination="@id/login_graph"
+            app:enterAnim="@anim/move_in_from_right"
+            app:exitAnim="@anim/move_out_to_left_slightly"
+            app:popEnterAnim="@anim/move_in_from_left_slightly"
+            app:popExitAnim="@anim/move_out_to_right"/>
+
+    <action
             android:id="@+id/move_to_liveticker_creation"
             app:destination="@id/liveticker_creation_graph"
             app:enterAnim="@anim/move_in_from_right"
             app:exitAnim="@anim/move_out_to_left_slightly"
             app:popEnterAnim="@anim/move_in_from_left_slightly"
             app:popExitAnim="@anim/move_out_to_right"/>
+
+    <action
+            android:id="@+id/move_to_home"
+            app:destination="@id/home_graph"
+            app:popUpTo="@id/app_graph"
+            app:enterAnim="@anim/move_in_from_left_slightly"
+            app:exitAnim="@anim/move_out_to_right"/>
+
 
     <action
             android:id="@+id/move_to_liveticker"

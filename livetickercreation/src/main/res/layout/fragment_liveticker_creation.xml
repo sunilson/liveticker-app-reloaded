@@ -159,15 +159,10 @@
 
         <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
                 android:id="@+id/fragment_register_register"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                style="@style/BaseExtendedFabStyle"
                 android:text="@string/create"
                 android:onClick="@{viewModel::createLiveTicker}"
-                android:textColor="@color/baseTextColorInverted"
                 app:icon="@drawable/ic_check_black_24dp"
-                app:iconTint="@color/baseTextColorInverted"
-                app:backgroundTint="@color/colorAccent"
-                android:layout_margin="@dimen/medium_margin"
                 android:layout_gravity="bottom|center_horizontal"
                 />
 

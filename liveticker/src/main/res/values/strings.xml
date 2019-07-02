@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">liveticker</string>
+    <string name="add">Hinzufügen</string>
 </resources>

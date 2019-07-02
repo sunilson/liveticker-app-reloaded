@@ -3,14 +3,17 @@ package at.sunilson.liveticker.home.presentation.home
 import android.view.View
 import androidx.databinding.ObservableArrayList
 import androidx.databinding.ObservableList
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import at.sunilson.liveticker.authentication.IAuthenticationRepository
 import at.sunilson.liveticker.core.models.LiveTicker
 import at.sunilson.liveticker.firebasecore.ObservationResult
-import at.sunilson.liveticker.home.data.HomeRepository
+import at.sunilson.liveticker.home.domain.DeleteLivetickerUsecase
+import at.sunilson.liveticker.home.domain.GetLivetickersUseCase
 import at.sunilson.liveticker.presentation.baseClasses.BaseViewModel
 import at.sunilson.liveticker.presentation.baseClasses.NavigationEvent
+import at.sunilson.liveticker.presentation.removeWithId
+import at.sunilson.liveticker.presentation.updateWithId
+import com.github.kittinunf.result.coroutines.success
 import com.github.kittinunf.result.success
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -18,7 +21,7 @@ import kotlinx.coroutines.launch
 abstract class HomeViewModel : BaseViewModel() {
     abstract val livetickers: ObservableList<LiveTicker>
 
-    abstract fun refresh()
+    abstract suspend fun refresh()
     abstract fun addLiveticker(view: View? = null)
     abstract fun deleteLiveticker(id: String)
     abstract fun livetickerSelected(action: LivetickerSelectedAction)
@@ -32,14 +35,15 @@ abstract class HomeViewModel : BaseViewModel() {
 
 
 class HomeViewModelImpl(
-    private val repository: HomeRepository,
-    private val authenticationRepository: IAuthenticationRepository
+    private val authenticationRepository: IAuthenticationRepository,
+    private val getLivetickersUseCase: GetLivetickersUseCase,
+    private val deleteLivetickerUsecase: DeleteLivetickerUsecase
 ) : HomeViewModel() {
 
     override val livetickers: ObservableList<LiveTicker> = ObservableArrayList()
 
     init {
-        refresh()
+        viewModelScope.launch(Dispatchers.Default) { refresh() }
     }
 
     override fun addLiveticker(view: View?) {
@@ -62,32 +66,41 @@ class HomeViewModelImpl(
 
     override fun deleteLiveticker(id: String) {
         viewModelScope.launch {
-            repository.deleteLiveticker(id).fold({
-                //TODO
-            }, {
-                //TODOf
-            })
+            deleteLivetickerUsecase(id).fold(
+                {},
+                {
+                    //TODO
+                }
+            )
         }
     }
 
-    override fun refresh() {
-        authenticationRepository.getCurrentUserNow().success {
-            viewModelScope.launch(Dispatchers.Default) {
-                for (result in repository.getLivetickers(it.id)) {
-                    launch(Dispatchers.Main) {
-                        when (result) {
-                            is ObservationResult.Added<LiveTicker> -> livetickers.add(result.data)
-                            is ObservationResult.Modified<LiveTicker> -> {
-                                val index = livetickers.indexOfFirst { it.id == result.data.id }
-                                livetickers[index] = result.data
-                            }
-                            is ObservationResult.Deleted<LiveTicker> -> {
-                                val index = livetickers.indexOfFirst { it.id == result.data.id }
-                                livetickers.removeAt(index)
-                            }
-                        }
+    override suspend fun refresh() {
+        val (user, authError) = authenticationRepository.getCurrentUserNow()
+
+        if (user == null || authError != null) {
+            //TODO
+            return
+        }
+
+        getLivetickersUseCase(user.id).success {
+            for (result in it) {
+                result.fold(
+                    { observationResult -> updateLivetickers(observationResult) },
+                    {
+                        //TODO
                     }
-                }
+                )
+            }
+        }
+    }
+
+    private fun updateLivetickers(result: ObservationResult<LiveTicker>) {
+        viewModelScope.launch(Dispatchers.Main) {
+            when (result) {
+                is ObservationResult.Added -> livetickers.add(result.data)
+                is ObservationResult.Modified -> livetickers.updateWithId(result.data)
+                is ObservationResult.Deleted -> livetickers.removeWithId(result.data)
             }
         }
     }

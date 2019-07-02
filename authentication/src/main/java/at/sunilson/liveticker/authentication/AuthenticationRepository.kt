@@ -4,6 +4,7 @@ import at.sunilson.liveticker.core.models.User
 import at.sunilson.liveticker.firebasecore.generateCompletionListener
 import at.sunilson.liveticker.firebasecore.generateResultCompletionListener
 import com.github.kittinunf.result.Result
+import com.github.kittinunf.result.coroutines.SuspendableResult
 import com.google.firebase.auth.AuthResult
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.UserProfileChangeRequest
@@ -17,9 +18,9 @@ interface IAuthenticationRepository {
     fun observeAuthentication(): ReceiveChannel<User?>
     fun getCurrentUserNow(): Result<User, AuthenticationException>
 
-    suspend fun anonymousLogin(): Result<Unit, Exception>
-    suspend fun login(email: String, password: String): Result<Unit, Exception>
-    suspend fun register(email: String, userName: String, password: String): Result<Unit, Exception>
+    suspend fun anonymousLogin(): SuspendableResult<Unit, Exception>
+    suspend fun login(email: String, password: String): SuspendableResult<Unit, Exception>
+    suspend fun register(email: String, userName: String, password: String): SuspendableResult<Unit, Exception>
     fun logout()
 }
 
@@ -27,8 +28,8 @@ internal class FirebaseAuthenticationRepository(private val firebaseAuth: Fireba
 
     override fun getCurrentUserNow(): Result<User, AuthenticationException> {
         val user = firebaseAuth.currentUser
-        return if (user == null) Result.error(NotLoggedIn())
-        else Result.success(User(user.uid, user.displayName ?: "Anonymous", user.isAnonymous))
+        if (user == null) return Result.error(NotLoggedIn())
+        else return Result.success(User(user.uid, user.displayName ?: "Anonymous", user.isAnonymous))
     }
 
     @ExperimentalCoroutinesApi
@@ -51,13 +52,13 @@ internal class FirebaseAuthenticationRepository(private val firebaseAuth: Fireba
         return channel
     }
 
-    override suspend fun anonymousLogin(): Result<Unit, Exception> {
+    override suspend fun anonymousLogin(): SuspendableResult<Unit, Exception> {
         return suspendCancellableCoroutine {
             firebaseAuth.signInAnonymously().addOnCompleteListener(generateCompletionListener(it))
         }
     }
 
-    override suspend fun login(email: String, password: String): Result<Unit, Exception> {
+    override suspend fun login(email: String, password: String): SuspendableResult<Unit, Exception> {
         return suspendCancellableCoroutine {
             firebaseAuth.signInWithEmailAndPassword(email, password)
                 .addOnCompleteListener(generateCompletionListener(it))
@@ -68,14 +69,14 @@ internal class FirebaseAuthenticationRepository(private val firebaseAuth: Fireba
         firebaseAuth.signOut()
     }
 
-    override suspend fun register(email: String, userName: String, password: String): Result<Unit, Exception> {
-        val (result, error) = suspendCancellableCoroutine<Result<AuthResult, Exception>> {
+    override suspend fun register(email: String, userName: String, password: String): SuspendableResult<Unit, Exception> {
+        val (result, error) = suspendCancellableCoroutine<SuspendableResult<AuthResult, Exception>> {
             firebaseAuth.createUserWithEmailAndPassword(email, password)
                 .addOnCompleteListener(generateResultCompletionListener(it))
         }
 
-        if (error != null) return Result.error(error)
-        if (result == null) return Result.error(Exception())
+        if (error != null) return SuspendableResult.error(error)
+        if (result == null) return SuspendableResult.error(Exception())
 
         return suspendCancellableCoroutine {
             result

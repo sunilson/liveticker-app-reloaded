@@ -1,10 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout>
+
     <data>
+
         <variable
                 name="viewModel"
                 type="at.sunilson.liveticker.liveticker.presentation.LivetickerViewModel"/>
     </data>
+
     <androidx.constraintlayout.motion.widget.MotionLayout
             xmlns:android="http://schemas.android.com/apk/res/android"
             xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -200,12 +203,14 @@
                         android:layout_width="match_parent"
                         android:layout_height="0dp"
                         android:padding="@dimen/medium_margin"
+                        android:clipToPadding="false"
                         android:layout_marginTop="@dimen/small_margin"
                         android:orientation="vertical"
                         app:layout_constraintTop_toBottomOf="@id/liveticker_bottom_sheet_anchor"
                         app:layout_constraintBottom_toBottomOf="parent">
 
                     <TextView
+                            android:id="@+id/comments_title"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             app:layout_constraintTop_toTopOf="parent"
@@ -214,14 +219,27 @@
                             android:text="Kommentare"
                             />
 
+                    <androidx.recyclerview.widget.RecyclerView
+                            android:id="@+id/comment_list"
+                            android:layout_width="match_parent"
+                            android:layout_height="0dp"
+                            app:layout_constraintTop_toBottomOf="@id/comments_title"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                            app:observableEntries="@{viewModel.comments}"
+                            tools:listitem="@layout/liveticker_comment_entry"
+                            tools:itemCount="10"
+                            />
+
                     <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_margin="@dimen/medium_margin"
+                            style="@style/BaseExtendedFabStyle"
+                            android:id="@+id/add_comment_button"
+                            android:onClick="@{viewModel::showAddCommentDialog}"
+                            app:icon="@drawable/ic_add_black_24dp"
                             app:layout_constraintBottom_toBottomOf="parent"
                             app:layout_constraintLeft_toLeftOf="parent"
                             app:layout_constraintRight_toRightOf="parent"
-                            android:text="Hinzufügen"
+                            android:text="@string/add"
                             />
                 </androidx.constraintlayout.widget.ConstraintLayout>
             </androidx.constraintlayout.widget.ConstraintLayout>

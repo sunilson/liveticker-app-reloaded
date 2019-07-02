@@ -9,5 +9,9 @@
             android:id="@+id/livetickerFragment"
             android:name="at.sunilson.liveticker.liveticker.presentation.LivetickerFragment"
             tools:layout="@layout/fragment_liveticker"
-            android:label="LivetickerFragment"/>
+            android:label="LivetickerFragment">
+        <argument
+                android:name="id"
+                app:argType="string"/>
+    </fragment>
 </navigation>

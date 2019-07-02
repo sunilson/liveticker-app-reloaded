@@ -31,7 +31,9 @@ dependencies {
     implementation ThirdPartyLibs.joda
     implementation DILibs.koin
     implementation Kotlin.coroutines
-    implementation ThirdPartyLibs.result
+
+    api ThirdPartyLibs.result
+    api ThirdPartyLibs.resultCoroutines
 }
 repositories {
     mavenCentral()

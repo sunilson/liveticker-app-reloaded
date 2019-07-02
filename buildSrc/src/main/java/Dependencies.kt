@@ -7,6 +7,7 @@ object AndroidX {
     val appcompat = "androidx.appcompat:appcompat:1.1.0-beta01"
     val androidx_core = "androidx.core:core-ktx:1.1.0-beta01"
 
+    val lifecycle_scope = "androidx.lifecycle:lifecycle-runtime-ktx:2.2.0-alpha01"
     val lifecycle_extensions = "androidx.lifecycle:lifecycle-extensions:2.0.0"
 
     val room = "androidx.room:room-runtime:$room_version"

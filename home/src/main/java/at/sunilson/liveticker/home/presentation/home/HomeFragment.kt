@@ -39,7 +39,10 @@ class HomeFragment : BaseFragment<HomeViewModel>() {
 
         setStatusBarColor(R.color.lightStatusBarColor, false)
 
-        bar.setNavigationOnClickListener { homeNavigation.openLiveticker() }
+        bar.setNavigationOnClickListener {
+            //TODO Search
+        }
+
         bar.setOnMenuItemClickListener {
             when (it.itemId) {
                 R.id.logout -> mainViewModel.logout()
@@ -60,7 +63,7 @@ class HomeFragment : BaseFragment<HomeViewModel>() {
         when (event) {
             HomeViewModel.AddLiveTicker -> homeNavigation.createLiveticker()
             is HomeViewModel.ShareLiveticker -> homeNavigation.showSharingDialog()
-            is HomeViewModel.OpenLiveticker -> homeNavigation.openLiveticker()
+            is HomeViewModel.OpenLiveticker -> homeNavigation.openLiveticker(event.liveTicker.id)
             is HomeViewModel.Login -> homeNavigation.login()
             is HomeViewModel.DeleteLiveticker -> context?.showConfirmationDialog(
                 "Delete",

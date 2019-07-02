@@ -43,7 +43,12 @@
             app:enterAnim="@anim/move_in_from_right"
             app:exitAnim="@anim/move_out_to_left_slightly"
             app:popEnterAnim="@anim/move_in_from_left_slightly"
-            app:popExitAnim="@anim/move_out_to_right"/>
+            app:popExitAnim="@anim/move_out_to_right">
+        <argument
+                android:name="id"
+                app:argType="string"
+            />
+    </action>
 
     <include app:graph="@navigation/liveticker_creation_graph"/>
     <include app:graph="@navigation/liveticker_graph"/>

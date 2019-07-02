@@ -33,6 +33,11 @@ class LivetickerCreationFragment : BaseFragment<LivetickerCreationViewModel>() {
     private var map: GoogleMap? = null
     private var marker: Marker? = null
 
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+    }
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val binding = generateBinding<FragmentLivetickerCreationBinding>(
             inflater,

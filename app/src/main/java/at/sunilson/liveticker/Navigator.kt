@@ -12,8 +12,8 @@ class Navigator : HomeNavigation, LoginNavigation {
         navController?.navigate(R.id.move_to_liveticker_creation)
     }
 
-    override fun openLiveticker() {
-        navController?.navigate(R.id.move_to_liveticker)
+    override fun openLiveticker(id: String) {
+        navController?.navigate(AppGraphDirections.moveToLiveticker(id))
     }
 
     override fun showSharingDialog() {

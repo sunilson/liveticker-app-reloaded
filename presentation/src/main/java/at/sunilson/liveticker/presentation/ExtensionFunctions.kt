@@ -10,8 +10,10 @@ import android.widget.Button
 import androidx.appcompat.app.AlertDialog
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.databinding.ObservableList
 import androidx.fragment.app.Fragment
 import at.sunilson.liveticker.core.REQUEST_PERMISSIONS
+import at.sunilson.liveticker.core.models.ModelWithId
 
 //Converts dp to px
 fun Int.convertToPx(context: Context): Int {
@@ -85,3 +87,13 @@ val View.centerX
 
 val View.centerY
     get() = y + height / 2
+
+fun <T : ModelWithId> ObservableList<T>.updateWithId(value: T) {
+    val index = indexOfFirst { it.id == value.id }
+    set(index, value)
+}
+
+fun <T : ModelWithId> ObservableList<T>.removeWithId(value: T) {
+    val index = indexOfFirst { it.id == value.id }
+    removeAt(index)
+}

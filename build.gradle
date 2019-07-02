@@ -11,6 +11,8 @@ buildscript {
         classpath 'com.android.tools.build:gradle:3.4.1'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
         classpath 'com.google.gms:google-services:4.0.1'  // Google Services plugin
+		def nav_version = "2.1.0-alpha05"
+        classpath "androidx.navigation:navigation-safe-args-gradle-plugin:$nav_version"
         // NOTE: Do not place your application dependencies here; they belong
         // in the individual module build.gradle files
     }
@@ -25,6 +27,61 @@ allprojects {
     }
 }
 
+plugins {
+    id 'jacoco'
+}
+
+subprojects {
+    apply plugin: 'jacoco'
+}
+
+gradle.projectsEvaluated {
+    def filtered = subprojects.findAll {it.name != "buildSrc"}
+
+    task mergedReport(type: JacocoReport) {
+        group "reporting"
+        executionData fileTree(project.rootDir.absolutePath).include("**/*.exec")
+
+        reports {
+            html.enabled = true
+            html.destination = file("./reports/jacoco")
+        }
+
+        def excludes = [
+                '**/R.class',
+                '**/R$*.class',
+                '**/BuildConfig.*',
+                '**/Manifest*.*',
+                '**/*Test*.*',
+                'android/**/*.*'
+        ]
+
+        def classFiles = []
+        def sourceDirectories = []
+
+        filtered.each {
+            def debugTree = fileTree(dir: "${it.buildDir}/intermediates/classes/debug", excludes: excludes)
+            def kotlinDebugTree = fileTree(dir: "${it.buildDir}/tmp/kotlin-classes/debug", excludes: excludes)
+            classFiles.addAll([debugTree, kotlinDebugTree])
+
+            sourceDirectories.addAll([
+                    fileTree(dir: "${it.projectDir}/src/main/java"),
+                    fileTree(dir: "${it.projectDir}/src/debug/java")
+            ])
+        }
+
+        classDirectories = files(classFiles)
+        additionalSourceDirs = files(sourceDirectories)
+        sourceDirectories = files(sourceDirectories)
+    }
+
+    mergedReport.dependsOn {
+        filtered*.test
+    }
+}
+
 task clean(type: Delete) {
     delete rootProject.buildDir
 }
+
+

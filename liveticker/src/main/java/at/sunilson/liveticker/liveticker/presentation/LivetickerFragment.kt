@@ -4,33 +4,58 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.LinearLayout
+import android.view.animation.OvershootInterpolator
+import androidx.activity.addCallback
 import androidx.constraintlayout.motion.widget.MotionLayout
 import androidx.constraintlayout.motion.widget.MotionScene
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.findNavController
+import androidx.navigation.fragment.navArgs
 import at.sunilson.liveticker.liveticker.R
 import at.sunilson.liveticker.liveticker.databinding.FragmentLivetickerBinding
 import at.sunilson.liveticker.location.MapFragmentCreator
 import at.sunilson.liveticker.location.MapOptions
 import at.sunilson.liveticker.presentation.baseClasses.BaseFragment
-import at.sunilson.liveticker.presentation.baseClasses.BaseViewModel
+import at.sunilson.liveticker.presentation.baseClasses.NavigationEvent
+import at.sunilson.liveticker.presentation.dialogs.inputDialog.InputDialog
+import at.sunilson.liveticker.presentation.interfaces.InputDialogListener
 import at.sunilson.liveticker.presentation.views.LockableBottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetBehavior.STATE_COLLAPSED
 import com.google.android.material.bottomsheet.BottomSheetBehavior.STATE_HIDDEN
+import jp.wasabeef.recyclerview.animators.SlideInLeftAnimator
 import kotlinx.android.synthetic.main.fragment_liveticker.*
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import timber.log.Timber
+import kotlin.math.min
 
-class LivetickerFragment : BaseFragment<LivetickerViewModel>() {
+class LivetickerFragment : BaseFragment<LivetickerViewModel>(), InputDialogListener {
 
     override val viewModel: LivetickerViewModel by viewModel()
     private val adapter: LivetickerRecyclerAdapter by inject()
+    private val commentsRecyclerAdapter: CommentsRecyclerAdapter by inject()
     private val mapFragmentCreator: MapFragmentCreator by inject()
+    private val arguments: LivetickerFragmentArgs by navArgs()
 
     private val bottomSheetBehavior: LockableBottomSheetBehavior<ConstraintLayout> by lazy {
         BottomSheetBehavior.from(liveticker_bottom_sheet) as LockableBottomSheetBehavior
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        viewModel.loadLiveticker(arguments.id)
+
+        activity?.onBackPressedDispatcher?.addCallback(this, enabled = true) {
+            if (bottomSheetBehavior.state != STATE_COLLAPSED && bottomSheetBehavior.state != STATE_HIDDEN) {
+                bottomSheetBehavior.state = STATE_COLLAPSED
+            } else {
+                findNavController().popBackStack()
+            }
+        }
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -49,6 +74,12 @@ class LivetickerFragment : BaseFragment<LivetickerViewModel>() {
             addAll(listOf("", "", "", "", "", "", "", "", "", "", "", ""))
         }
 
+        comment_list.adapter = commentsRecyclerAdapter
+        comment_list.itemAnimator = SlideInLeftAnimator().apply {
+            addDuration = 400
+            setInterpolator(OvershootInterpolator())
+        }
+
         //TODO Viewmodel
         liveticker_fab.setOnClickListener {
             liveticker_motionlayout.transitionToEnd()
@@ -60,11 +91,15 @@ class LivetickerFragment : BaseFragment<LivetickerViewModel>() {
         bottomSheetBehavior.setBottomSheetCallback(object : BottomSheetBehavior.BottomSheetCallback() {
             override fun onSlide(bottomSheet: View, slideOffset: Float) {
                 if (slideOffset >= 0) {
-                    bottom_sheet_backdrop.alpha = Math.min(0.5f, slideOffset)
+                    bottom_sheet_backdrop.alpha = min(0.75f, slideOffset)
                 }
             }
 
-            override fun onStateChanged(bottomSheet: View, newState: Int) {}
+            override fun onStateChanged(bottomSheet: View, newState: Int) {
+                if (newState == BottomSheetBehavior.STATE_EXPANDED) {
+                    viewModel.loadComments()
+                }
+            }
         })
 
         liveticker_motionlayout.setTransitionListener(object : MotionLayout.TransitionListener {
@@ -87,13 +122,28 @@ class LivetickerFragment : BaseFragment<LivetickerViewModel>() {
             }
         })
 
-        if (!isStateSaved && isAdded) {
-            childFragmentManager
-                .beginTransaction()
-                .replace(R.id.liveticker_preview_container, mapFragmentCreator(MapOptions(true)))
-                .commit()
+        viewLifecycleOwner.lifecycleScope.launch {
+            delay(500)
+            if (!isStateSaved && isAdded) {
+                childFragmentManager
+                    .beginTransaction()
+                    .replace(R.id.liveticker_preview_container, mapFragmentCreator(MapOptions(true)))
+                    .commit()
+            }
         }
+    }
 
-        bla.setOnClickListener { }
+    override fun inputHappened(string: String) {
+        Timber.d("Got input from dialog $string")
+        viewModel.addComment(string)
+    }
+
+    override fun onNavigationEvent(event: NavigationEvent) {
+        when (event) {
+            is LivetickerViewModel.AddComment -> {
+                InputDialog.newInstance("Kommentar hinzufügen", "Kommentar eingeben", "Hinzufügen")
+                    .show(childFragmentManager, null)
+            }
+        }
     }
 }

@@ -30,7 +30,6 @@ dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
 
-    implementation project(path: ":data")
     implementation project(path: ":authentication")
     implementation project(path: ":login")
     implementation project(path: ":home")
@@ -59,3 +58,4 @@ dependencies {
 }
 
 apply plugin: 'com.google.gms.google-services'
+apply plugin: "androidx.navigation.safeargs.kotlin"

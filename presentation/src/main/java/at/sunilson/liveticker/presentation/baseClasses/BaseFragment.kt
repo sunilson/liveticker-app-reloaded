@@ -19,12 +19,18 @@ import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
 import at.sunilson.liveticker.presentation.R
 import at.sunilson.liveticker.presentation.interfaces.BackpressInterceptor
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
 import timber.log.Timber
+import kotlin.coroutines.CoroutineContext
 
-abstract class BaseFragment<ViewModel : BaseViewModel> : Fragment() {
+abstract class BaseFragment<ViewModel : BaseViewModel> : Fragment(), CoroutineScope {
 
+    private val job: Job = SupervisorJob()
+    override val coroutineContext: CoroutineContext = Dispatchers.Main + job
     abstract val viewModel: ViewModel
-
     private var originalStatusBarColor: Int? = null
     private var dark: Boolean = false
 
@@ -90,5 +96,10 @@ abstract class BaseFragment<ViewModel : BaseViewModel> : Fragment() {
 
     protected fun resetStatusBarColor() {
         setStatusBarColor()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        job.cancel()
     }
 }

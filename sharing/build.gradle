@@ -31,7 +31,6 @@ dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
     implementation project(path: ":presentation")
-    implementation project(path: ":data")
 
     implementation AndroidX.appcompat
     implementation AndroidX.constraintLayout

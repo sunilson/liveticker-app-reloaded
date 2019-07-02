@@ -9,6 +9,7 @@ import at.sunilson.liveticker.liveticker.di.livetickerModule
 import at.sunilson.liveticker.livetickercreation.di.livetickerCreationModule
 import at.sunilson.liveticker.location.locationModule
 import at.sunilson.liveticker.login.di.loginModule
+import at.sunilson.liveticker.presentation.di.presentationModule
 import com.google.firebase.FirebaseApp
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.context.startKoin
@@ -32,7 +33,8 @@ class BaseApplication : Application() {
                 locationModule,
                 firebaseModule,
                 livetickerModule,
-                livetickerCreationModule
+                livetickerCreationModule,
+                presentationModule
             )
         }
     }

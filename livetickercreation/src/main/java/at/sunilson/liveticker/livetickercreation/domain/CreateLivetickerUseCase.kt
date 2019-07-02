@@ -6,6 +6,7 @@ import at.sunilson.liveticker.core.models.LiveTicker
 import at.sunilson.liveticker.core.models.Location
 import at.sunilson.liveticker.livetickercreation.data.LivetickerCreationRepository
 import com.github.kittinunf.result.Result
+import com.github.kittinunf.result.coroutines.SuspendableResult
 
 data class CreateLivetickerParams(
     val title: String?,
@@ -19,16 +20,16 @@ class CreateLivetickerUseCase(
     private val authenticationRepository: IAuthenticationRepository
 ) :
     AsyncUseCase<Unit, CreateLivetickerParams>() {
-    override suspend fun run(params: CreateLivetickerParams): Result<Unit, Exception> {
+    override suspend fun run(params: CreateLivetickerParams): SuspendableResult<Unit, Exception> {
 
         val (user, userError) = authenticationRepository.getCurrentUserNow()
-        if (userError != null) return Result.error(userError)
-        if (user == null) return Result.error(Exception())
-        if (user.anonymous) return Result.error(NotAllowed())
-        if (params.title.isNullOrEmpty()) return Result.error(TitleInvalid())
-        if (params.shortDescription.isNullOrEmpty()) return Result.error(ShortDescriptionInvalid())
-        if (params.description.isNullOrEmpty()) return Result.error(DescriptionInvalid())
-        if (params.location == null) return Result.error(LocationInvalid())
+        if (userError != null) return SuspendableResult.error(userError)
+        if (user == null) return SuspendableResult.error(Exception())
+        if (user.anonymous) return SuspendableResult.error(NotAllowed())
+        if (params.title.isNullOrEmpty()) return SuspendableResult.error(TitleInvalid())
+        if (params.shortDescription.isNullOrEmpty()) return SuspendableResult.error(ShortDescriptionInvalid())
+        if (params.description.isNullOrEmpty()) return SuspendableResult.error(DescriptionInvalid())
+        if (params.location == null) return SuspendableResult.error(LocationInvalid())
 
         val (livetickerResult, livetickerError) = livetickerCreationRepository.createLiveticker(
             LiveTicker(
@@ -40,9 +41,9 @@ class CreateLivetickerUseCase(
             )
         )
 
-        if (livetickerError != null) return Result.error(livetickerError)
+        if (livetickerError != null) return SuspendableResult.error(livetickerError)
 
-        return Result.success(Unit)
+        return SuspendableResult.Success(Unit)
     }
 }
 

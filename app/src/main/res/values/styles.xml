@@ -1,15 +1,4 @@
 <resources>
 
-    <style name="AppTheme" parent="Theme.MaterialComponents.Light.NoActionBar">
-        <item name="colorPrimary">@color/colorPrimary</item>
-        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
-        <item name="colorAccent">@color/colorAccent</item>
 
-        <item name="android:colorBackground">@color/baseTextColorInverted</item>
-        <item name="android:textViewStyle">@style/BaseText</item>
-        <item name="editTextStyle">@style/BaseEditText</item>
-        <item name="textInputStyle">@style/BaseTextInputLayout</item>
-        <item name="materialButtonStyle">@style/BaseButtonStyle</item>
-
-    </style>
 </resources>

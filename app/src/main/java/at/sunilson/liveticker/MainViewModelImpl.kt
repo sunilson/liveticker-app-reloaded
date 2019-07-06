@@ -6,7 +6,6 @@ import androidx.lifecycle.viewModelScope
 import at.sunilson.liveticker.authentication.IAuthenticationRepository
 import at.sunilson.liveticker.core.models.User
 import at.sunilson.liveticker.presentation.MainViewModel
-import at.sunilson.liveticker.presentation.baseClasses.BaseViewModel
 import kotlinx.coroutines.launch
 import timber.log.Timber
 

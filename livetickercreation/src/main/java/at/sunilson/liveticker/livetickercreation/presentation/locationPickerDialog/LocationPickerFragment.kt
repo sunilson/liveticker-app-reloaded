@@ -9,12 +9,10 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.core.view.ViewCompat
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
 import at.sunilson.liveticker.core.REQUEST_PERMISSIONS
-import at.sunilson.liveticker.core.models.Coordinates
 import at.sunilson.liveticker.livetickercreation.R
 import at.sunilson.liveticker.livetickercreation.databinding.DialogFragmentLocationPickerBinding
 import at.sunilson.liveticker.livetickercreation.presentation.livetickerCreation.LivetickerCreationViewModel
@@ -24,7 +22,6 @@ import at.sunilson.liveticker.presentation.baseClasses.NavigationEvent
 import at.sunilson.liveticker.presentation.hasPermission
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
-import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.libraries.places.api.model.Place

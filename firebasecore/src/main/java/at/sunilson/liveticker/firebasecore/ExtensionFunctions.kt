@@ -1,13 +1,18 @@
 package at.sunilson.liveticker.firebasecore
 
 import at.sunilson.liveticker.core.models.ModelWithId
+import at.sunilson.liveticker.firebasecore.models.FirebaseEntity
 import com.github.kittinunf.result.coroutines.SuspendableResult
 import com.google.android.gms.tasks.OnCompleteListener
 import com.google.firebase.firestore.*
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.ReceiveChannel
 import kotlinx.coroutines.channels.sendBlocking
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowViaChannel
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlin.coroutines.Continuation
 import kotlin.coroutines.resume
@@ -67,38 +72,35 @@ inline fun <reified T : ModelWithId> Query.observe(): ReceiveChannel<Suspendable
 }
 
 @ExperimentalCoroutinesApi
-inline fun <reified T : ModelWithId> Query.observeChanges(): ReceiveChannel<SuspendableResult<ObservationResult<T>, FirebaseFirestoreException>> {
-    var listener: ListenerRegistration? = null
-    val channel = Channel<SuspendableResult<ObservationResult<T>, FirebaseFirestoreException>>().apply {
-        invokeOnClose {
-            listener?.remove()
-        }
-    }
+inline fun <reified T : FirebaseEntity> Query.observeChanges(): Flow<SuspendableResult<ObservationResult<T>, FirebaseFirestoreException>> {
+    return flowViaChannel {
+        val listener = addSnapshotListener { querySnapshot, exception ->
+            exception?.let {
+                it.sendBlocking(SuspendableResult.error(it))
+                listener?.remove()
+                channel.close(it)
+                return@addSnapshotListener
+            }
 
-    listener = addSnapshotListener { querySnapshot, exception ->
-        exception?.let {
-            channel.sendBlocking(SuspendableResult.error(it))
-            listener?.remove()
-            channel.close(it)
-            return@addSnapshotListener
-        }
+            querySnapshot?.documentChanges?.forEach {
+                val data = it.document.toObject(T::class.java).apply { id = it.document.id }
 
-        querySnapshot?.documentChanges?.forEach {
-            val data = it.document.toObject(T::class.java).apply { id = it.document.id }
-
-            channel.sendBlocking(
-                SuspendableResult.Success(
-                    when (it.type) {
-                        DocumentChange.Type.ADDED -> ObservationResult.Added(data)
-                        DocumentChange.Type.REMOVED -> ObservationResult.Deleted(data)
-                        DocumentChange.Type.MODIFIED -> ObservationResult.Modified(data)
-                    }
+                channel.sendBlocking(
+                    SuspendableResult.Success(
+                        when (it.type) {
+                            DocumentChange.Type.ADDED -> ObservationResult.Added(data)
+                            DocumentChange.Type.REMOVED -> ObservationResult.Deleted(data)
+                            DocumentChange.Type.MODIFIED -> ObservationResult.Modified(data)
+                        }
+                    )
                 )
-            )
+            }
+        }
+
+        it.invokeOnClose {
+            listener?.remove()
         }
     }
-
-    return channel
 }
 
 @ExperimentalCoroutinesApi

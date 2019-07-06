@@ -3,7 +3,6 @@ package at.sunilson.liveticker.liveticker.domain
 import at.sunilson.liveticker.core.AsyncUseCase
 import at.sunilson.liveticker.core.models.LiveTicker
 import at.sunilson.liveticker.liveticker.data.LivetickerRepository
-import com.github.kittinunf.result.Result
 import com.github.kittinunf.result.coroutines.SuspendableResult
 import kotlinx.coroutines.channels.ReceiveChannel
 

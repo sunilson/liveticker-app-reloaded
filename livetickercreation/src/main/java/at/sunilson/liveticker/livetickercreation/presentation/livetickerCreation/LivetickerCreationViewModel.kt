@@ -3,15 +3,12 @@ package at.sunilson.liveticker.livetickercreation.presentation.livetickerCreatio
 import android.view.View
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
-import at.sunilson.liveticker.core.models.LiveTicker
 import at.sunilson.liveticker.core.models.Location
-import at.sunilson.liveticker.livetickercreation.data.LivetickerCreationRepository
 import at.sunilson.liveticker.livetickercreation.domain.CreateLivetickerParams
 import at.sunilson.liveticker.livetickercreation.domain.CreateLivetickerUseCase
 import at.sunilson.liveticker.presentation.baseClasses.Back
 import at.sunilson.liveticker.presentation.baseClasses.BaseViewModel
 import kotlinx.coroutines.launch
-import java.util.*
 
 abstract class LivetickerCreationViewModel : BaseViewModel() {
     abstract val usePosition: MutableLiveData<Boolean>

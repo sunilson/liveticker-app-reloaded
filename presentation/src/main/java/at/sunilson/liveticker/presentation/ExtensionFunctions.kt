@@ -8,12 +8,9 @@ import android.view.View
 import android.view.ViewTreeObserver
 import android.widget.Button
 import androidx.appcompat.app.AlertDialog
-import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.databinding.ObservableList
-import androidx.fragment.app.Fragment
-import at.sunilson.liveticker.core.REQUEST_PERMISSIONS
-import at.sunilson.liveticker.core.models.ModelWithId
+import at.sunilson.liveticker.firebasecore.models.ModelWithId
 
 //Converts dp to px
 fun Int.convertToPx(context: Context): Int {

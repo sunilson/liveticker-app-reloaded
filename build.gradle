@@ -18,6 +18,10 @@ buildscript {
     }
 }
 
+plugins {
+    id 'jacoco'
+}
+
 allprojects {
     repositories {
         google()
@@ -25,10 +29,6 @@ allprojects {
         maven { url "https://dl.bintray.com/kittinunf/maven" }
 
     }
-}
-
-plugins {
-    id 'jacoco'
 }
 
 subprojects {
@@ -77,7 +77,7 @@ gradle.projectsEvaluated {
 
     mergedReport.dependsOn {
         filtered*.test
-    }
+    }	
 }
 
 task clean(type: Delete) {

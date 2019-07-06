@@ -2,10 +2,9 @@ package at.sunilson.liveticker.location
 
 import android.location.Address
 import android.location.Geocoder
-import at.sunilson.liveticker.core.models.Coordinates
-import at.sunilson.liveticker.core.models.Location
+import at.sunilson.liveticker.firebasecore.models.Coordinates
+import at.sunilson.liveticker.firebasecore.models.Location
 import com.github.kittinunf.result.Result
-import com.google.android.gms.maps.model.LatLng
 
 interface AddressResolver {
     operator fun invoke(coordinates: Coordinates): Result<Location, Exception>

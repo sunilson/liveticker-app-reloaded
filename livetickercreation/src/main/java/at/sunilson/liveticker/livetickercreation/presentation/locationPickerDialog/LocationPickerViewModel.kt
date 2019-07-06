@@ -8,10 +8,6 @@ import at.sunilson.liveticker.location.AddressResolver
 import at.sunilson.liveticker.location.LocationFinder
 import at.sunilson.liveticker.presentation.baseClasses.BaseViewModel
 import at.sunilson.liveticker.presentation.baseClasses.NavigationEvent
-import com.github.kittinunf.result.failure
-import com.github.kittinunf.result.success
-import com.google.android.gms.maps.CameraUpdateFactory
-import com.google.android.gms.maps.model.LatLng
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext

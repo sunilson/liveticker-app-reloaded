@@ -5,7 +5,6 @@ import at.sunilson.liveticker.core.AsyncUseCase
 import at.sunilson.liveticker.core.models.LiveTicker
 import at.sunilson.liveticker.core.models.Location
 import at.sunilson.liveticker.livetickercreation.data.LivetickerCreationRepository
-import com.github.kittinunf.result.Result
 import com.github.kittinunf.result.coroutines.SuspendableResult
 
 data class CreateLivetickerParams(

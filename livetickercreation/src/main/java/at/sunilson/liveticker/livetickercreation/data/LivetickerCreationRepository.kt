@@ -2,7 +2,6 @@ package at.sunilson.liveticker.livetickercreation.data
 
 import at.sunilson.liveticker.core.models.LiveTicker
 import at.sunilson.liveticker.firebasecore.awaitAdd
-import com.github.kittinunf.result.Result
 import com.github.kittinunf.result.coroutines.SuspendableResult
 import com.google.firebase.firestore.FirebaseFirestore
 

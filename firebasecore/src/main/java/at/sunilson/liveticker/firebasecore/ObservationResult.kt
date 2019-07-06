@@ -1,11 +1,9 @@
 package at.sunilson.liveticker.firebasecore
 
-import at.sunilson.liveticker.core.models.ModelWithId
+import at.sunilson.liveticker.firebasecore.models.FirebaseEntity
 
-sealed class ChangeType
-
-sealed class ObservationResult<T: ModelWithId>(val data: T) {
-    class Added<T: ModelWithId>(data: T): ObservationResult<T>(data)
-    class Deleted<T: ModelWithId>(data: T): ObservationResult<T>(data)
-    class Modified<T: ModelWithId>(data: T): ObservationResult<T>(data)
+sealed class ObservationResult<T: FirebaseEntity>(val data: T) {
+    class Added<T: FirebaseEntity>(data: T): ObservationResult<T>(data)
+    class Deleted<T: FirebaseEntity>(data: T): ObservationResult<T>(data)
+    class Modified<T: FirebaseEntity>(data: T): ObservationResult<T>(data)
 }

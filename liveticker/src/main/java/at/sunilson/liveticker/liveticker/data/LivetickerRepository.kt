@@ -2,11 +2,10 @@ package at.sunilson.liveticker.liveticker.data
 
 import at.sunilson.liveticker.core.models.Comment
 import at.sunilson.liveticker.core.models.LiveTicker
-import at.sunilson.liveticker.firebasecore.ObservationResult
+import at.sunilson.liveticker.core.models.ObservationResult
 import at.sunilson.liveticker.firebasecore.awaitAdd
 import at.sunilson.liveticker.firebasecore.observe
 import at.sunilson.liveticker.firebasecore.observeChanges
-import com.github.kittinunf.result.Result
 import com.github.kittinunf.result.coroutines.SuspendableResult
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.channels.ReceiveChannel

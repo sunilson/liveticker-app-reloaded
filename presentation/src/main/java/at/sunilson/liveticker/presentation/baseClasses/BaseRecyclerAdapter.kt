@@ -81,6 +81,7 @@ abstract class BaseRecyclerAdapter<T>(val data: MutableList<T>) : RecyclerView.A
 
         override fun onItemRangeRemoved(sender: ObservableList<T>?, positionStart: Int, itemCount: Int) {
             if(sender == null) return
+            val thread = Thread.currentThread()
             data.clear()
             data.addAll(sender)
             notifyItemRangeRemoved(positionStart, itemCount)
@@ -90,6 +91,7 @@ abstract class BaseRecyclerAdapter<T>(val data: MutableList<T>) : RecyclerView.A
 
         override fun onItemRangeInserted(sender: ObservableList<T>?, positionStart: Int, itemCount: Int) {
             if(sender == null) return
+            val thread = Thread.currentThread()
             data.clear()
             data.addAll(sender)
             notifyItemRangeInserted(positionStart, itemCount)
@@ -97,6 +99,7 @@ abstract class BaseRecyclerAdapter<T>(val data: MutableList<T>) : RecyclerView.A
 
         override fun onItemRangeChanged(sender: ObservableList<T>?, positionStart: Int, itemCount: Int) {
             if(sender == null) return
+            val thread = Thread.currentThread()
             data.clear()
             data.addAll(sender)
             notifyItemRangeChanged(positionStart, itemCount)

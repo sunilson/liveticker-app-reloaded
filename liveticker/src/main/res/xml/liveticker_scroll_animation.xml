@@ -23,7 +23,7 @@
 
         <KeyFrameSet>
             <KeyAttribute
-                    app:motionTarget="@id/liveticker_short_description"
+                    app:motionTarget="@id/liveticker_author"
                     app:framePosition="30"
                     android:alpha="0"
                     />
@@ -72,7 +72,7 @@
 
         <Constraint android:id="@+id/liveticker_profile_image"/>
         <Constraint android:id="@+id/liveticker_title"/>
-        <Constraint android:id="@+id/liveticker_short_description"/>
+        <Constraint android:id="@+id/liveticker_author"/>
         <Constraint android:id="@+id/liveticker_info_button"/>
         <Constraint android:id="@+id/liveticker_preview_container"/>
         <Constraint android:id="@+id/liveticker_preview_controls"/>
@@ -117,7 +117,7 @@
                 />
 
         <Constraint
-                android:id="@+id/liveticker_short_description"
+                android:id="@+id/liveticker_author"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:alpha="0"

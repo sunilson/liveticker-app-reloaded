@@ -64,7 +64,10 @@
                         />
             </com.google.android.material.card.MaterialCardView>
 
-            <com.google.android.material.card.MaterialCardView style="@style/CardImageButton">
+            <com.google.android.material.card.MaterialCardView
+                    style="@style/CardImageButton"
+                    android:onClick="@{viewModel::like}"
+                    >
 
                 <ImageView
                         android:layout_width="match_parent"
@@ -108,15 +111,15 @@
                 app:layout_constraintLeft_toLeftOf="@id/liveticker_header_container"
                 app:layout_constraintRight_toRightOf="@id/liveticker_header_container"
                 app:layout_constraintTop_toTopOf="@+id/liveticker_header_container"
-                app:layout_constraintBottom_toTopOf="@+id/liveticker_short_description"
-                android:text="Liveticker Titel"
+                app:layout_constraintBottom_toTopOf="@+id/liveticker_author"
+                android:text="@{viewModel.liveTicker.title}"
                 style="@style/BaseText.ToolbarText"/>
 
         <TextView
-                android:id="@+id/liveticker_short_description"
+                android:id="@+id/liveticker_author"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Dies ist eine Kurzbeschreibung"
+                android:text="@{`Erstellt von ` + viewModel.liveTicker.authorName}"
                 style="@style/BaseText.SubHeader"
                 app:layout_constraintTop_toBottomOf="@+id/liveticker_title"
                 app:layout_constraintLeft_toLeftOf="@id/liveticker_title"

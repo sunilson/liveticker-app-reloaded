@@ -75,10 +75,6 @@ class LivetickerFragment : BaseFragment<LivetickerViewModel>(), InputDialogListe
         }
 
         comment_list.adapter = commentsRecyclerAdapter
-        comment_list.itemAnimator = SlideInLeftAnimator().apply {
-            addDuration = 400
-            setInterpolator(OvershootInterpolator())
-        }
 
         //TODO Viewmodel
         liveticker_fab.setOnClickListener {

@@ -1,21 +1,53 @@
 package at.sunilson.liveticker.firebasecore
 
-import at.sunilson.liveticker.core.models.ModelWithId
+import at.sunilson.liveticker.core.ObservationResult
 import at.sunilson.liveticker.firebasecore.models.FirebaseEntity
 import com.github.kittinunf.result.coroutines.SuspendableResult
 import com.google.android.gms.tasks.OnCompleteListener
 import com.google.firebase.firestore.*
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.FlowPreview
-import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.channels.ReceiveChannel
 import kotlinx.coroutines.channels.sendBlocking
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowViaChannel
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlin.coroutines.Continuation
 import kotlin.coroutines.resume
+
+/**
+ * Gets a document or returns [EmptyResult]
+ */
+suspend inline fun <reified T : FirebaseEntity> DocumentReference.awaitGet(): SuspendableResult<T, Exception> {
+    val snapshot: SuspendableResult<DocumentSnapshot, FirebaseOperationException> =
+        suspendCancellableCoroutine { cont ->
+            get().addOnCompleteListener(generateResultCompletionListener(cont))
+        }
+
+    return SuspendableResult.of {
+        try {
+            snapshot.get().toObject(T::class.java)!!
+        } catch (error: Throwable) {
+            throw EmptyResult()
+        }
+    }
+}
+
+/**
+ * Gets a collection or returns [EmptyResult]
+ */
+suspend inline fun <reified T : FirebaseEntity> Query.awaitGet(): SuspendableResult<List<T>, Exception> {
+    val snapshot: SuspendableResult<QuerySnapshot, FirebaseOperationException> =
+        suspendCancellableCoroutine { cont ->
+            get().addOnCompleteListener(generateResultCompletionListener(cont))
+        }
+
+    return SuspendableResult.of {
+        try {
+            snapshot.get().documents.map { it.toObject(T::class.java)!! }
+        } catch (error: Throwable) {
+            throw EmptyResult()
+        }
+    }
+}
+
 
 /**
  * Deletes a [DocumentReference] and waits for the callback to finish.
@@ -29,7 +61,7 @@ suspend fun DocumentReference.awaitDelete(): SuspendableResult<Unit, Exception> 
 /**
  * Sets a [DocumentReference] to the given [data] and waits for the callback to finish.
  */
-suspend fun DocumentReference.awaitSet(data: Any): SuspendableResult<Unit, Exception> {
+suspend fun DocumentReference.awaitSet(data: FirebaseEntity): SuspendableResult<Unit, Exception> {
     return suspendCancellableCoroutine { cont ->
         set(data).addOnCompleteListener(generateCompletionListener(cont))
     }
@@ -38,94 +70,99 @@ suspend fun DocumentReference.awaitSet(data: Any): SuspendableResult<Unit, Excep
 /**
  * Adds to a [CollectionReference] the given [data] and waits for the callback to finish.
  */
-suspend fun CollectionReference.awaitAdd(data: Any): SuspendableResult<String, Exception> {
+suspend fun CollectionReference.awaitAdd(data: FirebaseEntity): SuspendableResult<String, Exception> {
     return suspendCancellableCoroutine { cont ->
         add(data).addOnCompleteListener(generateIdCompletionListener(cont))
     }
 }
 
-@ExperimentalCoroutinesApi
-inline fun <reified T : ModelWithId> Query.observe(): ReceiveChannel<SuspendableResult<List<T>, FirebaseFirestoreException>> {
-    var listener: ListenerRegistration? = null
-    val channel = Channel<SuspendableResult<List<T>, FirebaseFirestoreException>>().apply {
-        invokeOnClose {
-            listener?.remove()
-        }
+/**
+ * Updates a document and waits for operation to finish
+ */
+suspend fun DocumentReference.awaitUpdate(map: Map<String, Any>): SuspendableResult<Unit, Exception> {
+    return suspendCancellableCoroutine { cont ->
+        update(map).addOnCompleteListener(generateCompletionListener(cont))
     }
-
-    listener = addSnapshotListener { querySnapshot, exception ->
-        exception?.let {
-            channel.sendBlocking(SuspendableResult.error(it))
-            listener?.remove()
-            channel.close(it)
-            return@addSnapshotListener
-        }
-
-        channel.sendBlocking(
-            SuspendableResult.Success(querySnapshot?.map { document ->
-                document.toObject(T::class.java).apply { id = document.id }
-            } ?: return@addSnapshotListener)
-        )
-    }
-
-    return channel
 }
 
-@ExperimentalCoroutinesApi
-inline fun <reified T : FirebaseEntity> Query.observeChanges(): Flow<SuspendableResult<ObservationResult<T>, FirebaseFirestoreException>> {
-    return flowViaChannel {
-        val listener = addSnapshotListener { querySnapshot, exception ->
+/**
+ * Observe a collection and emit a List of all the data in the collection on each change
+ */
+inline fun <reified T : FirebaseEntity, R> Query.observe(crossinline map: (T) -> R): Flow<SuspendableResult<List<R>, FirebaseFirestoreException>> {
+    return flowViaChannel { channel ->
+        var listener: ListenerRegistration? = null
+
+        listener = addSnapshotListener { querySnapshot, exception ->
             exception?.let {
-                it.sendBlocking(SuspendableResult.error(it))
+                channel.sendBlocking(SuspendableResult.error(it))
                 listener?.remove()
                 channel.close(it)
                 return@addSnapshotListener
             }
 
-            querySnapshot?.documentChanges?.forEach {
-                val data = it.document.toObject(T::class.java).apply { id = it.document.id }
-
-                channel.sendBlocking(
-                    SuspendableResult.Success(
-                        when (it.type) {
-                            DocumentChange.Type.ADDED -> ObservationResult.Added(data)
-                            DocumentChange.Type.REMOVED -> ObservationResult.Deleted(data)
-                            DocumentChange.Type.MODIFIED -> ObservationResult.Modified(data)
-                        }
-                    )
-                )
-            }
+            channel.sendBlocking(
+                SuspendableResult.Success(querySnapshot?.map { document ->
+                    map(document.toObject(T::class.java).apply { id = document.id })
+                } ?: return@addSnapshotListener)
+            )
         }
 
-        it.invokeOnClose {
-            listener?.remove()
-        }
+        channel.invokeOnClose { listener.remove() }
     }
 }
 
-@ExperimentalCoroutinesApi
-inline fun <reified T : ModelWithId> DocumentReference.observe(): ReceiveChannel<SuspendableResult<T, FirebaseFirestoreException>> {
-    var listener: ListenerRegistration? = null
-    val channel = Channel<SuspendableResult<T, FirebaseFirestoreException>>().apply {
-        invokeOnClose {
-            listener?.remove()
+/**
+ * Observe a collection and emit a List of all changes to the data in the collection
+ */
+inline fun <reified T : FirebaseEntity, R> Query.observeChanges(crossinline map: (T) -> R): Flow<SuspendableResult<List<ObservationResult<R>>, FirebaseFirestoreException>> {
+    return flowViaChannel { channel ->
+        var listener: ListenerRegistration? = null
+        listener = addSnapshotListener { querySnapshot, exception ->
+            exception?.let {
+                channel.sendBlocking(SuspendableResult.error(it))
+                listener?.remove()
+                channel.close(it)
+                return@addSnapshotListener
+            }
+
+            val changes = querySnapshot?.documentChanges?.map {
+                val data = it.document.toObject(T::class.java).apply { id = it.document.id }
+                when (it.type) {
+                    DocumentChange.Type.ADDED -> ObservationResult.Added(map(data))
+                    DocumentChange.Type.REMOVED -> ObservationResult.Deleted(map(data))
+                    DocumentChange.Type.MODIFIED -> ObservationResult.Modified(map(data))
+                }
+            }
+
+            channel.sendBlocking(SuspendableResult.Success(changes ?: return@addSnapshotListener))
         }
-    }
 
-    listener = addSnapshotListener { documentSnapshot, exception ->
-        exception?.let {
-            channel.sendBlocking(SuspendableResult.error(it))
-            listener?.remove()
-            channel.close(it)
-            return@addSnapshotListener
+        channel.invokeOnClose { listener.remove() }
+    }
+}
+
+/**
+ * Observe a document and emit the data in the collection on each change
+ */
+inline fun <reified T : FirebaseEntity, R : Any> DocumentReference.observe(crossinline map: (T) -> R): Flow<SuspendableResult<R, FirebaseFirestoreException>> {
+    return flowViaChannel { channel ->
+        var listener: ListenerRegistration? = null
+
+        listener = addSnapshotListener { documentSnapshot, exception ->
+            exception?.let {
+                channel.sendBlocking(SuspendableResult.error(it))
+                listener?.remove()
+                channel.close(it)
+                return@addSnapshotListener
+            }
+
+            val obj = documentSnapshot?.toObject(T::class.java)?.apply { id = documentSnapshot.id }
+                ?: return@addSnapshotListener
+            channel.sendBlocking(SuspendableResult.Success(map(obj)))
         }
 
-        channel.sendBlocking(SuspendableResult.Success(
-            documentSnapshot?.toObject(T::class.java)?.apply { id = documentSnapshot.id } ?: return@addSnapshotListener)
-        )
+        channel.invokeOnClose { listener.remove() }
     }
-
-    return channel
 }
 
 fun <T> generateCompletionListener(cont: Continuation<SuspendableResult<Unit, FirebaseOperationException>>): OnCompleteListener<T> {
@@ -167,9 +204,6 @@ fun <T : Any> generateResultCompletionListener(cont: Continuation<SuspendableRes
         }
     }
 }
-
-//fun <T : Any> SuspendableResult.Companion.success(value: T): SuspendableResult<T, Nothing> = SuspendableResult.Success(value)
-//fun <T: Any, E: Exception> SuspendableResult.Companion.success(value: T): SuspendableResult<T, E> = SuspendableResult.Success(value)
 
 sealed class FirebaseOperationException(message: String? = null) : Exception(message)
 class Cancelled : FirebaseOperationException()

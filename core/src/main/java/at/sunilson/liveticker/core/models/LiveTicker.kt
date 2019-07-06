@@ -12,10 +12,10 @@ class LiveTicker(
     val description: String = "",
     val creationDate: Date? = Date(),
     val plannedStartDate: Date? = null,
-    val finishedDate: Date? = null,
     val started: Boolean = false,
     val finished: Boolean = false,
-    val location: Location? = null
+    val location: Location? = null,
+    val cheers: Int = 0
 ) : ModelWithId {
     val formattedCreationDate: String
         get() {

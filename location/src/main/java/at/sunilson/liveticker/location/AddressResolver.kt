@@ -2,8 +2,8 @@ package at.sunilson.liveticker.location
 
 import android.location.Address
 import android.location.Geocoder
-import at.sunilson.liveticker.firebasecore.models.Coordinates
-import at.sunilson.liveticker.firebasecore.models.Location
+import at.sunilson.liveticker.core.models.Coordinates
+import at.sunilson.liveticker.core.models.Location
 import com.github.kittinunf.result.Result
 
 interface AddressResolver {

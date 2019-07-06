@@ -6,22 +6,24 @@ import androidx.databinding.ObservableList
 import androidx.lifecycle.viewModelScope
 import at.sunilson.liveticker.authentication.IAuthenticationRepository
 import at.sunilson.liveticker.core.models.LiveTicker
-import at.sunilson.liveticker.firebasecore.ObservationResult
+import at.sunilson.liveticker.core.ObservationResult
 import at.sunilson.liveticker.home.domain.DeleteLivetickerUsecase
 import at.sunilson.liveticker.home.domain.GetLivetickersUseCase
 import at.sunilson.liveticker.presentation.baseClasses.BaseViewModel
 import at.sunilson.liveticker.presentation.baseClasses.NavigationEvent
-import at.sunilson.liveticker.presentation.removeWithId
-import at.sunilson.liveticker.presentation.updateWithId
+import at.sunilson.liveticker.presentation.handleObservationResults
 import com.github.kittinunf.result.coroutines.success
 import com.github.kittinunf.result.success
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import timber.log.Timber
 
 abstract class HomeViewModel : BaseViewModel() {
     abstract val livetickers: ObservableList<LiveTicker>
 
-    abstract suspend fun refresh()
+    abstract fun refresh()
     abstract fun addLiveticker(view: View? = null)
     abstract fun deleteLiveticker(id: String)
     abstract fun livetickerSelected(action: LivetickerSelectedAction)
@@ -43,7 +45,7 @@ class HomeViewModelImpl(
     override val livetickers: ObservableList<LiveTicker> = ObservableArrayList()
 
     init {
-        viewModelScope.launch(Dispatchers.Default) { refresh() }
+         refresh()
     }
 
     override fun addLiveticker(view: View?) {
@@ -75,32 +77,27 @@ class HomeViewModelImpl(
         }
     }
 
-    override suspend fun refresh() {
-        val (user, authError) = authenticationRepository.getCurrentUserNow()
+    override fun refresh() {
+        viewModelScope.launch {
+            val (user, authError) = authenticationRepository.getCurrentUserNow()
 
-        if (user == null || authError != null) {
-            //TODO
-            return
-        }
-
-        getLivetickersUseCase(user.id).success {
-            for (result in it) {
-                result.fold(
-                    { observationResult -> updateLivetickers(observationResult) },
-                    {
-                        //TODO
-                    }
-                )
+            if (user == null || authError != null) {
+                //TODO
+                return@launch
             }
-        }
-    }
 
-    private fun updateLivetickers(result: ObservationResult<LiveTicker>) {
-        viewModelScope.launch(Dispatchers.Main) {
-            when (result) {
-                is ObservationResult.Added -> livetickers.add(result.data)
-                is ObservationResult.Modified -> livetickers.updateWithId(result.data)
-                is ObservationResult.Deleted -> livetickers.removeWithId(result.data)
+            getLivetickersUseCase(user.id).success { flow ->
+                flow.collect { result ->
+                    result.fold(
+                        { observationResults ->
+                            launch(Dispatchers.Main) { livetickers.handleObservationResults(observationResults) }
+                        },
+                        {
+                            Timber.e(it, "Error loading livetickers")
+                            //TODO
+                        }
+                    )
+                }
             }
         }
     }

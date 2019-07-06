@@ -8,18 +8,14 @@ import androidx.lifecycle.viewModelScope
 import at.sunilson.liveticker.core.models.Comment
 import at.sunilson.liveticker.core.models.LiveTicker
 import at.sunilson.liveticker.core.models.LiveTickerEntry
-import at.sunilson.liveticker.firebasecore.ObservationResult
-import at.sunilson.liveticker.liveticker.domain.AddCommentParams
-import at.sunilson.liveticker.liveticker.domain.AddCommentUseCase
-import at.sunilson.liveticker.liveticker.domain.GetCommentsUseCase
-import at.sunilson.liveticker.liveticker.domain.GetLivetickerUseCase
+import at.sunilson.liveticker.liveticker.domain.*
 import at.sunilson.liveticker.presentation.baseClasses.BaseViewModel
 import at.sunilson.liveticker.presentation.baseClasses.NavigationEvent
-import at.sunilson.liveticker.presentation.removeWithId
-import at.sunilson.liveticker.presentation.updateWithId
+import at.sunilson.liveticker.presentation.handleObservationResults
 import com.github.kittinunf.result.coroutines.success
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import timber.log.Timber
 
@@ -33,6 +29,7 @@ abstract class LivetickerViewModel : BaseViewModel() {
     abstract fun loadComments()
     abstract fun showAddCommentDialog(view: View? = null)
     abstract fun addComment(comment: String)
+    abstract fun like(view: View? = null)
 
     object AddComment : NavigationEvent
 }
@@ -40,7 +37,8 @@ abstract class LivetickerViewModel : BaseViewModel() {
 class LivetickerViewModelImpl(
     private val getLivetickerUseCase: GetLivetickerUseCase,
     private val addCommentUseCase: AddCommentUseCase,
-    private val getCommentsUseCase: GetCommentsUseCase
+    private val getCommentsUseCase: GetCommentsUseCase,
+    private val cheerUseCase: CheerUseCase
 ) : LivetickerViewModel() {
 
     private var commentsInitialized = false
@@ -54,8 +52,8 @@ class LivetickerViewModelImpl(
         this.id = id
         livetickerJob?.cancel()
         livetickerJob = viewModelScope.launch {
-            getLivetickerUseCase(id).success {
-                for (liveTicker in it) {
+            getLivetickerUseCase(id).success { flow ->
+                flow.collect { liveTicker ->
                     liveTicker.fold(
                         { liveTicker ->
                             this@LivetickerViewModelImpl.liveTicker.postValue(liveTicker)
@@ -75,22 +73,15 @@ class LivetickerViewModelImpl(
 
     override fun loadComments() {
         if (commentsInitialized) return
-
         commentsInitialized = true
 
-        viewModelScope.launch(Dispatchers.Default) {
-            getCommentsUseCase(id ?: return@launch).success {
-                for (result in it) {
+        viewModelScope.launch {
+            getCommentsUseCase(id ?: return@launch).success { flow ->
+                flow.collect { result ->
                     result.fold(
-                        { observationResult ->
-                            Timber.d("Got comment Observationresult: $observationResult")
-                            launch(Dispatchers.Main) {
-                                when (observationResult) {
-                                    is ObservationResult.Added -> comments.add(observationResult.data)
-                                    is ObservationResult.Modified -> comments.updateWithId(observationResult.data)
-                                    is ObservationResult.Deleted -> comments.removeWithId(observationResult.data)
-                                }
-                            }
+                        { observationResults ->
+                            Timber.d("Got comment Observationresults: $observationResults")
+                            launch(Dispatchers.Main) { comments.handleObservationResults(observationResults) }
                         },
                         { error ->
                             Timber.e(error, "Error loading comments")
@@ -115,6 +106,17 @@ class LivetickerViewModelImpl(
                 },
                 {
                     Timber.e(it, "Error adding comment!")
+                }
+            )
+        }
+    }
+
+    override fun like(view: View?) {
+        viewModelScope.launch {
+            cheerUseCase(id ?: return@launch).fold(
+                {},
+                {
+                   Timber.e(it, "Error liking liveticker!")
                 }
             )
         }

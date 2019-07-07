@@ -44,7 +44,9 @@
             </com.google.android.material.card.MaterialCardView>
 
 
-            <com.google.android.material.card.MaterialCardView style="@style/CardImageButton">
+            <com.google.android.material.card.MaterialCardView style="@style/CardImageButton"
+                    android:onClick="@{viewModel::share}"
+                    >
 
                 <ImageView
                         android:layout_width="match_parent"
@@ -234,16 +236,29 @@
                             tools:itemCount="10"
                             />
 
-                    <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
-                            style="@style/BaseExtendedFabStyle"
+                    <com.google.android.material.floatingactionbutton.FloatingActionButton
                             android:id="@+id/add_comment_button"
+                            style="@style/BaseFabStyle"
                             android:onClick="@{viewModel::showAddCommentDialog}"
-                            app:icon="@drawable/ic_add_black_24dp"
+                            app:srcCompat="@drawable/ic_comment_black_24dp"
+                            android:layout_marginRight="@dimen/small_margin"
                             app:layout_constraintBottom_toBottomOf="parent"
                             app:layout_constraintLeft_toLeftOf="parent"
-                            app:layout_constraintRight_toRightOf="parent"
-                            android:text="@string/add"
+                            app:layout_constraintRight_toLeftOf="@id/bottom_sheet_cheer"
+                            app:layout_constraintHorizontal_chainStyle="packed"
                             />
+
+
+                    <com.google.android.material.floatingactionbutton.FloatingActionButton
+                            android:id="@+id/bottom_sheet_cheer"
+                            style="@style/BaseFabStyle"
+                            app:srcCompat="@drawable/ic_favorite_black_24dp"
+                            android:layout_marginLeft="@dimen/small_margin"
+                            app:layout_constraintRight_toRightOf="parent"
+                            app:layout_constraintLeft_toRightOf="@id/add_comment_button"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            />
+
                 </androidx.constraintlayout.widget.ConstraintLayout>
             </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -251,11 +266,14 @@
                     android:id="@+id/liveticker_fab"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="bottom|right"
                     android:layout_margin="16dp"
                     app:backgroundTint="@color/colorAccent"
                     app:tint="@color/baseTextColorInverted"
-                    app:srcCompat="@drawable/ic_arrow_downward_black_24dp"
+                    app:srcCompat="@drawable/ic_add_black_24dp"
+                    android:visibility="gone"
+                    app:layout_anchor="@id/liveticker_bottom_sheet"
+                    app:layout_anchorGravity="top|right"
+                    android:layout_gravity="top|end"
                     />
 
         </androidx.coordinatorlayout.widget.CoordinatorLayout>

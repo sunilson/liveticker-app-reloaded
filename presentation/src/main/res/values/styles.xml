@@ -56,6 +56,13 @@
         <item name="cornerRadius">10dp</item>
     </style>
 
+    <style name="BaseFabStyle" parent="Widget.Design.FloatingActionButton">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="backgroundTint">@color/colorAccent</item>
+        <item name="tint">@color/baseTextColorInverted</item>
+    </style>
+
     <style name="BaseExtendedFabStyle" parent="Widget.MaterialComponents.ExtendedFloatingActionButton">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>

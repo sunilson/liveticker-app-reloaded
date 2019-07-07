@@ -5,7 +5,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.animation.OvershootInterpolator
-import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
 import at.sunilson.liveticker.home.HomeNavigation
 import at.sunilson.liveticker.home.R
@@ -62,7 +61,7 @@ class HomeFragment : BaseFragment<HomeViewModel>() {
     override fun onNavigationEvent(event: NavigationEvent) {
         when (event) {
             HomeViewModel.AddLiveTicker -> homeNavigation.createLiveticker()
-            is HomeViewModel.ShareLiveticker -> homeNavigation.showSharingDialog()
+            is HomeViewModel.ShareLiveticker -> homeNavigation.shareLivetickerFromHome()
             is HomeViewModel.OpenLiveticker -> homeNavigation.openLiveticker(event.liveTicker.id)
             is HomeViewModel.Login -> homeNavigation.login()
             is HomeViewModel.DeleteLiveticker -> context?.showConfirmationDialog(

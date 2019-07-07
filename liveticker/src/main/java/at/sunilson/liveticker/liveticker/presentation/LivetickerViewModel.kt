@@ -30,8 +30,10 @@ abstract class LivetickerViewModel : BaseViewModel() {
     abstract fun showAddCommentDialog(view: View? = null)
     abstract fun addComment(comment: String)
     abstract fun like(view: View? = null)
+    abstract fun share(view: View? = null)
 
     object AddComment : NavigationEvent
+    object Share: NavigationEvent
 }
 
 class LivetickerViewModelImpl(
@@ -109,6 +111,10 @@ class LivetickerViewModelImpl(
                 }
             )
         }
+    }
+
+    override fun share(view: View?) {
+        navigationEvents.postValue(Share)
     }
 
     override fun like(view: View?) {

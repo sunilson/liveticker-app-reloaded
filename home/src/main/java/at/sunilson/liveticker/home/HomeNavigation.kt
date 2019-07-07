@@ -1,7 +1,7 @@
 package at.sunilson.liveticker.home
 
 interface HomeNavigation {
-    fun showSharingDialog()
+    fun shareLivetickerFromHome()
     fun createLiveticker()
     fun openLiveticker(id: String)
     fun login()

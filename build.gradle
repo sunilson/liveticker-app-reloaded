@@ -40,7 +40,7 @@ gradle.projectsEvaluated {
 
     task mergedReport(type: JacocoReport) {
         group "reporting"
-        executionData fileTree(project.rootDir.absolutePath).include("**/*.exec")
+        executionData fileTree(project.rootDir.absolutePath).include("**/*.exec", "**/*.ec")
 
         reports {
             html.enabled = true
@@ -77,7 +77,7 @@ gradle.projectsEvaluated {
 
     mergedReport.dependsOn {
         filtered*.test
-    }	
+    }
 }
 
 task clean(type: Delete) {

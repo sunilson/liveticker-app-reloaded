@@ -7,6 +7,8 @@ import android.util.DisplayMetrics
 import android.view.View
 import android.view.ViewTreeObserver
 import android.widget.Button
+import android.widget.Toast
+import androidx.annotation.StringRes
 import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
 import androidx.databinding.ObservableList
@@ -104,4 +106,8 @@ fun <T : ModelWithId> ObservableList<T>.updateWithId(value: T) {
 fun <T : ModelWithId> ObservableList<T>.removeWithId(value: T) {
     val index = indexOfFirst { it.id == value.id }
     removeAt(index)
+}
+
+fun Context.showToast(@StringRes message: Int, length: Int = Toast.LENGTH_LONG) {
+    Toast.makeText(this, message, length).show()
 }

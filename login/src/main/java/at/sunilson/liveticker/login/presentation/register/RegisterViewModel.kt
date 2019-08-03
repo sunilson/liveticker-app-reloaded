@@ -3,6 +3,9 @@ package at.sunilson.liveticker.login.presentation.register
 import android.view.View
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
+import at.sunilson.liveticker.login.R
+import at.sunilson.liveticker.login.domain.EmailInvalid
+import at.sunilson.liveticker.login.domain.PasswordInvalid
 import at.sunilson.liveticker.login.domain.RegisterUseCase
 import at.sunilson.liveticker.login.domain.models.LoginCredentials
 import at.sunilson.liveticker.presentation.baseClasses.BaseViewModel
@@ -34,24 +37,22 @@ class RegisterViewModelImpl(private val registerUseCase: RegisterUseCase) : Regi
     override fun register(view: View?) {
         Timber.d("Starting register...")
         viewModelScope.launch {
-            try {
-                loading.postValue(true)
-                registerUseCase(
-                    LoginCredentials(
-                        email.value ?: return@launch,
-                        password.value ?: return@launch,
-                        userName.value ?: return@launch
-                    )
-                )
-                Timber.d("Register success!")
-                navigationEvents.postValue(Registered)
-            } catch (error: Throwable) {
-                Timber.e(error, "Register failure!")
-                errors.postValue(error.message)
-            }
-
-            loading.postValue(false)
+            loading.postValue(true)
+            registerUseCase(LoginCredentials(email.value, password.value, userName.value)).fold(
+                { navigationEvents.postValue(Registered) },
+                {
+                    loading.postValue(false)
+                    when (it) {
+                        is EmailInvalid -> toasts.postValue(R.string.email_invalid)
+                        is PasswordInvalid -> toasts.postValue(R.string.password_invalid)
+                        else -> toasts.postValue(R.string.authentication_error)
+                    }
+                }
+            )
+            navigationEvents.postValue(Registered)
         }
+
+        loading.postValue(false)
     }
 
     override fun login(view: View?) = navigationEvents.postValue(Login)

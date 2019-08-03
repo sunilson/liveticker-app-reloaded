@@ -5,4 +5,7 @@
     <string name="password">Password</string>
     <string name="email">Email</string>
     <string name="username">Username</string>
+    <string name="email_invalid">Email ist ungültig!</string>
+    <string name="password_invalid">Passwort ist ungültig!</string>
+    <string name="authentication_error">Da ist leider etwas schiefgelaufen!</string>
 </resources>

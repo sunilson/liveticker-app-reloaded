@@ -3,8 +3,10 @@ package at.sunilson.liveticker.login.presentation.login
 import android.view.View
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
-import at.sunilson.liveticker.authentication.IAuthenticationRepository
+import at.sunilson.liveticker.login.R
+import at.sunilson.liveticker.login.domain.EmailInvalid
 import at.sunilson.liveticker.login.domain.LoginUsecase
+import at.sunilson.liveticker.login.domain.PasswordInvalid
 import at.sunilson.liveticker.login.domain.models.LoginCredentials
 import at.sunilson.liveticker.presentation.baseClasses.BaseViewModel
 import at.sunilson.liveticker.presentation.baseClasses.NavigationEvent
@@ -28,15 +30,18 @@ class LoginViewModelImpl(private val loginUsecase: LoginUsecase) : LoginViewMode
 
     override fun login(view: View?) {
         viewModelScope.launch {
-            try {
-                loading.postValue(true)
-                loginUsecase(LoginCredentials(email.value ?: return@launch, password.value ?: return@launch))
-                navigationEvents.postValue(LoggedIn)
-            } catch (error: Throwable) {
-                errors.postValue(error.message)
-            }
-
-            loading.postValue(false)
+            loading.postValue(true)
+            loginUsecase(LoginCredentials(email.value, password.value)).fold(
+                { navigationEvents.postValue(LoggedIn) },
+                {
+                    loading.postValue(false)
+                    when (it) {
+                        is EmailInvalid -> toasts.postValue(R.string.email_invalid)
+                        is PasswordInvalid -> toasts.postValue(R.string.password_invalid)
+                        else -> toasts.postValue(R.string.authentication_error)
+                    }
+                }
+            )
         }
     }
 

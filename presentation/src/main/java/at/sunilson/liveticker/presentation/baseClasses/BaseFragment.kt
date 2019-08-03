@@ -19,6 +19,7 @@ import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
 import at.sunilson.liveticker.presentation.R
 import at.sunilson.liveticker.presentation.interfaces.BackpressInterceptor
+import at.sunilson.liveticker.presentation.showToast
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -41,6 +42,8 @@ abstract class BaseFragment<ViewModel : BaseViewModel> : Fragment(), CoroutineSc
             if (it is Back) findNavController().popBackStack()
             else onNavigationEvent(it)
         })
+
+        viewModel.toasts.observe(viewLifecycleOwner, Observer { context?.showToast(it) })
     }
 
     open fun onNavigationEvent(event: NavigationEvent) {}

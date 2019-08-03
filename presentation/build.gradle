@@ -41,6 +41,7 @@ dependencies {
     implementation AndroidX.navigation_fragment
     implementation AndroidX.navigation_ui
     implementation ThirdPartyLibs.glide
+    implementation ThirdPartyLibs.recyclerDelegates
 
     implementation DILibs.koin
     implementation DILibs.koinLifecycle

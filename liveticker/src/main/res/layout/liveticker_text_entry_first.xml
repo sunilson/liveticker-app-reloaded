@@ -36,13 +36,24 @@
                     />
         </RelativeLayout>
 
+        <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/center_guideline"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                app:layout_constraintGuide_percent="0.5"
+                />
+
         <View
                 android:id="@+id/timeline"
                 android:layout_width="2dp"
-                android:layout_height="match_parent"
+                android:layout_height="0dp"
+                android:layout_marginLeft="@dimen/big_margin"
+                android:layout_marginRight="@dimen/big_margin"
+                android:background="@color/timeline_line"
+                app:layout_constraintTop_toBottomOf="@id/center_guideline"
                 app:layout_constraintLeft_toLeftOf="@id/timeline_time"
                 app:layout_constraintRight_toRightOf="@id/timeline_time"
-                android:background="@color/timeline_line"
                 />
 
         <com.google.android.material.card.MaterialCardView

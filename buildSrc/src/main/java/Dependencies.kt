@@ -41,6 +41,7 @@ object ThirdPartyLibs {
     val resultCoroutines = "com.github.kittinunf.result:result-coroutines:2.2.0"
     val circularImageView = "de.hdodenhof:circleimageview:3.0.0"
     val glide = "com.github.bumptech.glide:glide:4.9.0"
+    val recyclerDelegates = "com.hannesdorfmann:adapterdelegates4:4.1.2-SNAPSHOT"
 }
 
 object TestLibs {

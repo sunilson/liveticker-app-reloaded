@@ -1,10 +1,9 @@
-package at.sunilson.liveticker.liveticker.presentation
+package at.sunilson.liveticker.liveticker.presentation.liveticker
 
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.animation.OvershootInterpolator
 import androidx.activity.addCallback
 import androidx.constraintlayout.motion.widget.MotionLayout
 import androidx.constraintlayout.motion.widget.MotionScene
@@ -15,6 +14,7 @@ import androidx.navigation.fragment.navArgs
 import at.sunilson.liveticker.liveticker.LivetickerNavigation
 import at.sunilson.liveticker.liveticker.R
 import at.sunilson.liveticker.liveticker.databinding.FragmentLivetickerBinding
+import at.sunilson.liveticker.liveticker.presentation.comments.CommentsRecyclerAdapter
 import at.sunilson.liveticker.location.MapFragmentCreator
 import at.sunilson.liveticker.location.MapOptions
 import at.sunilson.liveticker.presentation.baseClasses.BaseFragment
@@ -23,9 +23,7 @@ import at.sunilson.liveticker.presentation.dialogs.inputDialog.InputDialog
 import at.sunilson.liveticker.presentation.interfaces.InputDialogListener
 import at.sunilson.liveticker.presentation.views.LockableBottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetBehavior
-import com.google.android.material.bottomsheet.BottomSheetBehavior.STATE_COLLAPSED
-import com.google.android.material.bottomsheet.BottomSheetBehavior.STATE_HIDDEN
-import jp.wasabeef.recyclerview.animators.SlideInLeftAnimator
+import com.google.android.material.bottomsheet.BottomSheetBehavior.*
 import kotlinx.android.synthetic.main.fragment_liveticker.*
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -53,7 +51,7 @@ class LivetickerFragment : BaseFragment<LivetickerViewModel>(), InputDialogListe
 
         activity?.onBackPressedDispatcher?.addCallback(this, enabled = true) {
             if (bottomSheetBehavior.state != STATE_COLLAPSED && bottomSheetBehavior.state != STATE_HIDDEN) {
-                bottomSheetBehavior.state = STATE_COLLAPSED
+                bottomSheetBehavior.state = STATE_HIDDEN
             } else {
                 findNavController().popBackStack()
             }
@@ -69,6 +67,8 @@ class LivetickerFragment : BaseFragment<LivetickerViewModel>(), InputDialogListe
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        //TODO Mehr in Viewmodel?
+
         setStatusBarColor(R.color.statusBarColor)
 
         liveticker_list.adapter = adapter.apply {
@@ -77,6 +77,11 @@ class LivetickerFragment : BaseFragment<LivetickerViewModel>(), InputDialogListe
         }
 
         comment_list.adapter = commentsRecyclerAdapter
+
+        liveticker_fab.setOnClickListener {
+            liveticker_fab.hide()
+            bottomSheetBehavior.state = STATE_EXPANDED
+        }
 
         bottomSheetBehavior.state = STATE_HIDDEN
         bottomSheetBehavior.locked = true
@@ -88,8 +93,10 @@ class LivetickerFragment : BaseFragment<LivetickerViewModel>(), InputDialogListe
             }
 
             override fun onStateChanged(bottomSheet: View, newState: Int) {
-                if (newState == BottomSheetBehavior.STATE_EXPANDED) {
+                if (newState == STATE_EXPANDED) {
                     viewModel.loadComments()
+                } else if(newState == STATE_HIDDEN || newState == STATE_COLLAPSED) {
+                    liveticker_fab.show()
                 }
             }
         })
@@ -97,16 +104,16 @@ class LivetickerFragment : BaseFragment<LivetickerViewModel>(), InputDialogListe
         liveticker_motionlayout.setTransitionListener(object : MotionLayout.TransitionListener {
             override fun onTransitionTrigger(p0: MotionLayout?, p1: Int, p2: Boolean, p3: Float) {}
             override fun allowsTransition(p0: MotionScene.Transition?) = true
-            override fun onTransitionStarted(p0: MotionLayout?, start: Int, end: Int) {}
+            override fun onTransitionStarted(p0: MotionLayout?, start: Int, end: Int) {
+                liveticker_fab.hide()
+                bottomSheetBehavior.state = STATE_HIDDEN
+            }
             override fun onTransitionChange(p0: MotionLayout?, start: Int, end: Int, progress: Float) {}
             override fun onTransitionCompleted(p0: MotionLayout?, state: Int) {
                 if (state == liveticker_motionlayout.endState) {
-                    bottomSheetBehavior.state = STATE_COLLAPSED
                     bottomSheetBehavior.locked = false
-                    bottomSheetBehavior.isHideable = false
+                    liveticker_fab.show()
                 } else {
-                    bottomSheetBehavior.isHideable = true
-                    bottomSheetBehavior.state = STATE_HIDDEN
                     bottomSheetBehavior.locked = true
                 }
             }

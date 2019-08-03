@@ -7,7 +7,7 @@
 
     <fragment
             android:id="@+id/livetickerFragment"
-            android:name="at.sunilson.liveticker.liveticker.presentation.LivetickerFragment"
+            android:name="at.sunilson.liveticker.liveticker.presentation.liveticker.LivetickerFragment"
             tools:layout="@layout/fragment_liveticker"
             android:label="LivetickerFragment">
         <argument

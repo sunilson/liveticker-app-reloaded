@@ -1,4 +1,4 @@
-package at.sunilson.liveticker.liveticker.presentation
+package at.sunilson.liveticker.liveticker.presentation.liveticker
 
 import android.view.View
 import androidx.databinding.ObservableArrayList

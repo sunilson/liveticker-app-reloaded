@@ -32,11 +32,16 @@ class InputDialog private constructor() : BaseDialogFragment() {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         dialog?.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
-        val binding = DataBindingUtil.inflate<InputDialogFragmentBinding>(inflater, R.layout.input_dialog_fragment, container, false)
+        val binding = DataBindingUtil.inflate<InputDialogFragmentBinding>(
+            inflater,
+            R.layout.input_dialog_fragment,
+            container,
+            false
+        )
         binding.lifecycleOwner = this
         binding.viewModel = viewModel
         return binding.root
-}
+    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -50,6 +55,11 @@ class InputDialog private constructor() : BaseDialogFragment() {
                 dismiss()
             }
         })
+    }
+
+    override fun onResume() {
+        super.onResume()
+        dialog?.window?.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
     }
 
     companion object {

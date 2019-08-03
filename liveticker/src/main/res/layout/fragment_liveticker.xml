@@ -5,7 +5,7 @@
 
         <variable
                 name="viewModel"
-                type="at.sunilson.liveticker.liveticker.presentation.LivetickerViewModel"/>
+                type="at.sunilson.liveticker.liveticker.presentation.liveticker.LivetickerViewModel"/>
     </data>
 
     <androidx.constraintlayout.motion.widget.MotionLayout
@@ -16,7 +16,7 @@
             android:orientation="vertical"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:background="@color/disabledBackgroundColor"
+            android:background="@color/accentedBackgroundColor"
             app:layoutDescription="@xml/liveticker_scroll_animation"
             >
 
@@ -25,7 +25,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="@dimen/controls_height"
                 app:layout_constraintTop_toBottomOf="@id/liveticker_preview_container"
-                android:background="@color/defaultBackgroundColor"
+                android:background="@color/accentedBackgroundColor"
                 android:orientation="horizontal"
                 android:gravity="center"
                 >
@@ -87,7 +87,7 @@
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintRight_toRightOf="parent"
                 app:layout_constraintTop_toTopOf="@id/map_spacer"
-                android:background="@android:color/white"
+                android:background="@color/accentedBackgroundColor"
                 />
 
         <Space
@@ -97,7 +97,7 @@
                 app:layout_constraintBottom_toBottomOf="@id/liveticker_header_container"
                 />
 
-        <at.sunilson.liveticker.presentation.views.ArcView
+        <at.sunilson.liveticker.presentation.views.DiagonalCutView
                 android:id="@+id/liveticker_header_container"
                 android:layout_width="match_parent"
                 android:layout_height="@dimen/header_container_height"
@@ -144,9 +144,9 @@
                 android:id="@+id/liveticker_list"
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
-                android:paddingBottom="@dimen/bottom_sheet_peek_height"
                 android:clipToPadding="false"
                 android:clipChildren="false"
+                android:background="@color/accentedBackgroundColor"
                 app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
                 tools:itemCount="10"
                 tools:listitem="@layout/liveticker_text_entry"
@@ -174,7 +174,7 @@
                     android:id="@+id/liveticker_bottom_sheet"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    app:behavior_peekHeight="@dimen/bottom_sheet_peek_height"
+                    app:behavior_peekHeight="0dp"
                     app:behavior_hideable="true"
                     app:layout_behavior="at.sunilson.liveticker.presentation.views.LockableBottomSheetBehavior">
 
@@ -236,27 +236,17 @@
                             tools:itemCount="10"
                             />
 
-                    <com.google.android.material.floatingactionbutton.FloatingActionButton
+                    <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
                             android:id="@+id/add_comment_button"
-                            style="@style/BaseFabStyle"
+                            style="@style/BaseExtendedFabStyle"
                             android:onClick="@{viewModel::showAddCommentDialog}"
-                            app:srcCompat="@drawable/ic_comment_black_24dp"
+                            app:icon="@drawable/ic_add_black_24dp"
                             android:layout_marginRight="@dimen/small_margin"
+                            android:text="Kommentieren"
                             app:layout_constraintBottom_toBottomOf="parent"
                             app:layout_constraintLeft_toLeftOf="parent"
-                            app:layout_constraintRight_toLeftOf="@id/bottom_sheet_cheer"
-                            app:layout_constraintHorizontal_chainStyle="packed"
-                            />
-
-
-                    <com.google.android.material.floatingactionbutton.FloatingActionButton
-                            android:id="@+id/bottom_sheet_cheer"
-                            style="@style/BaseFabStyle"
-                            app:srcCompat="@drawable/ic_favorite_black_24dp"
-                            android:layout_marginLeft="@dimen/small_margin"
                             app:layout_constraintRight_toRightOf="parent"
-                            app:layout_constraintLeft_toRightOf="@id/add_comment_button"
-                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintHorizontal_chainStyle="packed"
                             />
 
                 </androidx.constraintlayout.widget.ConstraintLayout>
@@ -267,13 +257,11 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_margin="16dp"
+                    android:visibility="gone"
                     app:backgroundTint="@color/colorAccent"
                     app:tint="@color/baseTextColorInverted"
-                    app:srcCompat="@drawable/ic_add_black_24dp"
-                    android:visibility="gone"
-                    app:layout_anchor="@id/liveticker_bottom_sheet"
-                    app:layout_anchorGravity="top|right"
-                    android:layout_gravity="top|end"
+                    app:srcCompat="@drawable/ic_comment_black_24dp"
+                    android:layout_gravity="bottom|end"
                     />
 
         </androidx.coordinatorlayout.widget.CoordinatorLayout>
@@ -284,10 +272,10 @@
                 android:layout_height="75dp"
                 app:layout_constraintTop_toBottomOf="@id/liveticker_header_container"
                 app:layout_constraintBottom_toBottomOf="@id/liveticker_header_container"
-                app:layout_constraintRight_toRightOf="parent"
                 app:layout_constraintLeft_toLeftOf="parent"
-                android:src="@drawable/avatar_placeholder"
+                android:layout_marginLeft="20dp"
                 android:padding="2dp"
+                android:src="@drawable/avatar_placeholder"
                 android:background="@drawable/circle"
                 />
 

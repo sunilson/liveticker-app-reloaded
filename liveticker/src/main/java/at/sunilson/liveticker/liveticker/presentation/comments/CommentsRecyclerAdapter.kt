@@ -1,4 +1,4 @@
-package at.sunilson.liveticker.liveticker.presentation
+package at.sunilson.liveticker.liveticker.presentation.comments
 
 import android.view.ViewGroup
 import androidx.databinding.ViewDataBinding

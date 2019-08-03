@@ -6,6 +6,7 @@ import android.graphics.Paint.ANTI_ALIAS_FLAG
 import android.util.AttributeSet
 import androidx.constraintlayout.widget.ConstraintLayout
 import at.sunilson.liveticker.presentation.R
+import at.sunilson.liveticker.presentation.convertToPx
 
 
 class DiagonalCutView @JvmOverloads constructor(context: Context, attributeSet: AttributeSet? = null) :
@@ -20,6 +21,13 @@ class DiagonalCutView @JvmOverloads constructor(context: Context, attributeSet: 
             field = value
             invalidate()
         }
+
+    var offsetDimension: Int = 0
+        set(value) {
+            field = value
+            offset = value.convertToPx(context)
+        }
+
 
     var direction: Int = 0
         set(value) {

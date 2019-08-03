@@ -8,4 +8,5 @@
     <dimen name="header_container_height">150dp</dimen>
     <dimen name="controls_height">60dp</dimen>
     <dimen name="controls_height_negative">-60dp</dimen>
+    <dimen name="timeline_circle_size">15dp</dimen>
 </resources>

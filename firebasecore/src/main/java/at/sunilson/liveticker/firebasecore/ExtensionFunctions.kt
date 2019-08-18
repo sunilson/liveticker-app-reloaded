@@ -15,17 +15,15 @@ import kotlin.coroutines.resume
 /**
  * Gets a document or returns [EmptyResult]
  */
-suspend inline fun <reified T : FirebaseEntity> DocumentReference.awaitGet(): SuspendableResult<T, Exception> {
+suspend inline fun <reified T : Any> DocumentReference.awaitGet(): SuspendableResult<T, FirebaseOperationException> {
     val snapshot: SuspendableResult<DocumentSnapshot, FirebaseOperationException> =
-        suspendCancellableCoroutine { cont ->
-            get().addOnCompleteListener(generateResultCompletionListener(cont))
-        }
+        suspendCancellableCoroutine { cont -> get().addOnCompleteListener(generateResultCompletionListener(cont)) }
 
-    return SuspendableResult.of {
+    return SuspendableResult.of<T, FirebaseOperationException> {
         try {
             snapshot.get().toObject(T::class.java)!!
-        } catch (error: Throwable) {
-            throw EmptyResult()
+        } catch (error: Exception) {
+            throw (FirebaseOperationException.TransformationFailed())
         }
     }
 }
@@ -33,17 +31,19 @@ suspend inline fun <reified T : FirebaseEntity> DocumentReference.awaitGet(): Su
 /**
  * Gets a collection or returns [EmptyResult]
  */
-suspend inline fun <reified T : FirebaseEntity> Query.awaitGet(): SuspendableResult<List<T>, Exception> {
+suspend inline fun <reified T : Any> Query.awaitGet(): SuspendableResult<List<T>, FirebaseOperationException> {
     val snapshot: SuspendableResult<QuerySnapshot, FirebaseOperationException> =
         suspendCancellableCoroutine { cont ->
             get().addOnCompleteListener(generateResultCompletionListener(cont))
         }
 
-    return SuspendableResult.of {
-        try {
-            snapshot.get().documents.map { it.toObject(T::class.java)!! }
-        } catch (error: Throwable) {
-            throw EmptyResult()
+    return SuspendableResult.of<List<T>, FirebaseOperationException> {
+        snapshot.get().documents.map {
+            try {
+                it.toObject(T::class.java)!!
+            } catch (error: Exception) {
+                throw (FirebaseOperationException.TransformationFailed())
+            }
         }
     }
 }
@@ -52,7 +52,7 @@ suspend inline fun <reified T : FirebaseEntity> Query.awaitGet(): SuspendableRes
 /**
  * Deletes a [DocumentReference] and waits for the callback to finish.
  */
-suspend fun DocumentReference.awaitDelete(): SuspendableResult<Unit, Exception> {
+suspend fun DocumentReference.awaitDelete(): SuspendableResult<Unit, FirebaseOperationException> {
     return suspendCancellableCoroutine { cont ->
         delete().addOnCompleteListener(generateCompletionListener(cont))
     }
@@ -61,7 +61,7 @@ suspend fun DocumentReference.awaitDelete(): SuspendableResult<Unit, Exception> 
 /**
  * Sets a [DocumentReference] to the given [data] and waits for the callback to finish.
  */
-suspend fun DocumentReference.awaitSet(data: FirebaseEntity): SuspendableResult<Unit, Exception> {
+suspend fun DocumentReference.awaitSet(data: FirebaseEntity): SuspendableResult<Unit, FirebaseOperationException> {
     return suspendCancellableCoroutine { cont ->
         set(data).addOnCompleteListener(generateCompletionListener(cont))
     }
@@ -70,7 +70,7 @@ suspend fun DocumentReference.awaitSet(data: FirebaseEntity): SuspendableResult<
 /**
  * Adds to a [CollectionReference] the given [data] and waits for the callback to finish.
  */
-suspend fun CollectionReference.awaitAdd(data: FirebaseEntity): SuspendableResult<String, Exception> {
+suspend fun CollectionReference.awaitAdd(data: FirebaseEntity): SuspendableResult<String, FirebaseOperationException> {
     return suspendCancellableCoroutine { cont ->
         add(data).addOnCompleteListener(generateIdCompletionListener(cont))
     }
@@ -79,7 +79,7 @@ suspend fun CollectionReference.awaitAdd(data: FirebaseEntity): SuspendableResul
 /**
  * Updates a document and waits for operation to finish
  */
-suspend fun DocumentReference.awaitUpdate(map: Map<String, Any>): SuspendableResult<Unit, Exception> {
+suspend fun DocumentReference.awaitUpdate(map: Map<String, Any>): SuspendableResult<Unit, FirebaseOperationException> {
     return suspendCancellableCoroutine { cont ->
         update(map).addOnCompleteListener(generateCompletionListener(cont))
     }
@@ -88,13 +88,13 @@ suspend fun DocumentReference.awaitUpdate(map: Map<String, Any>): SuspendableRes
 /**
  * Observe a collection and emit a List of all the data in the collection on each change
  */
-inline fun <reified T : FirebaseEntity, R> Query.observe(crossinline map: (T) -> R): Flow<SuspendableResult<List<R>, FirebaseFirestoreException>> {
+inline fun <reified T : FirebaseEntity, R> Query.observe(crossinline map: (T) -> R): Flow<SuspendableResult<List<R>, FirebaseOperationException>> {
     return flowViaChannel { channel ->
         var listener: ListenerRegistration? = null
 
         listener = addSnapshotListener { querySnapshot, exception ->
             exception?.let {
-                channel.sendBlocking(SuspendableResult.error(it))
+                channel.sendBlocking(SuspendableResult.error(it.convert()))
                 listener?.remove()
                 channel.close(it)
                 return@addSnapshotListener
@@ -114,12 +114,12 @@ inline fun <reified T : FirebaseEntity, R> Query.observe(crossinline map: (T) ->
 /**
  * Observe a collection and emit a List of all changes to the data in the collection
  */
-inline fun <reified T : FirebaseEntity, R> Query.observeChanges(crossinline map: (T) -> R): Flow<SuspendableResult<List<ObservationResult<R>>, FirebaseFirestoreException>> {
+inline fun <reified T : FirebaseEntity, R> Query.observeChanges(crossinline map: (T) -> R): Flow<SuspendableResult<List<ObservationResult<R>>, FirebaseOperationException>> {
     return flowViaChannel { channel ->
         var listener: ListenerRegistration? = null
         listener = addSnapshotListener { querySnapshot, exception ->
             exception?.let {
-                channel.sendBlocking(SuspendableResult.error(it))
+                channel.sendBlocking(SuspendableResult.error(it.convert()))
                 listener?.remove()
                 channel.close(it)
                 return@addSnapshotListener
@@ -144,13 +144,13 @@ inline fun <reified T : FirebaseEntity, R> Query.observeChanges(crossinline map:
 /**
  * Observe a document and emit the data in the collection on each change
  */
-inline fun <reified T : FirebaseEntity, R : Any> DocumentReference.observe(crossinline map: (T) -> R): Flow<SuspendableResult<R, FirebaseFirestoreException>> {
+inline fun <reified T : FirebaseEntity, R : Any> DocumentReference.observe(crossinline map: (T) -> R): Flow<SuspendableResult<R, FirebaseOperationException>> {
     return flowViaChannel { channel ->
         var listener: ListenerRegistration? = null
 
         listener = addSnapshotListener { documentSnapshot, exception ->
             exception?.let {
-                channel.sendBlocking(SuspendableResult.error(it))
+                channel.sendBlocking(SuspendableResult.error(it.convert()))
                 listener?.remove()
                 channel.close(it)
                 return@addSnapshotListener
@@ -167,45 +167,85 @@ inline fun <reified T : FirebaseEntity, R : Any> DocumentReference.observe(cross
 
 fun <T> generateCompletionListener(cont: Continuation<SuspendableResult<Unit, FirebaseOperationException>>): OnCompleteListener<T> {
     return OnCompleteListener {
-        when {
-            it.exception != null -> cont.resume(SuspendableResult.error(Failed(it.exception?.message)))
-            it.isCanceled -> cont.resume(SuspendableResult.error(Cancelled()))
-            it.isSuccessful -> cont.resume(SuspendableResult.Success(Unit))
-            else -> cont.resume(SuspendableResult.error(Failed("")))
+        try {
+            when {
+                it.isCanceled -> cont.resume(SuspendableResult.error(FirebaseOperationException.Cancelled()))
+                it.isSuccessful -> cont.resume(SuspendableResult.Success(Unit))
+                else -> cont.resume(SuspendableResult.error(FirebaseOperationException.Failed("")))
+            }
+        } catch (error: Exception) {
+            when (it.exception) {
+                is FirebaseFirestoreException -> cont.resume(SuspendableResult.error((it.exception as FirebaseFirestoreException).convert()))
+                else -> cont.resume(SuspendableResult.error(FirebaseOperationException.Failed(error.message)))
+            }
         }
     }
 }
 
 fun <T> generateIdCompletionListener(cont: Continuation<SuspendableResult<String, FirebaseOperationException>>): OnCompleteListener<T> {
     return OnCompleteListener {
-
-        val id = (it.result as? DocumentReference)?.id
-
-        when {
-            it.exception != null -> cont.resume(SuspendableResult.error(Failed(it.exception?.message)))
-            it.isCanceled -> cont.resume(SuspendableResult.error(Cancelled()))
-            id == null -> cont.resume(SuspendableResult.error(EmptyResult()))
-            it.isSuccessful -> cont.resume(SuspendableResult.Success(id))
-            else -> cont.resume(SuspendableResult.error(Failed("")))
+        try {
+            val id = (it.result as? DocumentReference)?.id
+            when {
+                it.isCanceled -> cont.resume(SuspendableResult.error(FirebaseOperationException.Cancelled()))
+                id == null -> cont.resume(SuspendableResult.error(FirebaseOperationException.EmptyResult()))
+                it.isSuccessful -> cont.resume(SuspendableResult.Success(id))
+                else -> cont.resume(SuspendableResult.error(FirebaseOperationException.Failed("")))
+            }
+        } catch (error: Exception) {
+            when (it.exception) {
+                is FirebaseFirestoreException -> cont.resume(SuspendableResult.error((it.exception as FirebaseFirestoreException).convert()))
+                else -> cont.resume(SuspendableResult.error(FirebaseOperationException.Failed(error.message)))
+            }
         }
     }
 }
 
 fun <T : Any> generateResultCompletionListener(cont: Continuation<SuspendableResult<T, FirebaseOperationException>>): OnCompleteListener<T> {
     return OnCompleteListener {
-        val result = it.result
-
-        when {
-            it.exception != null -> cont.resume(SuspendableResult.error(Failed(it.exception?.message)))
-            it.isCanceled -> cont.resume(SuspendableResult.error(Cancelled()))
-            result == null -> cont.resume(SuspendableResult.error(EmptyResult()))
-            it.isSuccessful -> cont.resume(SuspendableResult.Success(result))
-            else -> cont.resume(SuspendableResult.error(Failed("")))
+        try {
+            val result = it.result
+            when {
+                it.isCanceled -> cont.resume(SuspendableResult.error(FirebaseOperationException.Cancelled()))
+                result == null -> cont.resume(SuspendableResult.error(FirebaseOperationException.EmptyResult()))
+                it.isSuccessful -> cont.resume(SuspendableResult.Success(result))
+                else -> cont.resume(SuspendableResult.error(FirebaseOperationException.Failed("")))
+            }
+        } catch (error: Exception) {
+            when (it.exception) {
+                is FirebaseFirestoreException -> cont.resume(SuspendableResult.error((it.exception as FirebaseFirestoreException).convert()))
+                else -> cont.resume(SuspendableResult.error(FirebaseOperationException.Failed(error.message)))
+            }
         }
     }
 }
 
-sealed class FirebaseOperationException(message: String? = null) : Exception(message)
-class Cancelled : FirebaseOperationException()
-class EmptyResult : FirebaseOperationException()
-class Failed(message: String?) : FirebaseOperationException(message)
+fun FirebaseFirestoreException.convert(): FirebaseOperationException {
+    return when (code) {
+        FirebaseFirestoreException.Code.PERMISSION_DENIED -> FirebaseOperationException.PermissionDenied()
+        FirebaseFirestoreException.Code.OK -> TODO()
+        FirebaseFirestoreException.Code.CANCELLED -> TODO()
+        FirebaseFirestoreException.Code.UNKNOWN -> TODO()
+        FirebaseFirestoreException.Code.INVALID_ARGUMENT -> TODO()
+        FirebaseFirestoreException.Code.DEADLINE_EXCEEDED -> TODO()
+        FirebaseFirestoreException.Code.NOT_FOUND -> TODO()
+        FirebaseFirestoreException.Code.ALREADY_EXISTS -> TODO()
+        FirebaseFirestoreException.Code.RESOURCE_EXHAUSTED -> TODO()
+        FirebaseFirestoreException.Code.FAILED_PRECONDITION -> TODO()
+        FirebaseFirestoreException.Code.ABORTED -> TODO()
+        FirebaseFirestoreException.Code.OUT_OF_RANGE -> TODO()
+        FirebaseFirestoreException.Code.UNIMPLEMENTED -> TODO()
+        FirebaseFirestoreException.Code.INTERNAL -> TODO()
+        FirebaseFirestoreException.Code.UNAVAILABLE -> TODO()
+        FirebaseFirestoreException.Code.DATA_LOSS -> TODO()
+        FirebaseFirestoreException.Code.UNAUTHENTICATED -> TODO()
+    }
+}
+
+sealed class FirebaseOperationException(message: String? = null) : Exception(message) {
+    class Cancelled : FirebaseOperationException()
+    class EmptyResult : FirebaseOperationException()
+    class PermissionDenied : FirebaseOperationException()
+    class TransformationFailed : FirebaseOperationException()
+    class Failed(message: String?) : FirebaseOperationException(message)
+}

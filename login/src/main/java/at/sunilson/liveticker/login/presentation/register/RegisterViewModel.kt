@@ -9,11 +9,10 @@ import at.sunilson.liveticker.login.domain.PasswordInvalid
 import at.sunilson.liveticker.login.domain.RegisterUseCase
 import at.sunilson.liveticker.login.domain.models.LoginCredentials
 import at.sunilson.liveticker.presentation.baseClasses.BaseViewModel
-import at.sunilson.liveticker.presentation.baseClasses.NavigationEvent
 import kotlinx.coroutines.launch
 import timber.log.Timber
 
-abstract class RegisterViewModel : BaseViewModel() {
+abstract class RegisterViewModel : BaseViewModel<RegisterNavigationEvent>() {
     abstract val userName: MutableLiveData<String>
     abstract val email: MutableLiveData<String>
     abstract val password: MutableLiveData<String>
@@ -21,11 +20,12 @@ abstract class RegisterViewModel : BaseViewModel() {
 
     abstract fun register(view: View? = null)
     abstract fun login(view: View? = null)
-
-    object Login : NavigationEvent
-    object Registered : NavigationEvent
 }
 
+sealed class RegisterNavigationEvent () {
+    object Login : RegisterNavigationEvent()
+    object Registered : RegisterNavigationEvent()
+}
 
 class RegisterViewModelImpl(private val registerUseCase: RegisterUseCase) : RegisterViewModel() {
 
@@ -39,7 +39,7 @@ class RegisterViewModelImpl(private val registerUseCase: RegisterUseCase) : Regi
         viewModelScope.launch {
             loading.postValue(true)
             registerUseCase(LoginCredentials(email.value, password.value, userName.value)).fold(
-                { navigationEvents.postValue(Registered) },
+                { navigationEvents.postValue(RegisterNavigationEvent.Registered) },
                 {
                     loading.postValue(false)
                     when (it) {
@@ -49,11 +49,11 @@ class RegisterViewModelImpl(private val registerUseCase: RegisterUseCase) : Regi
                     }
                 }
             )
-            navigationEvents.postValue(Registered)
+            navigationEvents.postValue(RegisterNavigationEvent.Registered)
         }
 
         loading.postValue(false)
     }
 
-    override fun login(view: View?) = navigationEvents.postValue(Login)
+    override fun login(view: View?) = navigationEvents.postValue(RegisterNavigationEvent.Login)
 }

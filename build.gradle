@@ -1,17 +1,18 @@
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 
 buildscript {
-    ext.kotlin_version = '1.3.31'
+    ext.kotlin_version = '1.3.41'
     repositories {
         google()
         jcenter()
 		maven { url "https://dl.bintray.com/kittinunf/maven" }
         maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
+        mavenCentral()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.4.1'
+        classpath 'com.android.tools.build:gradle:3.4.2'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
-        classpath 'com.google.gms:google-services:4.0.1'  // Google Services plugin
+        classpath 'com.google.gms:google-services:4.3.0'  // Google Services plugin
 		def nav_version = "2.1.0-alpha05"
         classpath "androidx.navigation:navigation-safe-args-gradle-plugin:$nav_version"
         // NOTE: Do not place your application dependencies here; they belong
@@ -29,11 +30,59 @@ allprojects {
         jcenter()
         maven { url "https://dl.bintray.com/kittinunf/maven" }
         maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
+        mavenCentral()
     }
 }
 
 subprojects {
     apply plugin: 'jacoco'
+
+    afterEvaluate { project ->
+        if (project.hasProperty("android")) {
+            android {
+                compileSdkVersion 29
+                buildToolsVersion "29.0.0"
+
+                defaultConfig {
+                    minSdkVersion 21
+                    targetSdkVersion 29
+                    versionCode 1
+                    versionName "1.0"
+                    testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+                }
+
+                compileOptions {
+                    sourceCompatibility JavaVersion.VERSION_1_8
+                    targetCompatibility JavaVersion.VERSION_1_8
+                }
+
+                kotlinOptions {
+                    jvmTarget = "1.8"
+                }
+
+                testOptions {
+                    unitTests.all {
+                        useJUnitPlatform()
+                    }
+
+                    unitTests.returnDefaultValues = true
+                }
+
+                packagingOptions {
+                    exclude 'META-INF/DEPENDENCIES'
+                    exclude 'META-INF/LICENSE'
+                    exclude 'META-INF/LICENSE.txt'
+                    exclude 'META-INF/license.txt'
+                    exclude 'META-INF/NOTICE'
+                    exclude 'META-INF/NOTICE.txt'
+                    exclude 'META-INF/notice.txt'
+                    exclude 'META-INF/ASL2.0'
+                    exclude 'META-INF/LICENSE-notice.md'
+                    exclude 'META-INF/LICENSE.md'
+                }
+            }
+        }
+    }
 }
 
 gradle.projectsEvaluated {

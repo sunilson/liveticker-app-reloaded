@@ -1,7 +1,7 @@
 package at.sunilson.liveticker.livetickercreation.domain
 
 import at.sunilson.liveticker.authentication.IAuthenticationRepository
-import at.sunilson.liveticker.core.AsyncUseCase
+import at.sunilson.liveticker.core.usecases.AsyncUseCase
 import at.sunilson.liveticker.core.models.LiveTicker
 import at.sunilson.liveticker.core.models.Location
 import at.sunilson.liveticker.livetickercreation.data.LivetickerCreationRepository
@@ -18,7 +18,7 @@ class CreateLivetickerUseCase(
     private val livetickerCreationRepository: LivetickerCreationRepository,
     private val authenticationRepository: IAuthenticationRepository
 ) :
-    AsyncUseCase<Unit, CreateLivetickerParams>() {
+    AsyncUseCase<Unit, Exception, CreateLivetickerParams>() {
     override suspend fun run(params: CreateLivetickerParams): SuspendableResult<Unit, Exception> {
 
         val (user, userError) = authenticationRepository.getCurrentUserNow()

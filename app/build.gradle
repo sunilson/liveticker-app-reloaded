@@ -1,18 +1,12 @@
 apply plugin: 'com.android.application'
-
 apply plugin: 'kotlin-android'
-
 apply plugin: 'kotlin-android-extensions'
+apply plugin: 'com.google.gms.google-services'
+apply plugin: "androidx.navigation.safeargs.kotlin"
 
 android {
-    compileSdkVersion 28
     defaultConfig {
         applicationId "at.sunilson.liveticker"
-        minSdkVersion 21
-        targetSdkVersion 28
-        versionCode 1
-        versionName "1.0"
-        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
         release {
@@ -39,6 +33,7 @@ dependencies {
     implementation project(path: ":liveticker")
     implementation project(path: ":firebasecore")
     implementation project(path: ":livetickercreation")
+    implementation project(path: ":sharing")
 
     implementation AndroidX.lifecycle_extensions
     implementation AndroidX.appcompat
@@ -57,5 +52,15 @@ dependencies {
     implementation GoogleLibs.material_components
 }
 
-apply plugin: 'com.google.gms.google-services'
-apply plugin: "androidx.navigation.safeargs.kotlin"
+//Hotfix for navigation modules
+task copyChildNavigationGraphs(type: Copy) {
+    from '../login/src/main/res/navigation'
+    from '../location/src/main/res/navigation'
+    from '../sharing/src/main/res/navigation'
+    from '../liveticker/src/main/res/navigation'
+    from '../livetickercreation/src/main/res/navigation'
+    from '../home/src/main/res/navigation'
+    from '../authentication/src/main/res/navigation'
+    into 'src/main/res/navigation'
+}
+preBuild.dependsOn copyChildNavigationGraphs

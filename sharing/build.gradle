@@ -1,20 +1,9 @@
 apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android-extensions'
 apply plugin: 'kotlin-android'
+apply plugin: "androidx.navigation.safeargs.kotlin"
 
 android {
-    compileSdkVersion 28
-
-    defaultConfig {
-        minSdkVersion 21
-        targetSdkVersion 28
-        versionCode 1
-        versionName "1.0"
-
-        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
-
-    }
-
     buildTypes {
         release {
             minifyEnabled false
@@ -31,6 +20,9 @@ dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
     implementation project(path: ":presentation")
+    implementation project(path: ":firebasecore")
+    implementation project(path: ":core")
+
 
     implementation AndroidX.appcompat
     implementation AndroidX.constraintLayout

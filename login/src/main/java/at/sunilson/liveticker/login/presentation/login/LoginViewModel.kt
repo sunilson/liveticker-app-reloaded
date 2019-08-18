@@ -9,18 +9,19 @@ import at.sunilson.liveticker.login.domain.LoginUsecase
 import at.sunilson.liveticker.login.domain.PasswordInvalid
 import at.sunilson.liveticker.login.domain.models.LoginCredentials
 import at.sunilson.liveticker.presentation.baseClasses.BaseViewModel
-import at.sunilson.liveticker.presentation.baseClasses.NavigationEvent
 import kotlinx.coroutines.launch
 
-abstract class LoginViewModel : BaseViewModel() {
+abstract class LoginViewModel : BaseViewModel<LoginNavigationEvent>() {
     abstract val email: MutableLiveData<String>
     abstract val password: MutableLiveData<String>
 
     abstract fun login(view: View? = null)
     abstract fun register(view: View? = null)
+}
 
-    object Register : NavigationEvent
-    object LoggedIn : NavigationEvent
+sealed class LoginNavigationEvent () {
+    object Register : LoginNavigationEvent()
+    object LoggedIn : LoginNavigationEvent()
 }
 
 class LoginViewModelImpl(private val loginUsecase: LoginUsecase) : LoginViewModel() {
@@ -32,7 +33,7 @@ class LoginViewModelImpl(private val loginUsecase: LoginUsecase) : LoginViewMode
         viewModelScope.launch {
             loading.postValue(true)
             loginUsecase(LoginCredentials(email.value, password.value)).fold(
-                { navigationEvents.postValue(LoggedIn) },
+                { navigationEvents.postValue(LoginNavigationEvent.LoggedIn) },
                 {
                     loading.postValue(false)
                     when (it) {
@@ -45,5 +46,5 @@ class LoginViewModelImpl(private val loginUsecase: LoginUsecase) : LoginViewMode
         }
     }
 
-    override fun register(view: View?) = navigationEvents.postValue(Register)
+    override fun register(view: View?) = navigationEvents.postValue(LoginNavigationEvent.Register)
 }

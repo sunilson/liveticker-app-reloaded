@@ -1,56 +1,70 @@
 <?xml version="1.0" encoding="utf-8"?>
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
             xmlns:app="http://schemas.android.com/apk/res-auto"
+            xmlns:tools="http://schemas.android.com/tools"
             android:id="@+id/app_graph"
-            app:startDestination="@id/home_graph">
-
-    <include app:graph="@navigation/login_graph"/>
-    <include app:graph="@navigation/home_graph"/>
-    <include app:graph="@navigation/sharing_graph"/>
-
-    <action
-            android:id="@+id/move_to_sharing"
-            app:destination="@id/sharing_graph"
-            />
-
-    <action
-            android:id="@+id/move_to_login"
-            app:destination="@id/login_graph"
-            app:enterAnim="@anim/move_in_from_right"
-            app:exitAnim="@anim/move_out_to_left_slightly"
-            app:popEnterAnim="@anim/move_in_from_left_slightly"
-            app:popExitAnim="@anim/move_out_to_right"/>
-
-    <action
-            android:id="@+id/move_to_liveticker_creation"
-            app:destination="@id/liveticker_creation_graph"
-            app:enterAnim="@anim/move_in_from_right"
-            app:exitAnim="@anim/move_out_to_left_slightly"
-            app:popEnterAnim="@anim/move_in_from_left_slightly"
-            app:popExitAnim="@anim/move_out_to_right"/>
+            app:startDestination="@id/homeFragment">
 
     <action
             android:id="@+id/move_to_home"
-            app:destination="@id/home_graph"
+            app:destination="@id/homeFragment"
             app:popUpTo="@id/app_graph"
             app:enterAnim="@anim/move_in_from_left_slightly"
             app:exitAnim="@anim/move_out_to_right"/>
 
-
     <action
-            android:id="@+id/move_to_liveticker"
-            app:destination="@id/liveticker_graph"
-            app:enterAnim="@anim/move_in_from_right"
-            app:exitAnim="@anim/move_out_to_left_slightly"
-            app:popEnterAnim="@anim/move_in_from_left_slightly"
-            app:popExitAnim="@anim/move_out_to_right">
+            android:id="@+id/move_to_sharing"
+            app:destination="@id/sharing_graph">
         <argument
-                android:name="id"
+                android:name="view_url"
                 app:argType="string"
-            />
+                app:nullable="false"
+                />
+
+        <argument
+                android:name="edit_url"
+                app:argType="string"
+                app:nullable="true"
+                />
     </action>
 
+    <fragment
+            android:id="@+id/homeFragment"
+            tools:layout="@layout/fragment_home"
+            android:name="at.sunilson.liveticker.home.presentation.home.HomeFragment"
+            android:label="HomeFragment">
+        <action
+                android:id="@+id/action_homeFragment_to_liveticker_graph"
+                app:destination="@id/liveticker_graph"
+                app:enterAnim="@anim/move_in_from_right"
+                app:exitAnim="@anim/move_out_to_left_slightly"
+                app:popEnterAnim="@anim/move_in_from_left_slightly"
+                app:popExitAnim="@anim/move_out_to_right"
+                >
+            <argument
+                    android:name="id"
+                    app:argType="string"/>
+        </action>
+        <action
+                android:id="@+id/action_homeFragment_to_liveticker_creation_graph"
+                app:destination="@id/liveticker_creation_graph"
+                app:enterAnim="@anim/move_in_from_right"
+                app:exitAnim="@anim/move_out_to_left_slightly"
+                app:popEnterAnim="@anim/move_in_from_left_slightly"
+                app:popExitAnim="@anim/move_out_to_right"
+                />
+        <action
+                android:id="@+id/action_homeFragment_to_login_graph"
+                app:destination="@id/login_graph"
+                app:enterAnim="@anim/move_in_from_right"
+                app:exitAnim="@anim/move_out_to_left_slightly"
+                app:popEnterAnim="@anim/move_in_from_left_slightly"
+                app:popExitAnim="@anim/move_out_to_right"
+                />
+    </fragment>
+
+    <include app:graph="@navigation/sharing_graph"/>
+    <include app:graph="@navigation/login_graph"/>
     <include app:graph="@navigation/liveticker_creation_graph"/>
     <include app:graph="@navigation/liveticker_graph"/>
-
 </navigation>

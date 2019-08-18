@@ -7,21 +7,22 @@ import at.sunilson.liveticker.core.models.Location
 import at.sunilson.liveticker.location.AddressResolver
 import at.sunilson.liveticker.location.LocationFinder
 import at.sunilson.liveticker.presentation.baseClasses.BaseViewModel
-import at.sunilson.liveticker.presentation.baseClasses.NavigationEvent
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-abstract class LocationPickerDialogViewModel : BaseViewModel() {
+abstract class LocationPickerDialogViewModel : BaseViewModel<LocationPickerNavigationEvent>() {
     abstract val selectedLocation: MutableLiveData<Coordinates>
 
     abstract fun searchClicked(view: Any? = null)
     abstract fun tryFinish(view: Any? = null)
     abstract fun searchUser()
+}
 
-    object SearchClicked : NavigationEvent
-    data class LocationFound(val location: Location) : NavigationEvent
-    data class UserFound(val coordinates: Coordinates) : NavigationEvent
+sealed class LocationPickerNavigationEvent {
+    object SearchClicked : LocationPickerNavigationEvent()
+    data class LocationFound(val location: Location) : LocationPickerNavigationEvent()
+    data class UserFound(val coordinates: Coordinates) : LocationPickerNavigationEvent()
 }
 
 class LocationPickerDialogViewModelImpl(
@@ -35,7 +36,14 @@ class LocationPickerDialogViewModelImpl(
     override fun searchUser() {
         locationFinder {
             it.fold({ result ->
-                navigationEvents.postValue(UserFound(Coordinates(result.latitude, result.longitude)))
+                navigationEvents.postValue(
+                    LocationPickerNavigationEvent.UserFound(
+                        Coordinates(
+                            result.latitude,
+                            result.longitude
+                        )
+                    )
+                )
             }, {
                 //TODO Show error message
             })
@@ -43,7 +51,7 @@ class LocationPickerDialogViewModelImpl(
     }
 
     override fun searchClicked(view: Any?) {
-        navigationEvents.postValue(SearchClicked)
+        navigationEvents.postValue(LocationPickerNavigationEvent.SearchClicked)
     }
 
     override fun tryFinish(view: Any?) {
@@ -54,7 +62,7 @@ class LocationPickerDialogViewModelImpl(
             val location = withContext(Dispatchers.Default) { addressResolver(selectedLocation) }
 
             location.fold(
-                { navigationEvents.postValue(LocationFound(it)) },
+                { navigationEvents.postValue(LocationPickerNavigationEvent.LocationFound(it)) },
                 {
                     //TODO Show error message
                     loading.postValue(false)

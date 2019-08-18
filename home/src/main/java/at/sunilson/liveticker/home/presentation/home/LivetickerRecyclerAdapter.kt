@@ -2,6 +2,7 @@ package at.sunilson.liveticker.home.presentation.home
 
 import android.view.ViewGroup
 import androidx.databinding.ViewDataBinding
+import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import at.sunilson.liveticker.core.models.LiveTicker
 import at.sunilson.liveticker.home.BR
@@ -33,5 +34,23 @@ class LivetickerRecyclerAdapter : BaseRecyclerAdapter<LiveTicker>(mutableListOf(
 
     override fun unbindViewHolder(binding: ViewDataBinding) {
         binding.setVariable(BR.obj, null)
+    }
+
+    override fun createDiffutilCallback(oldList: List<LiveTicker>, newList: List<LiveTicker>): DiffUtil.Callback? {
+        return DiffUtilCallback(newList, oldList)
+    }
+
+    class DiffUtilCallback(private val newList: List<LiveTicker>, private val oldList: List<LiveTicker>) :
+        DiffUtil.Callback() {
+        override fun getOldListSize() = oldList.size
+        override fun getNewListSize() = newList.size
+
+        override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
+            return newList[newItemPosition].id == oldList[oldItemPosition].id
+        }
+
+        override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
+            return newList[newItemPosition] == oldList[oldItemPosition]
+        }
     }
 }

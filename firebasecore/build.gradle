@@ -3,19 +3,6 @@ apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-kapt'
 
 android {
-    compileSdkVersion 28
-
-
-    defaultConfig {
-        minSdkVersion 21
-        targetSdkVersion 28
-        versionCode 1
-        versionName "1.0"
-
-        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
-
-    }
-
     buildTypes {
         release {
             minifyEnabled false
@@ -39,7 +26,4 @@ dependencies {
     api FirebaseLibs.fireStore
     api Kotlin.coroutines
     api ThirdPartyLibs.result
-}
-repositories {
-    mavenCentral()
 }

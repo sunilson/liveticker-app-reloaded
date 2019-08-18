@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">Sharing</string>
+    <string name="copied_liveticker_url">Liveticker-URL kopiert!</string>
+    <string name="copied_edit_url">Edit-URL kopiert!</string>
 </resources>

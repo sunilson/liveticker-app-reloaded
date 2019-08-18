@@ -13,12 +13,12 @@ import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
 import at.sunilson.liveticker.core.REQUEST_PERMISSIONS
+import at.sunilson.liveticker.core.utils.Do
 import at.sunilson.liveticker.livetickercreation.R
 import at.sunilson.liveticker.livetickercreation.databinding.DialogFragmentLocationPickerBinding
 import at.sunilson.liveticker.livetickercreation.presentation.livetickerCreation.LivetickerCreationViewModel
 import at.sunilson.liveticker.location.*
 import at.sunilson.liveticker.presentation.baseClasses.BaseFragment
-import at.sunilson.liveticker.presentation.baseClasses.NavigationEvent
 import at.sunilson.liveticker.presentation.hasPermission
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
@@ -35,7 +35,7 @@ import org.koin.androidx.viewmodel.ext.android.viewModel
 /**
  * Displays a map and a search bar to the user in which a location can be selected
  */
-class LocationPickerFragment : BaseFragment<LocationPickerDialogViewModel>() {
+class LocationPickerFragment : BaseFragment<LocationPickerDialogViewModel, LocationPickerNavigationEvent>() {
 
     override val viewModel: LocationPickerDialogViewModel by viewModel()
     private val livetickerCreationViewModel: LivetickerCreationViewModel by sharedViewModel()
@@ -85,9 +85,9 @@ class LocationPickerFragment : BaseFragment<LocationPickerDialogViewModel>() {
         }
     }
 
-    override fun onNavigationEvent(event: NavigationEvent) {
-        when (event) {
-            is LocationPickerDialogViewModel.SearchClicked -> {
+    override fun onNavigationEvent(event: LocationPickerNavigationEvent) {
+        Do exhaustive when (event) {
+            is LocationPickerNavigationEvent.SearchClicked -> {
                 //Show google autocomplete to user, where a location can be selected
                 startActivityForResult(
                     Autocomplete.IntentBuilder(
@@ -97,12 +97,12 @@ class LocationPickerFragment : BaseFragment<LocationPickerDialogViewModel>() {
                     AUTOCOMPLETE_REQUEST_CODE
                 )
             }
-            is LocationPickerDialogViewModel.LocationFound -> {
+            is LocationPickerNavigationEvent.LocationFound -> {
                 //Return result and close
                 livetickerCreationViewModel.location.postValue(event.location)
                 findNavController().popBackStack()
             }
-            is LocationPickerDialogViewModel.UserFound -> {
+            is LocationPickerNavigationEvent.UserFound -> {
                 map?.moveCamera(CameraUpdateFactory.newLatLngZoom(event.coordinates.toLatLng(), DEFAULT_ZOOM_LEVEL))
             }
         }

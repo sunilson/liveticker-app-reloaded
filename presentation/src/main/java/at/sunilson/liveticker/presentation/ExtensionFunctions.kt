@@ -111,3 +111,7 @@ fun <T : ModelWithId> ObservableList<T>.removeWithId(value: T) {
 fun Context.showToast(@StringRes message: Int, length: Int = Toast.LENGTH_LONG) {
     Toast.makeText(this, message, length).show()
 }
+
+fun Context.showToast(message: String, length: Int = Toast.LENGTH_LONG) {
+    Toast.makeText(this, message, length).show()
+}

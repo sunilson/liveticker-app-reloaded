@@ -9,6 +9,7 @@ import android.view.ViewGroup
 import android.view.WindowManager
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.Observer
+import at.sunilson.liveticker.core.utils.Do
 import at.sunilson.liveticker.presentation.R
 import at.sunilson.liveticker.presentation.baseClasses.BaseDialogFragment
 import at.sunilson.liveticker.presentation.databinding.InputDialogFragmentBinding
@@ -50,9 +51,13 @@ class InputDialog private constructor() : BaseDialogFragment() {
         dialog?.window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE)
 
         viewModel.navigationEvents.observe(viewLifecycleOwner, Observer {
-            if (it is InputDialogViewModel.ConfirmClicked && it.text?.isNotEmpty() == true) {
-                (parentFragment as? InputDialogListener)?.inputHappened(it.text.toString())
-                dismiss()
+            Do exhaustive when (it) {
+                is InputNavigationEvent.ConfirmClicked -> {
+                    if (it.text?.isNotEmpty() == true) {
+                        (parentFragment as? InputDialogListener)?.inputHappened(it.text.toString())
+                        dismiss()
+                    } else {}
+                }
             }
         })
     }

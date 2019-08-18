@@ -28,7 +28,7 @@ abstract class BaseFullscreenDialogFragment : DialogFragment() {
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         //Intercept back button
-        return object : Dialog(context, theme) {
+        return object : Dialog(requireContext(), theme) {
             override fun onBackPressed() {
                 backPressed()
             }

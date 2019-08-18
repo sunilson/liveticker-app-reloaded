@@ -11,6 +11,7 @@ class LiveTicker(
     val shortDescription: String = "",
     val description: String = "",
     val creationDate: Date? = Date(),
+    val sharingUrl: String = "",
     val plannedStartDate: Date? = null,
     val started: Boolean = false,
     val finished: Boolean = false,

@@ -5,35 +5,34 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.LayoutRes
 import androidx.databinding.DataBindingUtil
-import androidx.databinding.ObservableList
 import androidx.databinding.ViewDataBinding
+import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 
 abstract class BaseRecyclerAdapter<T>(val data: MutableList<T>) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     var onItemClicked: (View) -> Unit = {}
-    var callback = ObservableCallback()
 
     open fun clear() {
         data.clear()
         notifyDataSetChanged()
     }
 
-    fun addObservableList(list: ObservableList<T>) {
-        val size = this.data.size
-        data.clear()
-        notifyItemRangeRemoved(0, size)
-        this.data.addAll(list)
-        notifyItemRangeInserted(0, data.size)
-        list.addOnListChangedCallback(callback)
-    }
-
     open fun addAll(elements: List<T>) {
-        val size = this.data.size
-        this.data.clear()
-        notifyItemRangeRemoved(0, size)
-        this.data.addAll(elements)
-        notifyItemRangeInserted(0, data.size)
+        val diffutilCallback = createDiffutilCallback(data, elements)
+
+        if (diffutilCallback != null) {
+            val diffResult = DiffUtil.calculateDiff(diffutilCallback)
+            diffResult.dispatchUpdatesTo(this)
+            this.data.clear()
+            this.data.addAll(elements)
+        } else {
+            val size = this.data.size
+            this.data.clear()
+            notifyItemRangeRemoved(0, size)
+            this.data.addAll(elements)
+            notifyItemRangeInserted(0, data.size)
+        }
     }
 
     override fun getItemCount(): Int = data.size
@@ -64,6 +63,7 @@ abstract class BaseRecyclerAdapter<T>(val data: MutableList<T>) : RecyclerView.A
         }
     }
 
+    open fun createDiffutilCallback(oldList: List<T>, newList: List<T>): DiffUtil.Callback? = null
     abstract fun bindViewHolder(binding: ViewDataBinding, obj: T)
     abstract fun unbindViewHolder(binding: ViewDataBinding)
 
@@ -72,37 +72,6 @@ abstract class BaseRecyclerAdapter<T>(val data: MutableList<T>) : RecyclerView.A
         fun bind(obj: T) {
             bindViewHolder(binding, obj)
             binding.executePendingBindings()
-        }
-    }
-
-    inner class ObservableCallback : ObservableList.OnListChangedCallback<ObservableList<T>>() {
-        override fun onChanged(sender: ObservableList<T>?) {
-        }
-
-        override fun onItemRangeRemoved(sender: ObservableList<T>?, positionStart: Int, itemCount: Int) {
-            if(sender == null) return
-            val thread = Thread.currentThread()
-            data.clear()
-            data.addAll(sender)
-            notifyItemRangeRemoved(positionStart, itemCount)
-        }
-
-        override fun onItemRangeMoved(sender: ObservableList<T>?, fromPosition: Int, toPosition: Int, itemCount: Int) {}
-
-        override fun onItemRangeInserted(sender: ObservableList<T>?, positionStart: Int, itemCount: Int) {
-            if(sender == null) return
-            val thread = Thread.currentThread()
-            data.clear()
-            data.addAll(sender)
-            notifyItemRangeInserted(positionStart, itemCount)
-        }
-
-        override fun onItemRangeChanged(sender: ObservableList<T>?, positionStart: Int, itemCount: Int) {
-            if(sender == null) return
-            val thread = Thread.currentThread()
-            data.clear()
-            data.addAll(sender)
-            notifyItemRangeChanged(positionStart, itemCount)
         }
     }
 }

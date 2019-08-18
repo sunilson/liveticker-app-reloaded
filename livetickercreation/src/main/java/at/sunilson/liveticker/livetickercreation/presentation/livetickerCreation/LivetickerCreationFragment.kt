@@ -4,7 +4,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.core.view.ViewCompat
 import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
 import at.sunilson.liveticker.livetickercreation.R
@@ -13,30 +12,22 @@ import at.sunilson.liveticker.location.MapFragmentCreator
 import at.sunilson.liveticker.location.MapOptions
 import at.sunilson.liveticker.location.toLatLng
 import at.sunilson.liveticker.presentation.baseClasses.BaseFragment
-import at.sunilson.liveticker.presentation.baseClasses.NavigationEvent
 import at.sunilson.liveticker.presentation.enterChildViewsFromBottomDelayed
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
-import com.google.android.gms.maps.SupportMapFragment
-import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
 import kotlinx.android.synthetic.main.fragment_liveticker_creation.*
 import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 
-class LivetickerCreationFragment : BaseFragment<LivetickerCreationViewModel>() {
+class LivetickerCreationFragment : BaseFragment<LivetickerCreationViewModel, LivetickerCreationNavigationEvent>() {
 
     override val viewModel: LivetickerCreationViewModel by sharedViewModel()
     private val mapFragmentCreator: MapFragmentCreator by inject()
     private var animated: Boolean = false
     private var map: GoogleMap? = null
     private var marker: Marker? = null
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-
-    }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val binding = generateBinding<FragmentLivetickerCreationBinding>(
@@ -84,7 +75,7 @@ class LivetickerCreationFragment : BaseFragment<LivetickerCreationViewModel>() {
         toolbar.setNavigationOnClickListener { findNavController().popBackStack() }
     }
 
-    override fun onNavigationEvent(event: NavigationEvent) {
+    override fun onNavigationEvent(event: LivetickerCreationNavigationEvent) {
         findNavController().popBackStack()
     }
 

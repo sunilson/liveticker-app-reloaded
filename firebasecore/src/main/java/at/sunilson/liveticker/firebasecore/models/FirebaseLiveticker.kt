@@ -16,6 +16,7 @@ class FirebaseLiveticker(
     val finished: Boolean = false,
     val location: Location? = null,
     val cheers: Int = 0,
+    val sharingUrl: String = "",
     id: String = ""
 ) : FirebaseEntity(id)
 
@@ -27,6 +28,7 @@ fun FirebaseLiveticker.convertToDomainEntity() = LiveTicker(
     shortDescription,
     description,
     timestamp ?: Date(),
+    sharingUrl,
     plannedStartDate,
     started,
     finished,

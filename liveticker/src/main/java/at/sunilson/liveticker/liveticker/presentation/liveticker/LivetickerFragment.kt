@@ -11,6 +11,7 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
+import at.sunilson.liveticker.core.utils.Do
 import at.sunilson.liveticker.liveticker.LivetickerNavigation
 import at.sunilson.liveticker.liveticker.R
 import at.sunilson.liveticker.liveticker.databinding.FragmentLivetickerBinding
@@ -18,7 +19,6 @@ import at.sunilson.liveticker.liveticker.presentation.comments.CommentsRecyclerA
 import at.sunilson.liveticker.location.MapFragmentCreator
 import at.sunilson.liveticker.location.MapOptions
 import at.sunilson.liveticker.presentation.baseClasses.BaseFragment
-import at.sunilson.liveticker.presentation.baseClasses.NavigationEvent
 import at.sunilson.liveticker.presentation.dialogs.inputDialog.InputDialog
 import at.sunilson.liveticker.presentation.interfaces.InputDialogListener
 import at.sunilson.liveticker.presentation.views.LockableBottomSheetBehavior
@@ -32,7 +32,7 @@ import org.koin.androidx.viewmodel.ext.android.viewModel
 import timber.log.Timber
 import kotlin.math.min
 
-class LivetickerFragment : BaseFragment<LivetickerViewModel>(), InputDialogListener {
+class LivetickerFragment : BaseFragment<LivetickerViewModel, LivetickerNavigationEvent>(), InputDialogListener {
 
     override val viewModel: LivetickerViewModel by viewModel()
     private val livetickerNavigation: LivetickerNavigation by inject()
@@ -42,18 +42,25 @@ class LivetickerFragment : BaseFragment<LivetickerViewModel>(), InputDialogListe
     private val arguments: LivetickerFragmentArgs by navArgs()
 
     private val bottomSheetBehavior: LockableBottomSheetBehavior<ConstraintLayout> by lazy {
-        BottomSheetBehavior.from(liveticker_bottom_sheet) as LockableBottomSheetBehavior
+        from(liveticker_bottom_sheet) as LockableBottomSheetBehavior
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        viewModel.loadLiveticker(arguments.id)
+
+        when {
+            arguments.sharingId != null -> viewModel.loadLivetickerFromShareUrl(arguments.sharingId!!)
+            arguments.id != null -> viewModel.loadLiveticker(arguments.id!!)
+            else -> error("One of the given arguments must be set!")
+        }
 
         activity?.onBackPressedDispatcher?.addCallback(this, enabled = true) {
             if (bottomSheetBehavior.state != STATE_COLLAPSED && bottomSheetBehavior.state != STATE_HIDDEN) {
                 bottomSheetBehavior.state = STATE_HIDDEN
             } else {
-                findNavController().popBackStack()
+                if (!findNavController().popBackStack()) {
+                    requireActivity().finish()
+                }
             }
         }
     }
@@ -78,13 +85,8 @@ class LivetickerFragment : BaseFragment<LivetickerViewModel>(), InputDialogListe
 
         comment_list.adapter = commentsRecyclerAdapter
 
-        liveticker_fab.setOnClickListener {
-            liveticker_fab.hide()
-            bottomSheetBehavior.state = STATE_EXPANDED
-        }
-
         bottomSheetBehavior.state = STATE_HIDDEN
-        bottomSheetBehavior.locked = true
+        bottomSheetBehavior.locked = false
         bottomSheetBehavior.setBottomSheetCallback(object : BottomSheetBehavior.BottomSheetCallback() {
             override fun onSlide(bottomSheet: View, slideOffset: Float) {
                 if (slideOffset >= 0) {
@@ -95,8 +97,10 @@ class LivetickerFragment : BaseFragment<LivetickerViewModel>(), InputDialogListe
             override fun onStateChanged(bottomSheet: View, newState: Int) {
                 if (newState == STATE_EXPANDED) {
                     viewModel.loadComments()
-                } else if(newState == STATE_HIDDEN || newState == STATE_COLLAPSED) {
-                    liveticker_fab.show()
+                } else if (newState == STATE_HIDDEN || newState == STATE_COLLAPSED) {
+                    if (liveticker_motionlayout.currentState == liveticker_motionlayout.endState) {
+                        liveticker_fab.show()
+                    }
                 }
             }
         })
@@ -104,17 +108,14 @@ class LivetickerFragment : BaseFragment<LivetickerViewModel>(), InputDialogListe
         liveticker_motionlayout.setTransitionListener(object : MotionLayout.TransitionListener {
             override fun onTransitionTrigger(p0: MotionLayout?, p1: Int, p2: Boolean, p3: Float) {}
             override fun allowsTransition(p0: MotionScene.Transition?) = true
-            override fun onTransitionStarted(p0: MotionLayout?, start: Int, end: Int) {
-                liveticker_fab.hide()
-                bottomSheetBehavior.state = STATE_HIDDEN
-            }
+            override fun onTransitionStarted(p0: MotionLayout?, start: Int, end: Int) {}
             override fun onTransitionChange(p0: MotionLayout?, start: Int, end: Int, progress: Float) {}
+
             override fun onTransitionCompleted(p0: MotionLayout?, state: Int) {
                 if (state == liveticker_motionlayout.endState) {
-                    bottomSheetBehavior.locked = false
                     liveticker_fab.show()
                 } else {
-                    bottomSheetBehavior.locked = true
+                    liveticker_fab.hide()
                 }
             }
         })
@@ -136,13 +137,20 @@ class LivetickerFragment : BaseFragment<LivetickerViewModel>(), InputDialogListe
         viewModel.addComment(string)
     }
 
-    override fun onNavigationEvent(event: NavigationEvent) {
-        when (event) {
-            is LivetickerViewModel.AddComment -> {
+    override fun onNavigationEvent(event: LivetickerNavigationEvent) {
+        Do exhaustive when (event) {
+            is LivetickerNavigationEvent.AddComment -> {
                 InputDialog.newInstance("Kommentar hinzufügen", "Kommentar eingeben", "Hinzufügen")
                     .show(childFragmentManager, null)
             }
-            is LivetickerViewModel.Share -> livetickerNavigation.shareLivetickerFromLiveticker()
+            is LivetickerNavigationEvent.Share -> livetickerNavigation.shareLivetickerFromLiveticker(
+                event.viewUrl,
+                event.editUrl
+            )
+            is LivetickerNavigationEvent.ShowComments -> {
+                liveticker_fab.hide()
+                bottomSheetBehavior.state = STATE_EXPANDED
+            }
         }
     }
 }

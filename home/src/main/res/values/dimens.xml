@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <dimen name="liveticker_card_margin_leftright">20dp</dimen>
-    <dimen name="liveticker_margin_side_topbottom">15dp</dimen>
+    <dimen name="liveticker_card_margin_leftright">@dimen/big_margin</dimen>
+    <dimen name="liveticker_margin_side_topbottom">@dimen/medium_margin</dimen>
 </resources>

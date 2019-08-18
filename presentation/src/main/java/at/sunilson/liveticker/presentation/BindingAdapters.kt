@@ -47,14 +47,6 @@ fun <T> RecyclerView.setEntries(entries: List<T>?) {
     }
 }
 
-@BindingAdapter("app:observableEntries")
-fun <T> RecyclerView.setObservableEntries(entries: ObservableList<T>?) {
-    if (entries != null) {
-        val adapter = this.adapter as? BaseRecyclerAdapter<T>
-        adapter?.addObservableList(entries)
-    }
-}
-
 @BindingAdapter("app:onItemSelected")
 fun <T> RecyclerView.onItemSelected(itemSelectedListener: ItemSelectedListener<T>) {
     if (adapter is BaseRecyclerAdapter<*>) {

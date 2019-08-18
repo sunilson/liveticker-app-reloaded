@@ -17,6 +17,7 @@ import androidx.databinding.ViewDataBinding
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
+import at.sunilson.liveticker.core.utils.Do
 import at.sunilson.liveticker.presentation.R
 import at.sunilson.liveticker.presentation.interfaces.BackpressInterceptor
 import at.sunilson.liveticker.presentation.showToast
@@ -27,26 +28,20 @@ import kotlinx.coroutines.SupervisorJob
 import timber.log.Timber
 import kotlin.coroutines.CoroutineContext
 
-abstract class BaseFragment<ViewModel : BaseViewModel> : Fragment(), CoroutineScope {
+abstract class BaseFragment<ViewModel : BaseViewModel<E>, E> : Fragment(), CoroutineScope {
 
     private val job: Job = SupervisorJob()
     override val coroutineContext: CoroutineContext = Dispatchers.Main + job
     abstract val viewModel: ViewModel
-    private var originalStatusBarColor: Int? = null
-    private var dark: Boolean = false
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-        viewModel.navigationEvents.observe(viewLifecycleOwner, Observer {
-            if (it is Back) findNavController().popBackStack()
-            else onNavigationEvent(it)
-        })
-
+        viewModel.navigationEvents.observe(viewLifecycleOwner, Observer { onNavigationEvent(it) })
+        viewModel.back.observe(viewLifecycleOwner, Observer { findNavController().popBackStack() })
         viewModel.toasts.observe(viewLifecycleOwner, Observer { context?.showToast(it) })
     }
 
-    open fun onNavigationEvent(event: NavigationEvent) {}
+    abstract fun onNavigationEvent(event: E)
 
     /**
      * Sets up the given layout resource with a [BaseViewModel] and data binding
@@ -73,18 +68,11 @@ abstract class BaseFragment<ViewModel : BaseViewModel> : Fragment(), CoroutineSc
         return super.onCreateAnimation(transit, enter, nextAnim)
     }
 
-    protected fun setStatusBarColor(@ColorRes color: Int? = null, dark: Boolean = true) {
+    protected fun setStatusBarColor(@ColorRes color: Int, dark: Boolean = true) {
         activity?.let { activity ->
-            if (originalStatusBarColor == null) originalStatusBarColor = activity.window.statusBarColor
-
             activity.window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS)
             activity.window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
-
-            if (color != null) {
-                activity.window.statusBarColor = ContextCompat.getColor(activity, color)
-            } else if (originalStatusBarColor != null) {
-                originalStatusBarColor?.let { activity.window.statusBarColor = it }
-            }
+            activity.window.statusBarColor = ContextCompat.getColor(activity, color)
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 if (!dark) activity.window?.decorView?.systemUiVisibility = View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
@@ -95,10 +83,6 @@ abstract class BaseFragment<ViewModel : BaseViewModel> : Fragment(), CoroutineSc
                 }
             }
         }
-    }
-
-    protected fun resetStatusBarColor() {
-        setStatusBarColor()
     }
 
     override fun onDestroy() {

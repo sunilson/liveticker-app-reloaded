@@ -19,7 +19,7 @@
         <activity
                 android:name="at.sunilson.liveticker.MainActivity"
                 android:windowSoftInputMode="adjustPan">
-
+            <nav-graph android:value="@navigation/app_graph"/>
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
 
@@ -27,5 +27,4 @@
             </intent-filter>
         </activity>
     </application>
-
 </manifest>

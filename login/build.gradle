@@ -3,18 +3,6 @@ apply plugin: 'kotlin-android-extensions'
 apply plugin: 'kotlin-android'
 
 android {
-    compileSdkVersion 28
-
-    defaultConfig {
-        minSdkVersion 21
-        targetSdkVersion 28
-        versionCode 1
-        versionName "1.0"
-
-        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
-
-    }
-
     buildTypes {
         release {
             minifyEnabled false
@@ -44,7 +32,4 @@ dependencies {
     implementation DILibs.koinViewModel
     implementation ThirdPartyLibs.timber
     implementation GoogleLibs.material_components
-}
-repositories {
-    mavenCentral()
 }

@@ -6,11 +6,10 @@ import androidx.lifecycle.viewModelScope
 import at.sunilson.liveticker.core.models.Location
 import at.sunilson.liveticker.livetickercreation.domain.CreateLivetickerParams
 import at.sunilson.liveticker.livetickercreation.domain.CreateLivetickerUseCase
-import at.sunilson.liveticker.presentation.baseClasses.Back
 import at.sunilson.liveticker.presentation.baseClasses.BaseViewModel
 import kotlinx.coroutines.launch
 
-abstract class LivetickerCreationViewModel : BaseViewModel() {
+abstract class LivetickerCreationViewModel : BaseViewModel<LivetickerCreationNavigationEvent>() {
     abstract val usePosition: MutableLiveData<Boolean>
     abstract val title: MutableLiveData<String>
     abstract val shortDescription: MutableLiveData<String>
@@ -19,6 +18,10 @@ abstract class LivetickerCreationViewModel : BaseViewModel() {
 
     abstract fun createLiveTicker(view: View? = null)
     abstract fun reset()
+}
+
+sealed class LivetickerCreationNavigationEvent {
+    object Back: LivetickerCreationNavigationEvent()
 }
 
 class LivetickerCreationViewModelImpl(private val createLivetickerUseCase: CreateLivetickerUseCase) :
@@ -45,7 +48,7 @@ class LivetickerCreationViewModelImpl(private val createLivetickerUseCase: Creat
                     location.value
                 )
             ).fold(
-                { navigationEvents.postValue(Back) },
+                { navigationEvents.postValue(LivetickerCreationNavigationEvent.Back) },
                 {
                     //TODO
                     loading.postValue(false)

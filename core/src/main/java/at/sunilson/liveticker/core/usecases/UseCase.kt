@@ -1,4 +1,4 @@
-package at.sunilson.liveticker.core
+package at.sunilson.liveticker.core.usecases
 
 import com.github.kittinunf.result.Result
 

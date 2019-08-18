@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+            xmlns:app="http://schemas.android.com/apk/res-auto"
+            xmlns:tools="http://schemas.android.com/tools"
+            android:id="@+id/liveticker_creation_graph"
+            app:startDestination="@id/livetickerCreationFragment">
+
+    <fragment
+            android:id="@+id/livetickerCreationFragment"
+            tools:layout="@layout/fragment_liveticker_creation"
+            android:name="at.sunilson.liveticker.livetickercreation.presentation.livetickerCreation.LivetickerCreationFragment"
+            android:label="LivetickerCreationFragment">
+
+        <action
+                android:id="@+id/action_livetickerCreationFragment_to_locationPickerDialogFragment"
+                app:destination="@id/locationPickerDialogFragment"
+                app:enterAnim="@anim/move_in_from_right"
+                app:exitAnim="@anim/move_out_to_left_slightly"
+                app:popEnterAnim="@anim/move_in_from_left_slightly"
+                app:popExitAnim="@anim/move_out_to_right"
+                />
+    </fragment>
+    <fragment
+            android:id="@+id/locationPickerDialogFragment"
+            android:name="at.sunilson.liveticker.livetickercreation.presentation.locationPickerDialog.LocationPickerFragment"
+            android:label="LocationPickerDialogFragment"
+            tools:layout="@layout/dialog_fragment_location_picker"
+            />
+</navigation>

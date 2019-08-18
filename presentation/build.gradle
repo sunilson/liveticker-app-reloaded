@@ -4,19 +4,6 @@ apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-kapt'
 
 android {
-    compileSdkVersion 28
-
-
-    defaultConfig {
-        minSdkVersion 21
-        targetSdkVersion 28
-        versionCode 1
-        versionName "1.0"
-
-        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
-
-    }
-
     buildTypes {
         release {
             minifyEnabled false
@@ -27,7 +14,6 @@ android {
     dataBinding {
         enabled = true
     }
-
 }
 
 dependencies {
@@ -49,8 +35,5 @@ dependencies {
 
     implementation ThirdPartyLibs.timber
     implementation GoogleLibs.material_components
-    compile "org.jetbrains.kotlin:kotlin-reflect:1.3.31"
-}
-repositories {
-    mavenCentral()
+    compile "org.jetbrains.kotlin:kotlin-reflect:1.3.41"
 }

@@ -8,14 +8,33 @@
             <LayoutPositions>
               <option name="myPositions">
                 <map>
-                  <entry key="home_graph">
+                  <entry key="homeFragment">
                     <value>
                       <LayoutPositions>
                         <option name="myPosition">
                           <Point>
-                            <option name="x" value="12" />
-                            <option name="y" value="150" />
+                            <option name="x" value="256" />
+                            <option name="y" value="41" />
                           </Point>
+                        </option>
+                        <option name="myPositions">
+                          <map>
+                            <entry key="action_homeFragment_to_liveticker_creation_graph">
+                              <value>
+                                <LayoutPositions />
+                              </value>
+                            </entry>
+                            <entry key="action_homeFragment_to_liveticker_graph">
+                              <value>
+                                <LayoutPositions />
+                              </value>
+                            </entry>
+                            <entry key="action_homeFragment_to_login_graph">
+                              <value>
+                                <LayoutPositions />
+                              </value>
+                            </entry>
+                          </map>
                         </option>
                       </LayoutPositions>
                     </value>
@@ -25,8 +44,8 @@
                       <LayoutPositions>
                         <option name="myPosition">
                           <Point>
-                            <option name="x" value="12" />
-                            <option name="y" value="426" />
+                            <option name="x" value="500" />
+                            <option name="y" value="288" />
                           </Point>
                         </option>
                       </LayoutPositions>
@@ -37,8 +56,8 @@
                       <LayoutPositions>
                         <option name="myPosition">
                           <Point>
-                            <option name="x" value="12" />
-                            <option name="y" value="564" />
+                            <option name="x" value="651" />
+                            <option name="y" value="142" />
                           </Point>
                         </option>
                       </LayoutPositions>
@@ -49,7 +68,7 @@
                       <LayoutPositions>
                         <option name="myPosition">
                           <Point>
-                            <option name="x" value="12" />
+                            <option name="x" value="500" />
                             <option name="y" value="12" />
                           </Point>
                         </option>
@@ -57,21 +76,6 @@
                     </value>
                   </entry>
                   <entry key="move_to_home">
-                    <value>
-                      <LayoutPositions />
-                    </value>
-                  </entry>
-                  <entry key="move_to_liveticker">
-                    <value>
-                      <LayoutPositions />
-                    </value>
-                  </entry>
-                  <entry key="move_to_liveticker_creation">
-                    <value>
-                      <LayoutPositions />
-                    </value>
-                  </entry>
-                  <entry key="move_to_login">
                     <value>
                       <LayoutPositions />
                     </value>
@@ -86,8 +90,8 @@
                       <LayoutPositions>
                         <option name="myPosition">
                           <Point>
-                            <option name="x" value="12" />
-                            <option name="y" value="288" />
+                            <option name="x" value="263" />
+                            <option name="y" value="-104" />
                           </Point>
                         </option>
                       </LayoutPositions>
@@ -105,14 +109,7 @@
                 <map>
                   <entry key="homeFragment">
                     <value>
-                      <LayoutPositions>
-                        <option name="myPosition">
-                          <Point>
-                            <option name="x" value="12" />
-                            <option name="y" value="12" />
-                          </Point>
-                        </option>
-                      </LayoutPositions>
+                      <LayoutPositions />
                     </value>
                   </entry>
                 </map>
@@ -157,7 +154,14 @@
                 <map>
                   <entry key="livetickerFragment">
                     <value>
-                      <LayoutPositions />
+                      <LayoutPositions>
+                        <option name="myPosition">
+                          <Point>
+                            <option name="x" value="12" />
+                            <option name="y" value="12" />
+                          </Point>
+                        </option>
+                      </LayoutPositions>
                     </value>
                   </entry>
                 </map>

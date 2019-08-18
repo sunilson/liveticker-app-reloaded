@@ -6,4 +6,6 @@
     <string name="enter_location">Ort eingeben</string>
     <string name="enter_description">Beschreibung eingeben (optional)</string>
     <string name="choose_location">Ort auswählen (optional)</string>
+    <string name="not_logged_in">Nicht eingeloggt</string>
+    <string name="login">Login</string>
 </resources>

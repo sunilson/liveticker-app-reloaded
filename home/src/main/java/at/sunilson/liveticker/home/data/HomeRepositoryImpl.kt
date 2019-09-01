@@ -8,10 +8,12 @@ import at.sunilson.liveticker.firebasecore.observe
 import at.sunilson.liveticker.home.domain.HomeRepository
 import com.github.kittinunf.result.coroutines.SuspendableResult
 import com.google.firebase.firestore.FirebaseFirestore
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 
 internal class HomeRepositoryImpl(private val fireStore: FirebaseFirestore) : HomeRepository {
 
+    @ExperimentalCoroutinesApi
     override fun getLivetickers(userId: String): Flow<SuspendableResult<List<LiveTicker>, Exception>> {
         return fireStore
             .collection("livetickers")

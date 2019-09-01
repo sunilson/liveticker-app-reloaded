@@ -2,4 +2,5 @@
 <resources>
     <dimen name="liveticker_card_margin_leftright">@dimen/big_margin</dimen>
     <dimen name="liveticker_margin_side_topbottom">@dimen/medium_margin</dimen>
+    <dimen name="search_bar_height">80dp</dimen>
 </resources>

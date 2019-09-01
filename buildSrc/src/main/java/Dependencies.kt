@@ -20,7 +20,7 @@ object AndroidX {
 }
 
 object Kotlin {
-    val coroutines = "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.2.1"
+    val coroutines = "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.0"
 }
 
 object UILibs {

@@ -1,25 +1,35 @@
 package at.sunilson.liveticker.firebasecore
 
 import at.sunilson.liveticker.core.ObservationResult
-import at.sunilson.liveticker.firebasecore.models.FirebaseEntity
 import com.github.kittinunf.result.coroutines.SuspendableResult
 import com.google.android.gms.tasks.OnCompleteListener
 import com.google.firebase.firestore.*
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.channels.sendBlocking
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.flow.channelFlow
 import kotlinx.coroutines.flow.flowViaChannel
 import kotlinx.coroutines.suspendCancellableCoroutine
+import java.util.*
 import kotlin.coroutines.Continuation
 import kotlin.coroutines.resume
+
+abstract class FirebaseEntity(@Exclude var id: String, @ServerTimestamp val timestamp: Date? = null)
 
 /**
  * Gets a document or returns [EmptyResult]
  */
 suspend inline fun <reified T : Any> DocumentReference.awaitGet(): SuspendableResult<T, FirebaseOperationException> {
     val snapshot: SuspendableResult<DocumentSnapshot, FirebaseOperationException> =
-        suspendCancellableCoroutine { cont -> get().addOnCompleteListener(generateResultCompletionListener(cont)) }
+        suspendCancellableCoroutine { cont ->
+            get().addOnCompleteListener(
+                generateResultCompletionListener(cont)
+            )
+        }
 
-    return SuspendableResult.of<T, FirebaseOperationException> {
+    return SuspendableResult.of {
         try {
             snapshot.get().toObject(T::class.java)!!
         } catch (error: Exception) {
@@ -37,7 +47,7 @@ suspend inline fun <reified T : Any> Query.awaitGet(): SuspendableResult<List<T>
             get().addOnCompleteListener(generateResultCompletionListener(cont))
         }
 
-    return SuspendableResult.of<List<T>, FirebaseOperationException> {
+    return SuspendableResult.of {
         snapshot.get().documents.map {
             try {
                 it.toObject(T::class.java)!!
@@ -86,42 +96,46 @@ suspend fun DocumentReference.awaitUpdate(map: Map<String, Any>): SuspendableRes
 }
 
 /**
+ * Commits the batch and waits for that operation to finish
+ */
+suspend fun WriteBatch.awaitCommit(): SuspendableResult<Unit, FirebaseOperationException> {
+    return suspendCancellableCoroutine { cont ->
+        commit().addOnCompleteListener(generateCompletionListener(cont))
+    }
+}
+
+/**
  * Observe a collection and emit a List of all the data in the collection on each change
  */
-inline fun <reified T : FirebaseEntity, R> Query.observe(crossinline map: (T) -> R): Flow<SuspendableResult<List<R>, FirebaseOperationException>> {
-    return flowViaChannel { channel ->
-        var listener: ListenerRegistration? = null
-
-        listener = addSnapshotListener { querySnapshot, exception ->
+@ExperimentalCoroutinesApi
+inline fun <reified T : FirebaseEntity, R> Query.observe(crossinline map: (T) -> R) =
+    callbackFlow<SuspendableResult<List<R>, FirebaseOperationException>> {
+        val listener = addSnapshotListener { querySnapshot, exception ->
             exception?.let {
-                channel.sendBlocking(SuspendableResult.error(it.convert()))
-                listener?.remove()
-                channel.close(it)
+                sendBlocking(SuspendableResult.error(it.convert()))
+                close(it)
                 return@addSnapshotListener
             }
 
-            channel.sendBlocking(
+            sendBlocking(
                 SuspendableResult.Success(querySnapshot?.map { document ->
                     map(document.toObject(T::class.java).apply { id = document.id })
                 } ?: return@addSnapshotListener)
             )
         }
-
-        channel.invokeOnClose { listener.remove() }
+        awaitClose { listener.remove() }
     }
-}
 
 /**
  * Observe a collection and emit a List of all changes to the data in the collection
  */
-inline fun <reified T : FirebaseEntity, R> Query.observeChanges(crossinline map: (T) -> R): Flow<SuspendableResult<List<ObservationResult<R>>, FirebaseOperationException>> {
-    return flowViaChannel { channel ->
-        var listener: ListenerRegistration? = null
-        listener = addSnapshotListener { querySnapshot, exception ->
+@ExperimentalCoroutinesApi
+inline fun <reified T : FirebaseEntity, R> Query.observeChanges(crossinline map: (T) -> R) =
+    callbackFlow<SuspendableResult<List<ObservationResult<R>>, FirebaseOperationException>> {
+        val listener = addSnapshotListener { querySnapshot, exception ->
             exception?.let {
-                channel.sendBlocking(SuspendableResult.error(it.convert()))
-                listener?.remove()
-                channel.close(it)
+                sendBlocking(SuspendableResult.error(it.convert()))
+                close(it)
                 return@addSnapshotListener
             }
 
@@ -134,36 +148,32 @@ inline fun <reified T : FirebaseEntity, R> Query.observeChanges(crossinline map:
                 }
             }
 
-            channel.sendBlocking(SuspendableResult.Success(changes ?: return@addSnapshotListener))
+            sendBlocking(SuspendableResult.Success(changes ?: return@addSnapshotListener))
         }
 
-        channel.invokeOnClose { listener.remove() }
+        awaitClose { listener.remove() }
     }
-}
 
 /**
  * Observe a document and emit the data in the collection on each change
  */
-inline fun <reified T : FirebaseEntity, R : Any> DocumentReference.observe(crossinline map: (T) -> R): Flow<SuspendableResult<R, FirebaseOperationException>> {
-    return flowViaChannel { channel ->
-        var listener: ListenerRegistration? = null
-
-        listener = addSnapshotListener { documentSnapshot, exception ->
+@ExperimentalCoroutinesApi
+inline fun <reified T : FirebaseEntity, R : Any> DocumentReference.observe(crossinline map: (T) -> R) =
+    callbackFlow<SuspendableResult<R, FirebaseOperationException>> {
+        val listener = addSnapshotListener { documentSnapshot, exception ->
             exception?.let {
-                channel.sendBlocking(SuspendableResult.error(it.convert()))
-                listener?.remove()
-                channel.close(it)
+                sendBlocking(SuspendableResult.error(it.convert()))
+                close(it)
                 return@addSnapshotListener
             }
 
             val obj = documentSnapshot?.toObject(T::class.java)?.apply { id = documentSnapshot.id }
                 ?: return@addSnapshotListener
-            channel.sendBlocking(SuspendableResult.Success(map(obj)))
+            sendBlocking(SuspendableResult.Success(map(obj)))
         }
 
-        channel.invokeOnClose { listener.remove() }
+        awaitClose { listener.remove() }
     }
-}
 
 fun <T> generateCompletionListener(cont: Continuation<SuspendableResult<Unit, FirebaseOperationException>>): OnCompleteListener<T> {
     return OnCompleteListener {
@@ -220,32 +230,40 @@ fun <T : Any> generateResultCompletionListener(cont: Continuation<SuspendableRes
     }
 }
 
+/**
+ * Converts a [FirebaseFirestoreException] to a [FirebaseOperationException] which is used throughout the app
+ */
 fun FirebaseFirestoreException.convert(): FirebaseOperationException {
     return when (code) {
         FirebaseFirestoreException.Code.PERMISSION_DENIED -> FirebaseOperationException.PermissionDenied()
-        FirebaseFirestoreException.Code.OK -> TODO()
-        FirebaseFirestoreException.Code.CANCELLED -> TODO()
-        FirebaseFirestoreException.Code.UNKNOWN -> TODO()
-        FirebaseFirestoreException.Code.INVALID_ARGUMENT -> TODO()
-        FirebaseFirestoreException.Code.DEADLINE_EXCEEDED -> TODO()
-        FirebaseFirestoreException.Code.NOT_FOUND -> TODO()
-        FirebaseFirestoreException.Code.ALREADY_EXISTS -> TODO()
-        FirebaseFirestoreException.Code.RESOURCE_EXHAUSTED -> TODO()
-        FirebaseFirestoreException.Code.FAILED_PRECONDITION -> TODO()
-        FirebaseFirestoreException.Code.ABORTED -> TODO()
-        FirebaseFirestoreException.Code.OUT_OF_RANGE -> TODO()
-        FirebaseFirestoreException.Code.UNIMPLEMENTED -> TODO()
-        FirebaseFirestoreException.Code.INTERNAL -> TODO()
-        FirebaseFirestoreException.Code.UNAVAILABLE -> TODO()
-        FirebaseFirestoreException.Code.DATA_LOSS -> TODO()
-        FirebaseFirestoreException.Code.UNAUTHENTICATED -> TODO()
+        FirebaseFirestoreException.Code.UNAUTHENTICATED -> FirebaseOperationException.AuthenticationFailed()
+        FirebaseFirestoreException.Code.CANCELLED -> FirebaseOperationException.Cancelled()
+        FirebaseFirestoreException.Code.OK,
+        FirebaseFirestoreException.Code.UNKNOWN,
+        FirebaseFirestoreException.Code.INVALID_ARGUMENT,
+        FirebaseFirestoreException.Code.DEADLINE_EXCEEDED,
+        FirebaseFirestoreException.Code.NOT_FOUND,
+        FirebaseFirestoreException.Code.ALREADY_EXISTS,
+        FirebaseFirestoreException.Code.RESOURCE_EXHAUSTED,
+        FirebaseFirestoreException.Code.FAILED_PRECONDITION,
+        FirebaseFirestoreException.Code.ABORTED,
+        FirebaseFirestoreException.Code.OUT_OF_RANGE,
+        FirebaseFirestoreException.Code.UNIMPLEMENTED,
+        FirebaseFirestoreException.Code.INTERNAL,
+        FirebaseFirestoreException.Code.UNAVAILABLE,
+        FirebaseFirestoreException.Code.DATA_LOSS -> FirebaseOperationException.Unknown(this)
     }
 }
 
+/**
+ * Mapping of firebase errors to errors that are displayed in the app
+ */
 sealed class FirebaseOperationException(message: String? = null) : Exception(message) {
     class Cancelled : FirebaseOperationException()
     class EmptyResult : FirebaseOperationException()
     class PermissionDenied : FirebaseOperationException()
     class TransformationFailed : FirebaseOperationException()
+    class AuthenticationFailed : FirebaseOperationException()
     class Failed(message: String?) : FirebaseOperationException(message)
+    class Unknown(exception: FirebaseFirestoreException) : FirebaseOperationException()
 }

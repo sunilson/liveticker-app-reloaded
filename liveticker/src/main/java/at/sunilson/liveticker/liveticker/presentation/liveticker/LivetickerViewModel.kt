@@ -33,6 +33,7 @@ abstract class LivetickerViewModel : BaseViewModel<LivetickerNavigationEvent>() 
     abstract fun addComment(comment: String)
     abstract fun like(view: View? = null)
     abstract fun share(view: View? = null)
+    abstract fun toggleNotifications(view: View? = null)
 }
 
 sealed class LivetickerNavigationEvent {
@@ -46,7 +47,8 @@ class LivetickerViewModelImpl(
     private val addCommentUseCase: AddCommentUseCase,
     private val getCommentsUseCase: GetCommentsUseCase,
     private val cheerUseCase: CheerUseCase,
-    private val getEditUrlUseCase: GetEditUrlUseCase
+    private val getEditUrlUseCase: GetEditUrlUseCase,
+    private val setNotificationUseCase: SetNotificationUseCase
 ) : LivetickerViewModel() {
     private var commentsInitialized = false
     private var livetickerJob: Job? = null
@@ -109,6 +111,17 @@ class LivetickerViewModelImpl(
                     }
                 )
             }
+        }
+    }
+
+    override fun toggleNotifications(view: View?) {
+        viewModelScope.launch {
+            setNotificationUseCase(
+                SetNotificationsParams(true, liveTicker.value?.id ?: return@launch)
+            ).fold(
+                {},
+                {}
+            )
         }
     }
 

@@ -16,6 +16,7 @@ val livetickerModule = module {
             get(),
             get(),
             get(),
+            get(),
             get()
         )
     }
@@ -23,6 +24,7 @@ val livetickerModule = module {
     factory { LivetickerRecyclerAdapter() }
     factory { CommentsRecyclerAdapter() }
     factory { GetLivetickerUseCase(get()) }
+    factory { SetNotificationUseCase(get(), get()) }
     factory { AddCommentUseCase(get(), get()) }
     factory { GetCommentsUseCase(get()) }
     factory { CheerUseCase(get()) }

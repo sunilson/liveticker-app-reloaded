@@ -12,8 +12,13 @@ import androidx.annotation.StringRes
 import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
 import androidx.databinding.ObservableList
+import androidx.fragment.app.Fragment
 import at.sunilson.liveticker.core.ObservationResult
 import at.sunilson.liveticker.core.models.ModelWithId
+import android.app.Activity
+import android.view.inputmethod.InputMethodManager
+import androidx.core.content.ContextCompat.getSystemService
+
 
 //Converts dp to px
 fun Int.convertToPx(context: Context): Int {
@@ -53,6 +58,12 @@ fun Context.hasPermission(permission: String): Boolean {
     } else {
         true
     }
+}
+
+fun Fragment.hideKeyboard() {
+    val imm =
+        requireActivity().getSystemService(Activity.INPUT_METHOD_SERVICE) as InputMethodManager
+    imm.hideSoftInputFromWindow(requireView().rootView.windowToken, 0)
 }
 
 /**

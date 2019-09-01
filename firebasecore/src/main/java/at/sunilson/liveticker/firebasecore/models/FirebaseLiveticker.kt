@@ -2,6 +2,7 @@ package at.sunilson.liveticker.firebasecore.models
 
 import at.sunilson.liveticker.core.models.LiveTicker
 import at.sunilson.liveticker.core.models.Location
+import at.sunilson.liveticker.firebasecore.FirebaseEntity
 import com.google.firebase.firestore.FieldValue
 import java.util.*
 

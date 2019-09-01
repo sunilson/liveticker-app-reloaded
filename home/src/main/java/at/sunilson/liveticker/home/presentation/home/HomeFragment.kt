@@ -4,7 +4,9 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.WindowManager
 import android.view.animation.OvershootInterpolator
+import androidx.activity.addCallback
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
 import at.sunilson.liveticker.core.utils.Do
@@ -13,12 +15,14 @@ import at.sunilson.liveticker.home.R
 import at.sunilson.liveticker.home.databinding.FragmentHomeBinding
 import at.sunilson.liveticker.presentation.MainViewModel
 import at.sunilson.liveticker.presentation.baseClasses.BaseFragment
+import at.sunilson.liveticker.presentation.hideKeyboard
 import at.sunilson.liveticker.presentation.showConfirmationDialog
 import jp.wasabeef.recyclerview.animators.SlideInLeftAnimator
 import kotlinx.android.synthetic.main.fragment_home.*
 import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
+
 
 class HomeFragment : BaseFragment<HomeViewModel, HomeNavigationEvent>() {
 
@@ -30,10 +34,32 @@ class HomeFragment : BaseFragment<HomeViewModel, HomeNavigationEvent>() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         mainViewModel.currentUser.observe(this, Observer { viewModel.refresh() })
+        requireActivity().onBackPressedDispatcher.addCallback(this, true) {
+            if (home_motion_layout.currentState == home_motion_layout.endState) {
+                toggleSearchBar()
+            } else {
+                requireActivity().finish()
+            }
+        }
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        val binding = generateBinding<FragmentHomeBinding>(inflater, R.layout.fragment_home, container)
+    override fun onResume() {
+        super.onResume()
+        requireActivity().window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE)
+    }
+
+    override fun onPause() {
+        requireActivity().window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN)
+        super.onPause()
+    }
+
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        val binding =
+            generateBinding<FragmentHomeBinding>(inflater, R.layout.fragment_home, container)
         binding.viewModel = viewModel
         binding.mainViewModel = mainViewModel
         return binding.root
@@ -44,9 +70,7 @@ class HomeFragment : BaseFragment<HomeViewModel, HomeNavigationEvent>() {
 
         setStatusBarColor(R.color.lightStatusBarColor, false)
 
-        bar.setNavigationOnClickListener {
-            //TODO Search
-        }
+        bar.setNavigationOnClickListener { toggleSearchBar() }
 
         bar.setOnMenuItemClickListener {
             when (it.itemId) {
@@ -62,6 +86,19 @@ class HomeFragment : BaseFragment<HomeViewModel, HomeNavigationEvent>() {
             setInterpolator(OvershootInterpolator())
         }
         fragment_home_liveticker_list.adapter = adapter
+    }
+
+    private fun toggleSearchBar() {
+        if (home_motion_layout.currentState == home_motion_layout.endState) {
+            home_motion_layout.transitionToStart()
+            bar.setNavigationIcon(R.drawable.ic_search_black_24dp)
+            home_search_input.text = null
+            home_search_input.clearFocus()
+            hideKeyboard()
+        } else {
+            home_motion_layout.transitionToEnd()
+            bar.setNavigationIcon(R.drawable.ic_close_black_24dp)
+        }
     }
 
     override fun onNavigationEvent(event: HomeNavigationEvent) {

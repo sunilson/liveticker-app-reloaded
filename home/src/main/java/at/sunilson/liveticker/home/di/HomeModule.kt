@@ -14,6 +14,6 @@ val homeModule = module {
     viewModel<HomeViewModel> { HomeViewModelImpl(get(), get(), get(), get()) }
     single<HomeRepository> { HomeRepositoryImpl(get()) }
     factory { LivetickerRecyclerAdapter() }
-    factory { GetLivetickersUseCase(get()) }
+    factory { GetLivetickersUseCase(get(), get()) }
     factory { DeleteLivetickerUsecase(get()) }
 }

@@ -54,7 +54,7 @@ class LivetickerFragment : BaseFragment<LivetickerViewModel, LivetickerNavigatio
             else -> error("One of the given arguments must be set!")
         }
 
-        activity?.onBackPressedDispatcher?.addCallback(this, enabled = true) {
+        requireActivity().onBackPressedDispatcher.addCallback(this, enabled = true) {
             if (bottomSheetBehavior.state != STATE_COLLAPSED && bottomSheetBehavior.state != STATE_HIDDEN) {
                 bottomSheetBehavior.state = STATE_HIDDEN
             } else {

@@ -1,11 +1,15 @@
 package at.sunilson.liveticker.presentation.baseClasses
 
+import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
+import android.os.Handler
 import android.view.LayoutInflater
 import android.view.View
+import android.view.View.*
 import android.view.ViewGroup
 import android.view.WindowManager
+import android.view.WindowManager.LayoutParams.*
 import android.view.animation.Animation
 import android.view.animation.AnimationUtils
 import androidx.annotation.ColorRes
@@ -56,6 +60,7 @@ abstract class BaseFragment<ViewModel : BaseViewModel<E>, E> : Fragment(), Corou
         return binding
     }
 
+    /*
     override fun onCreateAnimation(transit: Int, enter: Boolean, nextAnim: Int): Animation? {
 
         //Show above previous fragment for animation purposes
@@ -67,19 +72,58 @@ abstract class BaseFragment<ViewModel : BaseViewModel<E>, E> : Fragment(), Corou
 
         return super.onCreateAnimation(transit, enter, nextAnim)
     }
+     */
 
-    protected fun setStatusBarColor(@ColorRes color: Int, dark: Boolean = true) {
+    protected fun setNavColors(
+        @ColorRes statusColor: Int = android.R.color.white,
+        @ColorRes navColor: Int = statusColor,
+        darkStatus: Boolean = true,
+        darkNav: Boolean = darkStatus,
+        transparent: Boolean = false,
+        onlyNavTransparent: Boolean = false
+    ) {
         activity?.let { activity ->
-            activity.window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS)
-            activity.window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
-            activity.window.statusBarColor = ContextCompat.getColor(activity, color)
+            //Make bars opaque again
+            activity.window.clearFlags(FLAG_TRANSLUCENT_NAVIGATION)
+            activity.window.clearFlags(FLAG_TRANSLUCENT_STATUS)
+            activity.window.addFlags(FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
 
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                if (!dark) activity.window?.decorView?.systemUiVisibility = View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
-                else {
-                    var flags = activity.window.decorView.systemUiVisibility
-                    flags = flags and View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR.inv()
-                    activity.window.decorView.systemUiVisibility = flags
+            //Set status and nav bar transparent and draw content below
+            if (transparent) {
+                activity.window.addFlags(FLAG_TRANSLUCENT_NAVIGATION)
+                if (!onlyNavTransparent) {
+                    activity.window.addFlags(FLAG_TRANSLUCENT_STATUS)
+                } else {
+                    activity.window.statusBarColor = ContextCompat.getColor(activity, statusColor)
+                }
+                activity.window.decorView.systemUiVisibility =
+                    SYSTEM_UI_FLAG_LAYOUT_STABLE or SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    activity.window.decorView.systemUiVisibility =
+                        activity.window.decorView.systemUiVisibility and SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR.inv()
+                }
+                return
+            }
+
+            activity.window.decorView.systemUiVisibility =
+                activity.window.decorView.systemUiVisibility or SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+
+            //Set colors
+            activity.window.navigationBarColor = ContextCompat.getColor(activity, navColor)
+            activity.window.statusBarColor = ContextCompat.getColor(activity, statusColor)
+
+            //Set light or dark icons
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                activity.window.decorView.systemUiVisibility = if (!darkNav) {
+                    activity.window.decorView.systemUiVisibility or SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR
+                } else {
+                    activity.window.decorView.systemUiVisibility and SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR.inv()
+                }
+
+                activity.window.decorView.systemUiVisibility = if (!darkStatus) {
+                    activity.window.decorView.systemUiVisibility or SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
+                } else {
+                    activity.window.decorView.systemUiVisibility and SYSTEM_UI_FLAG_LIGHT_STATUS_BAR.inv()
                 }
             }
         }

@@ -1,5 +1,9 @@
 package at.sunilson.liveticker.liveticker.data
 
+import android.content.ContentResolver
+import android.content.ContentUris
+import android.net.Uri
+import android.provider.MediaStore
 import at.sunilson.liveticker.core.models.Comment
 import at.sunilson.liveticker.core.models.LiveTicker
 import at.sunilson.liveticker.firebasecore.*
@@ -7,15 +11,19 @@ import at.sunilson.liveticker.firebasecore.models.FirebaseComment
 import at.sunilson.liveticker.firebasecore.models.FirebaseLiveticker
 import at.sunilson.liveticker.firebasecore.models.convertToDomainEntity
 import at.sunilson.liveticker.liveticker.domain.LivetickerRepository
+import com.github.kittinunf.result.Result
 import com.github.kittinunf.result.coroutines.SuspendableResult
-import com.github.kittinunf.result.coroutines.flatMap
 import com.github.kittinunf.result.coroutines.map
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 
-internal class LiveTickerRepositoryImpl(private val fireStore: FirebaseFirestore) : LivetickerRepository {
+internal class LiveTickerRepositoryImpl(
+    private val fireStore: FirebaseFirestore,
+    private val contentResolver: ContentResolver
+) : LivetickerRepository {
 
     override suspend fun cheer(livetickerId: String) {
         fireStore
@@ -91,5 +99,23 @@ internal class LiveTickerRepositoryImpl(private val fireStore: FirebaseFirestore
         batch.update(userRef, (mapOf("subscribedTo" to FieldValue.arrayUnion(livetickerId))))
 
         return batch.awaitCommit()
+    }
+
+    override suspend fun getLocalImagePaths() = SuspendableResult.of<List<Uri>, Exception> {
+        val result = mutableListOf<Uri>()
+        val uri: Uri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI
+        val projection =
+            arrayOf(MediaStore.Images.Media._ID, MediaStore.Images.Media.DATE_ADDED)
+        contentResolver.query(uri, projection, null, null, "DATE_ADDED DESC")?.use {
+            while (it.moveToNext()) {
+                result.add(
+                    ContentUris.withAppendedId(
+                        MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+                        it.getLong(0)
+                    )
+                )
+            }
+        }
+        result
     }
 }

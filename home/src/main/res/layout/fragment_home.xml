@@ -16,105 +16,77 @@
         <import type="at.sunilson.liveticker.home.presentation.home.LivetickerSelectedAction" />
     </data>
 
-    <androidx.constraintlayout.motion.widget.MotionLayout
+
+    <androidx.coordinatorlayout.widget.CoordinatorLayout
             xmlns:android="http://schemas.android.com/apk/res/android"
             xmlns:app="http://schemas.android.com/apk/res-auto"
-            android:id="@+id/home_motion_layout"
+            android:id="@+id/home_main_content"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            app:layoutDescription="@xml/home_motion_scene">
+            android:fitsSystemWindows="true"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
 
-        <androidx.coordinatorlayout.widget.CoordinatorLayout
-                android:id="@+id/home_main_content"
+        <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
-                android:layout_height="0dp"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintTop_toTopOf="parent">
+                android:layout_height="match_parent">
 
-            <androidx.constraintlayout.widget.ConstraintLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent">
-
-                <TextView
-                        android:id="@+id/text3"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginBottom="@dimen/small_margin"
-                        android:text="@string/not_logged_in"
-                        android:textSize="18sp"
-                        android:textStyle="bold"
-                        app:layout_constraintBottom_toTopOf="@id/login_button"
-                        app:layout_constraintLeft_toLeftOf="parent"
-                        app:layout_constraintRight_toRightOf="parent"
-                        app:layout_constraintTop_toTopOf="parent"
-                        app:layout_constraintVertical_chainStyle="packed"
-                        app:showIf="@{mainViewModel.currentUser == null || mainViewModel.currentUser.anonymous}" />
-
-                <com.google.android.material.button.MaterialButton
-                        android:id="@+id/login_button"
-                        android:layout_width="130dp"
-                        android:layout_height="55dp"
-                        android:layout_marginTop="@dimen/small_margin"
-                        android:text="@string/login"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintLeft_toLeftOf="parent"
-                        app:layout_constraintRight_toRightOf="parent"
-                        app:layout_constraintTop_toBottomOf="@id/text3"
-                        app:showIf="@{mainViewModel.currentUser == null || mainViewModel.currentUser.anonymous}" />
-
-                <androidx.recyclerview.widget.RecyclerView
-                        android:id="@+id/fragment_home_liveticker_list"
-                        android:layout_width="match_parent"
-                        android:layout_height="0dp"
-                        app:entries="@{viewModel.livetickers}"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintTop_toBottomOf="@id/login_button"
-                        app:onLivetickerSelected="@{(item) -> viewModel.livetickerSelected((LivetickerSelectedAction) item)}" />
-            </androidx.constraintlayout.widget.ConstraintLayout>
-
-            <com.google.android.material.bottomappbar.BottomAppBar
-                    android:id="@+id/bar"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="bottom"
-                    app:fabAlignmentMode="center"
-                    app:hideOnScroll="false"
-                    app:menu="@menu/home_menu"
-                    app:navigationIcon="@drawable/ic_search_black_24dp"
-                    app:title="Liveticker App" />
-
-            <com.google.android.material.floatingactionbutton.FloatingActionButton
-                    android:id="@+id/fab"
+            <TextView
+                    android:id="@+id/text3"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:onClick="@{viewModel::addLiveticker}"
-                    app:backgroundTint="@color/colorAccent"
-                    app:layout_anchor="@id/bar"
-                    app:srcCompat="@drawable/ic_add_black_24dp"
-                    app:tint="@color/baseTextColorInverted" />
+                    android:layout_marginBottom="@dimen/small_margin"
+                    android:text="@string/not_logged_in"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    app:layout_constraintBottom_toTopOf="@id/login_button"
+                    app:layout_constraintLeft_toLeftOf="parent"
+                    app:layout_constraintRight_toRightOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintVertical_chainStyle="packed"
+                    app:showIf="@{mainViewModel.currentUser == null || mainViewModel.currentUser.anonymous}" />
 
-        </androidx.coordinatorlayout.widget.CoordinatorLayout>
+            <com.google.android.material.button.MaterialButton
+                    android:id="@+id/login_button"
+                    android:layout_width="130dp"
+                    android:layout_height="55dp"
+                    android:layout_marginTop="@dimen/small_margin"
+                    android:text="@string/login"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintLeft_toLeftOf="parent"
+                    app:layout_constraintRight_toRightOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/text3"
+                    app:showIf="@{mainViewModel.currentUser == null || mainViewModel.currentUser.anonymous}" />
 
-        <FrameLayout
-                android:id="@+id/home_search_bar"
-                android:layout_width="match_parent"
-                android:layout_height="@dimen/search_bar_height"
-                android:padding="10dp"
-                android:translationY="@dimen/search_bar_height"
-                app:layout_constraintBottom_toBottomOf="parent">
-
-            <com.google.android.material.textfield.TextInputLayout
-                    style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox"
+            <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/fragment_home_liveticker_list"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:hint="Suchbegriff eingeben...">
+                    android:layout_height="0dp"
+                    app:entries="@{viewModel.livetickers}"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/login_button" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
-                <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/home_search_input"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent" />
-            </com.google.android.material.textfield.TextInputLayout>
-        </FrameLayout>
+        <com.google.android.material.bottomappbar.BottomAppBar
+                android:id="@+id/bar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom"
+                app:fabAlignmentMode="center"
+                app:hideOnScroll="false"
+                app:menu="@menu/home_menu"
+                app:navigationIcon="@drawable/ic_search_black_24dp"
+                app:title="Liveticker App" />
 
-    </androidx.constraintlayout.motion.widget.MotionLayout>
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+                android:id="@+id/fab"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:onClick="@{viewModel::addLiveticker}"
+                app:backgroundTint="@color/colorAccent"
+                app:layout_anchor="@id/bar"
+                app:srcCompat="@drawable/ic_add_black_24dp"
+                app:tint="@color/baseTextColorInverted" />
+
+    </androidx.coordinatorlayout.widget.CoordinatorLayout>
 </layout>

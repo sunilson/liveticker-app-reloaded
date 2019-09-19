@@ -1,6 +1,7 @@
 package at.sunilson.liveticker.home.presentation.home
 
 import android.os.Bundle
+import android.os.Handler
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -29,23 +30,16 @@ class HomeFragment : BaseFragment<HomeViewModel, HomeNavigationEvent>() {
     override val viewModel: HomeViewModel by viewModel()
     private val mainViewModel: MainViewModel by sharedViewModel()
     private val homeNavigation: HomeNavigation by inject()
-    private val adapter: LivetickerRecyclerAdapter by inject()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         mainViewModel.currentUser.observe(this, Observer { viewModel.refresh() })
-        requireActivity().onBackPressedDispatcher.addCallback(this, true) {
-            if (home_motion_layout.currentState == home_motion_layout.endState) {
-                toggleSearchBar()
-            } else {
-                requireActivity().finish()
-            }
-        }
     }
 
     override fun onResume() {
         super.onResume()
         requireActivity().window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE)
+        setNavColors(R.color.lightStatusBarColor, darkStatus = false)
     }
 
     override fun onPause() {
@@ -68,9 +62,7 @@ class HomeFragment : BaseFragment<HomeViewModel, HomeNavigationEvent>() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        setStatusBarColor(R.color.lightStatusBarColor, false)
-
-        bar.setNavigationOnClickListener { toggleSearchBar() }
+        bar.setNavigationOnClickListener { }
 
         bar.setOnMenuItemClickListener {
             when (it.itemId) {
@@ -85,19 +77,9 @@ class HomeFragment : BaseFragment<HomeViewModel, HomeNavigationEvent>() {
             addDuration = 400
             setInterpolator(OvershootInterpolator())
         }
-        fragment_home_liveticker_list.adapter = adapter
-    }
 
-    private fun toggleSearchBar() {
-        if (home_motion_layout.currentState == home_motion_layout.endState) {
-            home_motion_layout.transitionToStart()
-            bar.setNavigationIcon(R.drawable.ic_search_black_24dp)
-            home_search_input.text = null
-            home_search_input.clearFocus()
-            hideKeyboard()
-        } else {
-            home_motion_layout.transitionToEnd()
-            bar.setNavigationIcon(R.drawable.ic_close_black_24dp)
+        fragment_home_liveticker_list.adapter = LivetickerRecyclerAdapter {
+            viewModel.livetickerSelected(it)
         }
     }
 

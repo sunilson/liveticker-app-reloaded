@@ -16,8 +16,16 @@ import androidx.fragment.app.Fragment
 import at.sunilson.liveticker.core.ObservationResult
 import at.sunilson.liveticker.core.models.ModelWithId
 import android.app.Activity
+import android.content.Intent
+import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
+import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.content.ContextCompat.getSystemService
+import androidx.core.view.marginBottom
+import androidx.core.view.marginLeft
+import androidx.core.view.marginRight
+import androidx.core.view.marginTop
 
 
 //Converts dp to px
@@ -58,6 +66,17 @@ fun Context.hasPermission(permission: String): Boolean {
     } else {
         true
     }
+}
+
+fun Context.hasPermissions(vararg permissions: String): Boolean {
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+        permissions.forEach {
+            if (ContextCompat.checkSelfPermission(this, it) != PackageManager.PERMISSION_GRANTED) {
+                return false
+            }
+        }
+    }
+    return true
 }
 
 fun Fragment.hideKeyboard() {
@@ -125,4 +144,46 @@ fun Context.showToast(@StringRes message: Int, length: Int = Toast.LENGTH_LONG) 
 
 fun Context.showToast(message: String, length: Int = Toast.LENGTH_LONG) {
     Toast.makeText(this, message, length).show()
+}
+
+fun Intent.canBeHandled(context: Context) = this.resolveActivity(context.packageManager) != null
+
+fun Fragment.safeStartActivity(intent: Intent) {
+    if (intent.canBeHandled(activity ?: return)) {
+        startActivity(intent)
+    }
+}
+
+fun Fragment.safeStartActivityForResult(intent: Intent, requestCode: Int) {
+    if (intent.canBeHandled(activity ?: return)) {
+        startActivityForResult(intent, requestCode)
+    }
+}
+
+fun View.setMargins(
+    left: Int = this.marginLeft,
+    right: Int = this.marginRight,
+    top: Int = this.marginTop,
+    bottom: Int = this.marginBottom
+) {
+    val layoutParams = this.layoutParams
+    if (layoutParams is CoordinatorLayout.LayoutParams) {
+        this.layoutParams = layoutParams.apply {
+            setMargins(
+                left,
+                right,
+                top,
+                bottom
+            )
+        }
+    } else if (layoutParams is ConstraintLayout.LayoutParams) {
+        this.layoutParams = layoutParams.apply {
+            setMargins(
+                left,
+                right,
+                top,
+                bottom
+            )
+        }
+    }
 }

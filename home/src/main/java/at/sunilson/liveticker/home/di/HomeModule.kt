@@ -13,7 +13,6 @@ import org.koin.dsl.module
 val homeModule = module {
     viewModel<HomeViewModel> { HomeViewModelImpl(get(), get(), get(), get()) }
     single<HomeRepository> { HomeRepositoryImpl(get()) }
-    factory { LivetickerRecyclerAdapter() }
     factory { GetLivetickersUseCase(get(), get()) }
     factory { DeleteLivetickerUsecase(get()) }
 }

@@ -84,7 +84,7 @@ fun ViewGroup.enterChildViewsFromBottomDelayed(
         if (childMax == -1 || i < childMax) getChildAt(i).alpha = 0f
     }
 
-    val animators = (0 until childCount).mapIndexed { index, value ->
+    val animators = (0 until childCount).mapIndexed { index, _ ->
         if (childMax != -1 && index >= childMax) return@mapIndexed null
         AnimatorSet().apply {
             playTogether(

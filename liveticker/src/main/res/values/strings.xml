@@ -2,4 +2,5 @@
     <string name="app_name">liveticker</string>
     <string name="add">Hinzufügen</string>
     <string name="comment">Kommentieren</string>
+    <string name="comments">Kommentare</string>
 </resources>

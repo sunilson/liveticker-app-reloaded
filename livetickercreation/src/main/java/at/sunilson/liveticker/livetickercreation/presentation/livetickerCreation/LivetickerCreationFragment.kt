@@ -21,7 +21,8 @@ import kotlinx.android.synthetic.main.fragment_liveticker_creation.*
 import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 
-class LivetickerCreationFragment : BaseFragment<LivetickerCreationViewModel, LivetickerCreationNavigationEvent>() {
+class LivetickerCreationFragment :
+    BaseFragment<LivetickerCreationViewModel, LivetickerCreationNavigationEvent>() {
 
     override val viewModel: LivetickerCreationViewModel by sharedViewModel()
     private val mapFragmentCreator: MapFragmentCreator by inject()
@@ -29,7 +30,11 @@ class LivetickerCreationFragment : BaseFragment<LivetickerCreationViewModel, Liv
     private var map: GoogleMap? = null
     private var marker: Marker? = null
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
         val binding = generateBinding<FragmentLivetickerCreationBinding>(
             inflater,
             R.layout.fragment_liveticker_creation,
@@ -39,10 +44,18 @@ class LivetickerCreationFragment : BaseFragment<LivetickerCreationViewModel, Liv
         return binding.root
     }
 
+    override fun onResume() {
+        super.onResume()
+        setNavColors(
+            R.color.statusBarColor,
+            R.color.lightStatusBarColor,
+            darkStatus = true,
+            darkNav = false
+        )
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-        setStatusBarColor(R.color.statusBarColor)
 
         val mapFragment = mapFragmentCreator(MapOptions(true))
         mapFragment.getMapAsync { this.map = it }

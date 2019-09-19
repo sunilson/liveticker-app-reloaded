@@ -1,10 +1,13 @@
 package at.sunilson.liveticker.liveticker.presentation.liveticker
 
+import android.net.Uri
+import android.util.Log
 import android.view.View
 import androidx.databinding.ObservableArrayList
 import androidx.databinding.ObservableList
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
+import at.sunilson.liveticker.authentication.IAuthenticationRepository
 import at.sunilson.liveticker.core.getOrNull
 import at.sunilson.liveticker.core.models.Comment
 import at.sunilson.liveticker.core.models.LiveTicker
@@ -13,32 +16,43 @@ import at.sunilson.liveticker.liveticker.domain.*
 import at.sunilson.liveticker.presentation.baseClasses.BaseViewModel
 import at.sunilson.liveticker.presentation.handleObservationResults
 import at.sunilson.liveticker.sharing.domain.GetEditUrlUseCase
+import com.github.kittinunf.result.coroutines.SuspendableResult
+import com.github.kittinunf.result.coroutines.success
+import com.github.kittinunf.result.success
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import timber.log.Timber
+import java.io.File
 
 abstract class LivetickerViewModel : BaseViewModel<LivetickerNavigationEvent>() {
     abstract val liveTicker: MutableLiveData<LiveTicker>
     abstract val entries: MutableLiveData<List<LiveTickerEntry>>
+    abstract val images: MutableLiveData<List<Uri>>
     abstract val comments: MutableLiveData<List<Comment>>
+    abstract val isAuthor: MutableLiveData<Boolean>
 
     abstract fun loadLiveticker(id: String)
     abstract fun loadLivetickerFromShareUrl(shareId: String)
     abstract fun postLivetickerEntry(liveTickerEntry: LiveTickerEntry)
     abstract fun loadComments()
     abstract fun showComments(view: View? = null)
+    abstract fun showAddDialog(view: View? = null)
     abstract fun showAddCommentDialog(view: View? = null)
     abstract fun addComment(comment: String)
     abstract fun like(view: View? = null)
     abstract fun share(view: View? = null)
     abstract fun toggleNotifications(view: View? = null)
+    abstract fun takePicture(view: View? = null)
+    abstract fun loadImages()
 }
 
 sealed class LivetickerNavigationEvent {
     object AddComment : LivetickerNavigationEvent()
     object ShowComments : LivetickerNavigationEvent()
+    object AddEntry : LivetickerNavigationEvent()
+    data class TakePicture(val imageUri: Uri) : LivetickerNavigationEvent()
     data class Share(val viewUrl: String, val editUrl: String?) : LivetickerNavigationEvent()
 }
 
@@ -48,7 +62,9 @@ class LivetickerViewModelImpl(
     private val getCommentsUseCase: GetCommentsUseCase,
     private val cheerUseCase: CheerUseCase,
     private val getEditUrlUseCase: GetEditUrlUseCase,
-    private val setNotificationUseCase: SetNotificationUseCase
+    private val setNotificationUseCase: SetNotificationUseCase,
+    private val getLocalImagesUseCase: GetLocalImagesUseCase,
+    private val createImageFileUseCase: CreateImageFileUseCase
 ) : LivetickerViewModel() {
     private var commentsInitialized = false
     private var livetickerJob: Job? = null
@@ -56,37 +72,22 @@ class LivetickerViewModelImpl(
     override val liveTicker: MutableLiveData<LiveTicker> = MutableLiveData()
     override val entries: MutableLiveData<List<LiveTickerEntry>> = MutableLiveData()
     override val comments: MutableLiveData<List<Comment>> = MutableLiveData()
+    override val isAuthor: MutableLiveData<Boolean> = MutableLiveData()
+    override val images: MutableLiveData<List<Uri>> = MutableLiveData()
 
     override fun loadLiveticker(id: String) {
         this.id = id
         livetickerJob?.cancel()
         livetickerJob = viewModelScope.launch {
-            getLivetickerUseCase(GetLivetickerParams(id)).collect { result ->
-                result.fold(
-                    { liveTicker ->
-                        this@LivetickerViewModelImpl.liveTicker.postValue(liveTicker)
-                    },
-                    {
-                        //TODO Error handling
-                    }
-                )
-            }
+            getLivetickerUseCase(GetLivetickerParams(id)).collect { handleLivetickerResult(it) }
         }
     }
 
     override fun loadLivetickerFromShareUrl(shareId: String) {
         livetickerJob?.cancel()
         livetickerJob = viewModelScope.launch {
-            getLivetickerUseCase(GetLivetickerParams(livetickerSharingId = shareId)).collect { result ->
-                result.fold(
-                    { liveTicker ->
-                        id = liveTicker.id
-                        this@LivetickerViewModelImpl.liveTicker.postValue(liveTicker)
-                    },
-                    {
-                        //TODO Error handling
-                    }
-                )
+            getLivetickerUseCase(GetLivetickerParams(livetickerSharingId = shareId)).collect {
+                handleLivetickerResult(it)
             }
         }
     }
@@ -129,6 +130,10 @@ class LivetickerViewModelImpl(
         navigationEvents.postValue(LivetickerNavigationEvent.ShowComments)
     }
 
+    override fun showAddDialog(view: View?) {
+        navigationEvents.postValue(LivetickerNavigationEvent.AddEntry)
+    }
+
     override fun showAddCommentDialog(view: View?) {
         Timber.d("Show add Comment dialog clicked")
         navigationEvents.postValue(LivetickerNavigationEvent.AddComment)
@@ -168,5 +173,30 @@ class LivetickerViewModelImpl(
                 }
             )
         }
+    }
+
+    override fun takePicture(view: View?) {
+        createImageFileUseCase(Unit).success {
+            navigationEvents.postValue(LivetickerNavigationEvent.TakePicture(it))
+        }
+    }
+
+    override fun loadImages() {
+        viewModelScope.launch {
+            getLocalImagesUseCase(Unit).success { images.value = it }
+        }
+    }
+
+    private suspend fun handleLivetickerResult(result: SuspendableResult<GetLivetickerResult, GetLivetickerException>) {
+        result.fold(
+            {
+                id = it.liveticker.id
+                this.liveTicker.value = it.liveticker
+                this.isAuthor.value = it.isAuthor
+            },
+            {
+                //TODO Error handling
+            }
+        )
     }
 }

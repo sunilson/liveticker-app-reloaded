@@ -1,5 +1,5 @@
 const val room_version = "2.1.0-beta01"
-const val nav_version = "2.1.0-rc01"
+const val nav_version = "2.2.0-alpha02"
 const val koin_version = "2.0.0"
 
 object AndroidX {

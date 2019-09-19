@@ -20,6 +20,7 @@ class GetLivetickersUseCase(
     override fun run(params: String): Flow<SuspendableResult<List<LiveTicker>, Exception>> {
         return homeRepository.getLivetickers(params).onEach {
             //Prefetch edit urls
+            //TODO Only if chance on succes eg. author
             it.success { livetickerList ->
                 livetickerList.forEachParallelCatching { liveticker -> getEditUrlUseCase(liveticker.id) }
             }

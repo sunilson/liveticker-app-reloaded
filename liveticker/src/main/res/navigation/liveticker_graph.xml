@@ -1,26 +1,41 @@
 <?xml version="1.0" encoding="utf-8"?>
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
-            xmlns:app="http://schemas.android.com/apk/res-auto"
-            xmlns:tools="http://schemas.android.com/tools"
-            android:id="@+id/liveticker_graph"
-            app:startDestination="@id/livetickerFragment">
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:id="@+id/liveticker_graph"
+        app:startDestination="@id/livetickerFragment">
 
     <fragment
             android:id="@+id/livetickerFragment"
             android:name="at.sunilson.liveticker.liveticker.presentation.liveticker.LivetickerFragment"
-            tools:layout="@layout/fragment_liveticker"
-            android:label="LivetickerFragment">
-        <deepLink app:uri="www.my-ticker.live/liveticker/{sharingId}"/>
+            android:label="LivetickerFragment"
+            tools:layout="@layout/fragment_liveticker">
+        <deepLink app:uri="www.my-ticker.live/liveticker/{sharingId}" />
         <argument
                 android:name="id"
-                app:argType="string"
-                app:nullable="true"
                 android:defaultValue="@null"
-                />
+                app:argType="string"
+                app:nullable="true" />
         <argument
                 android:name="sharingId"
+                android:defaultValue="@null"
                 app:argType="string"
-                app:nullable="true"
-                android:defaultValue="@null"/>
+                app:nullable="true" />
+        <action
+                android:id="@+id/move_to_photo"
+                app:destination="@id/photoFragment"
+                app:enterAnim="@anim/move_in_from_right"
+                app:exitAnim="@anim/move_out_to_left_slightly"
+                app:popEnterAnim="@anim/move_in_from_left_slightly"
+                app:popExitAnim="@anim/move_out_to_right" />
+    </fragment>
+    <fragment
+            android:id="@+id/photoFragment"
+            android:name="at.sunilson.liveticker.liveticker.presentation.photo.PhotoFragment"
+            android:label="PhotoFragment"
+            tools:layout="@layout/fragment_photo">
+        <argument
+                android:name="uri"
+                app:argType="string" />
     </fragment>
 </navigation>

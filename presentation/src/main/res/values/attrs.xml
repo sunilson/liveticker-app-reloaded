@@ -2,14 +2,17 @@
 <resources>
     <declare-styleable name="DiagonalCutView">
         <attr name="direction" format="enum">
-            <enum name="bottom" value="0"/>
-            <enum name="top" value="1"/>
-            <enum name="left" value="2"/>
-            <enum name="right" value="3"/>
+            <enum name="bottom" value="0" />
+            <enum name="top" value="1" />
+            <enum name="left" value="2" />
+            <enum name="right" value="3" />
         </attr>
-        <attr name="offset" format="dimension"/>
+        <attr name="offset" format="dimension" />
     </declare-styleable>
     <declare-styleable name="ArcView">
-        <attr name="arcHeight" format="dimension"/>
+        <attr name="arcHeight" format="dimension" />
+    </declare-styleable>
+    <declare-styleable name="SquareConstraintLayout">
+        <attr name="useWidth" format="boolean" />
     </declare-styleable>
 </resources>

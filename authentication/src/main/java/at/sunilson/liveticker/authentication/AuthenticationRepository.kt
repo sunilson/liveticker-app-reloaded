@@ -28,7 +28,7 @@ internal class FirebaseAuthenticationRepository(private val firebaseAuth: Fireba
 
     override fun getCurrentUserNow(): Result<User, AuthenticationException> {
         val user = firebaseAuth.currentUser
-        return if (user == null) Result.error(NotLoggedIn())
+        return if (user == null) Result.error(AuthenticationException.NotLoggedIn())
         else Result.success(User(user.uid, user.displayName ?: "Anonymous", user.isAnonymous))
     }
 
@@ -88,6 +88,7 @@ internal class FirebaseAuthenticationRepository(private val firebaseAuth: Fireba
 }
 
 //TODO
-sealed class AuthenticationException : Exception()
+sealed class AuthenticationException : Exception() {
+    class NotLoggedIn : AuthenticationException()
+}
 
-class NotLoggedIn : AuthenticationException()

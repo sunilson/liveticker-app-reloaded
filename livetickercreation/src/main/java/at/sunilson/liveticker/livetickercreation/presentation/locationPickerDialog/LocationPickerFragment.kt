@@ -5,10 +5,15 @@ import android.annotation.SuppressLint
 import android.app.Activity.RESULT_OK
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.graphics.Color
 import android.os.Bundle
+import android.os.Handler
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION
+import androidx.coordinatorlayout.widget.CoordinatorLayout
+import androidx.core.view.*
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
@@ -19,7 +24,9 @@ import at.sunilson.liveticker.livetickercreation.databinding.DialogFragmentLocat
 import at.sunilson.liveticker.livetickercreation.presentation.livetickerCreation.LivetickerCreationViewModel
 import at.sunilson.liveticker.location.*
 import at.sunilson.liveticker.presentation.baseClasses.BaseFragment
+import at.sunilson.liveticker.presentation.convertToPx
 import at.sunilson.liveticker.presentation.hasPermission
+import at.sunilson.liveticker.presentation.setMargins
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.model.Marker
@@ -28,6 +35,7 @@ import com.google.android.libraries.places.api.model.Place
 import com.google.android.libraries.places.widget.Autocomplete
 import com.google.android.libraries.places.widget.AutocompleteActivity
 import com.google.android.libraries.places.widget.model.AutocompleteActivityMode
+import kotlinx.android.synthetic.main.dialog_fragment_location_picker.*
 import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
@@ -35,16 +43,26 @@ import org.koin.androidx.viewmodel.ext.android.viewModel
 /**
  * Displays a map and a search bar to the user in which a location can be selected
  */
-class LocationPickerFragment : BaseFragment<LocationPickerDialogViewModel, LocationPickerNavigationEvent>() {
+class LocationPickerFragment :
+    BaseFragment<LocationPickerDialogViewModel, LocationPickerNavigationEvent>() {
 
     override val viewModel: LocationPickerDialogViewModel by viewModel()
     private val livetickerCreationViewModel: LivetickerCreationViewModel by sharedViewModel()
     private val mapCreator: MapFragmentCreator by inject()
-
+    private var navigationBarColor: Int? = null
     private var map: GoogleMap? = null
     private var marker: Marker? = null
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        navigationBarColor = activity?.window?.navigationBarColor
+    }
+
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
         val binding = DataBindingUtil.inflate<DialogFragmentLocationPickerBinding>(
             inflater,
             R.layout.dialog_fragment_location_picker,
@@ -56,21 +74,24 @@ class LocationPickerFragment : BaseFragment<LocationPickerDialogViewModel, Locat
         return binding.root
     }
 
+    override fun onResume() {
+        super.onResume()
+        setNavColors(transparent = true)
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        setupMap()
+        setupInsets()
+    }
 
+    private fun setupMap() {
         val mapFragment = mapCreator(MapOptions(false))
 
         childFragmentManager
             .beginTransaction()
             .replace(R.id.dialog_fragment_location_picker_map, mapFragment)
             .commit()
-
-        //Observe user selections and set marker
-        viewModel.selectedLocation.observe(viewLifecycleOwner, Observer {
-            marker?.remove()
-            marker = map?.addMarker(MarkerOptions().position(it.toLatLng()))
-        })
 
         //Wait until map is initialized
         mapFragment.getMapAsync {
@@ -82,6 +103,24 @@ class LocationPickerFragment : BaseFragment<LocationPickerDialogViewModel, Locat
             livetickerCreationViewModel.location.value?.let {
                 viewModel.selectedLocation.postValue(it.coordinates)
             }
+        }
+
+        //Observe user selections and set marker
+        viewModel.selectedLocation.observe(viewLifecycleOwner, Observer {
+            marker?.remove()
+            marker = map?.addMarker(MarkerOptions().position(it.toLatLng()))
+        })
+    }
+
+    private fun setupInsets() {
+        ViewCompat.setOnApplyWindowInsetsListener(requireView()) { v, insets ->
+            confirm_fab.setMargins(
+                bottom = insets.systemWindowInsetBottom + 8.convertToPx(context!!)
+            )
+            search_fab.setMargins(
+                bottom = insets.systemWindowInsetBottom + 8.convertToPx(context!!)
+            )
+            insets
         }
     }
 
@@ -103,7 +142,12 @@ class LocationPickerFragment : BaseFragment<LocationPickerDialogViewModel, Locat
                 findNavController().popBackStack()
             }
             is LocationPickerNavigationEvent.UserFound -> {
-                map?.moveCamera(CameraUpdateFactory.newLatLngZoom(event.coordinates.toLatLng(), DEFAULT_ZOOM_LEVEL))
+                map?.moveCamera(
+                    CameraUpdateFactory.newLatLngZoom(
+                        event.coordinates.toLatLng(),
+                        DEFAULT_ZOOM_LEVEL
+                    )
+                )
             }
         }
     }
@@ -112,7 +156,10 @@ class LocationPickerFragment : BaseFragment<LocationPickerDialogViewModel, Locat
     private fun findUser() {
 
         if (context?.hasPermission(Manifest.permission.ACCESS_FINE_LOCATION) != true) {
-            requestPermissions(arrayOf(Manifest.permission.ACCESS_FINE_LOCATION), REQUEST_PERMISSIONS)
+            requestPermissions(
+                arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
+                REQUEST_PERMISSIONS
+            )
             return
         }
 
@@ -133,7 +180,11 @@ class LocationPickerFragment : BaseFragment<LocationPickerDialogViewModel, Locat
     }
 
     //Handle location permission result
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
         if (requestCode == REQUEST_PERMISSIONS) {
             if ((grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
                 findUser()
@@ -141,6 +192,11 @@ class LocationPickerFragment : BaseFragment<LocationPickerDialogViewModel, Locat
                 //TODO Show error message
             }
         }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        activity?.window?.navigationBarColor = navigationBarColor ?: return
     }
 
     companion object {

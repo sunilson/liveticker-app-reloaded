@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<layout
+        xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+
+        <variable
+                name="obj"
+                type="android.net.Uri" />
+    </data>
+
+
+    <at.sunilson.liveticker.presentation.views.SquareConstraintLayout
+            xmlns:android="http://schemas.android.com/apk/res/android"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:useWidth="true">
+
+        <ImageView
+                xmlns:android="http://schemas.android.com/apk/res/android"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:scaleType="centerCrop"
+                app:fromUri="@{obj}" />
+    </at.sunilson.liveticker.presentation.views.SquareConstraintLayout>
+</layout>

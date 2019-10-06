@@ -6,22 +6,25 @@ import android.net.Uri
 import android.provider.MediaStore
 import at.sunilson.liveticker.core.models.Comment
 import at.sunilson.liveticker.core.models.LiveTicker
+import at.sunilson.liveticker.core.models.LiveTickerEntry
 import at.sunilson.liveticker.firebasecore.*
-import at.sunilson.liveticker.firebasecore.models.FirebaseComment
-import at.sunilson.liveticker.firebasecore.models.FirebaseLiveticker
-import at.sunilson.liveticker.firebasecore.models.convertToDomainEntity
+import at.sunilson.liveticker.firebasecore.models.*
 import at.sunilson.liveticker.liveticker.domain.LivetickerRepository
 import com.github.kittinunf.result.Result
 import com.github.kittinunf.result.coroutines.SuspendableResult
+import com.github.kittinunf.result.coroutines.flatMap
 import com.github.kittinunf.result.coroutines.map
+import com.github.kittinunf.result.coroutines.mapError
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.storage.FirebaseStorage
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 
 internal class LiveTickerRepositoryImpl(
     private val fireStore: FirebaseFirestore,
+    private val firebaseStorage: FirebaseStorage,
     private val contentResolver: ContentResolver
 ) : LivetickerRepository {
 
@@ -31,37 +34,34 @@ internal class LiveTickerRepositoryImpl(
             .awaitUpdate(mapOf("cheers" to FieldValue.increment(1)))
     }
 
-    override fun getLiveTickerUpdates(id: String): Flow<SuspendableResult<LiveTicker, FirebaseOperationException>> {
-        return fireStore
-            .document("livetickers/$id")
-            .observe<FirebaseLiveticker, LiveTicker> { it.convertToDomainEntity() }
-    }
+    override fun getLivetickerEntries(id: String) =
+        fireStore
+            .collection("livetickers/$id/entries")
+            .observe<FirebaseLivetickerEntry, LiveTickerEntry> { it.convertToDomainEntity() }
 
-    override fun getLiveTickerUpdatesFromSharingid(id: String): Flow<SuspendableResult<LiveTicker, FirebaseOperationException>> {
-        return fireStore
-            .collection("livetickers")
-            .whereEqualTo("sharingUrl", id)
-            .observe<FirebaseLiveticker, LiveTicker> { it.convertToDomainEntity() }
-            .map { result ->
-                result.map { it.first() }
-            }
-    }
+    override fun getLiveTickerUpdates(id: String) = fireStore
+        .document("livetickers/$id")
+        .observe<FirebaseLiveticker, LiveTicker> { it.convertToDomainEntity() }
 
-    override fun getComments(id: String): Flow<SuspendableResult<List<Comment>, FirebaseOperationException>> {
-        return fireStore
-            .collection("livetickers/$id/comments")
-            .observe<FirebaseComment, Comment> { it.convertToDomainEntity() }
-    }
+    override fun getLiveTickerUpdatesFromSharingid(id: String) = fireStore
+        .collection("livetickers")
+        .whereEqualTo("sharingUrl", id)
+        .observe<FirebaseLiveticker, LiveTicker> { it.convertToDomainEntity() }
+        .map { result ->
+            result.map { it.first() }
+        }
+
+    override fun getComments(id: String) = fireStore
+        .collection("livetickers/$id/comments")
+        .observe<FirebaseComment, Comment> { it.convertToDomainEntity() }
 
     override suspend fun addComment(
         livetickerId: String,
         comment: String,
         name: String
-    ): SuspendableResult<String, FirebaseOperationException> {
-        return fireStore
-            .collection("livetickers/$livetickerId/comments")
-            .awaitAdd(FirebaseComment(name, comment))
-    }
+    ) = fireStore
+        .collection("livetickers/$livetickerId/comments")
+        .awaitAdd(FirebaseComment(name, comment))
 
     override suspend fun setNotificationsDisabled(
         userId: String,
@@ -118,4 +118,43 @@ internal class LiveTickerRepositoryImpl(
         }
         result
     }
+
+    override suspend fun addTextEntry(
+        livetickerId: String,
+        text: String
+    ) = fireStore
+        .collection("livetickers/$livetickerId/entries")
+        .awaitAdd(
+            LiveTickerEntry.TextLiveTickerEntry(
+                "",
+                0L,
+                "",
+                text
+            ).convertToFirebaseEntity()
+        )
+
+    override suspend fun addImageEntry(
+        id: String,
+        uri: Uri,
+        caption: String
+    ) = firebaseStorage
+        .reference
+        .child("$id/${System.currentTimeMillis()}.jpg")
+        .awaitPut(uri)
+        .flatMap {
+            fireStore
+                .collection("livetickers/$id/entries")
+                .awaitAdd(
+                    LiveTickerEntry.ImageLivetickerEntry(
+                        "",
+                        0L,
+                        caption,
+                        it
+                    ).convertToFirebaseEntity()
+                )
+        }.mapError {
+            it
+        }.map {
+            it
+        }
 }

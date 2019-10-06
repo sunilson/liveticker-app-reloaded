@@ -9,11 +9,11 @@
                 type="at.sunilson.liveticker.liveticker.presentation.photo.PhotoViewModel" />
     </data>
 
-    <LinearLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
             xmlns:android="http://schemas.android.com/apk/res/android"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:background="@color/colorAccent"
+            android:background="@android:color/black"
             android:orientation="vertical">
 
         <ImageView
@@ -21,5 +21,33 @@
                 android:layout_height="match_parent"
                 app:fromUri="@{viewModel.currentImage}" />
 
-    </LinearLayout>
+        <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="60dp"
+                android:background="#80000000"
+                android:padding="8dp"
+                app:layout_constraintBottom_toBottomOf="parent">
+
+            <EditText
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@null"
+                    android:hint="Beschreibung eingeben"
+                    android:textColor="@android:color/white" />
+
+        </LinearLayout>
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="@dimen/medium_margin"
+                android:onClick="@{viewModel::uploadImage}"
+                app:backgroundTint="@color/colorAccent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                app:srcCompat="@drawable/ic_check_black_24dp"
+                app:tint="@android:color/white" />
+
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

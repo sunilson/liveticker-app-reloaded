@@ -32,9 +32,11 @@ abstract class LivetickerViewModel : BaseViewModel<LivetickerNavigationEvent>() 
     abstract val images: MutableLiveData<List<Uri>>
     abstract val comments: MutableLiveData<List<Comment>>
     abstract val isAuthor: MutableLiveData<Boolean>
+    abstract val entryText: MutableLiveData<String>
 
     abstract fun loadLiveticker(id: String)
     abstract fun loadLivetickerFromShareUrl(shareId: String)
+    abstract fun postTextLivetickerEntry(view: View? = null)
     abstract fun postLivetickerEntry(liveTickerEntry: LiveTickerEntry)
     abstract fun loadComments()
     abstract fun showComments(view: View? = null)
@@ -64,36 +66,74 @@ class LivetickerViewModelImpl(
     private val getEditUrlUseCase: GetEditUrlUseCase,
     private val setNotificationUseCase: SetNotificationUseCase,
     private val getLocalImagesUseCase: GetLocalImagesUseCase,
-    private val createImageFileUseCase: CreateImageFileUseCase
+    private val createImageFileUseCase: CreateImageFileUseCase,
+    private val postLivetickerTextEntry: PostLivetickerTextEntry,
+    private val postLivetickerImageEntry: PostLivetickerImageEntry,
+    private val getLivetickerEntriesUseCase: GetLivetickerEntriesUseCase
 ) : LivetickerViewModel() {
     private var commentsInitialized = false
+
     private var livetickerJob: Job? = null
+    private var entryJob: Job? = null
+
     private var id: String? = null
     override val liveTicker: MutableLiveData<LiveTicker> = MutableLiveData()
     override val entries: MutableLiveData<List<LiveTickerEntry>> = MutableLiveData()
     override val comments: MutableLiveData<List<Comment>> = MutableLiveData()
     override val isAuthor: MutableLiveData<Boolean> = MutableLiveData()
     override val images: MutableLiveData<List<Uri>> = MutableLiveData()
+    override val entryText: MutableLiveData<String> = MutableLiveData()
 
     override fun loadLiveticker(id: String) {
         this.id = id
-        livetickerJob?.cancel()
-        livetickerJob = viewModelScope.launch {
-            getLivetickerUseCase(GetLivetickerParams(id)).collect { handleLivetickerResult(it) }
-        }
+        getLivetickerUpdates(id)
+        getLivetickerEntryUpdates(id)
     }
 
     override fun loadLivetickerFromShareUrl(shareId: String) {
+        getLivetickerUpdates(livetickerSharingId = shareId)
+        getLivetickerEntryUpdates(livetickerSharingId = shareId)
+    }
+
+    private fun getLivetickerUpdates(id: String = "", livetickerSharingId: String = "") {
         livetickerJob?.cancel()
         livetickerJob = viewModelScope.launch {
-            getLivetickerUseCase(GetLivetickerParams(livetickerSharingId = shareId)).collect {
-                handleLivetickerResult(it)
+            if (id.isNotEmpty()) {
+                getLivetickerUseCase(GetLivetickerParams(id)).collect { handleLivetickerResult(it) }
+            } else {
+                getLivetickerUseCase(GetLivetickerParams(livetickerSharingId = livetickerSharingId))
+                    .collect { handleLivetickerResult(it) }
             }
         }
     }
 
-    override fun postLivetickerEntry(liveTickerEntry: LiveTickerEntry) {
+    private fun getLivetickerEntryUpdates(
+        id: String = "",
+        livetickerSharingId: String = ""
+    ) {
+        entryJob?.cancel()
+        entryJob = viewModelScope.launch {
+            getLivetickerEntriesUseCase(id).collect {
+                it.fold(
+                    { entries.value = it },
+                    {}
+                )
+            }
+        }
     }
+
+    override fun postTextLivetickerEntry(view: View?) {
+        val text = entryText.value ?: return
+        val id = this.id ?: return
+        viewModelScope.launch {
+            postLivetickerTextEntry(PostLivetickerTextEntry.Params(text, id)).fold(
+                { entryText.value = null },
+                { Timber.e(it) }
+            )
+        }
+    }
+
+    override fun postLivetickerEntry(liveTickerEntry: LiveTickerEntry) {}
 
     override fun loadComments() {
         if (commentsInitialized) return
@@ -168,9 +208,7 @@ class LivetickerViewModelImpl(
         viewModelScope.launch {
             cheerUseCase(id ?: return@launch).fold(
                 {},
-                {
-                    Timber.e(it, "Error liking liveticker!")
-                }
+                { Timber.e(it, "Error liking liveticker!") }
             )
         }
     }

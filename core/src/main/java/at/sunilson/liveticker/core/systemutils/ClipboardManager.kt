@@ -4,7 +4,7 @@ import android.content.ClipData
 import android.content.Context
 
 interface ClipboardManager {
-    fun addTextToClipboard(text: String, label: String = "Inserted text")
+    fun addTextToClipboard(text: String, label: String = "Inserted caption")
 }
 
 internal class ClipboardManagerImpl(private val context: Context) : ClipboardManager {

@@ -1,7 +1,88 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:orientation="vertical"
-              android:layout_width="match_parent"
-              android:layout_height="match_parent">
+<layout
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools">
 
-</LinearLayout>
+    <data>
+
+        <variable
+                name="entry"
+                type="at.sunilson.liveticker.core.models.LiveTickerEntry.ImageLivetickerEntry" />
+
+        <variable
+                name="first"
+                type="Boolean" />
+
+        <variable
+                name="last"
+                type="Boolean" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+            xmlns:android="http://schemas.android.com/apk/res/android"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:animateLayoutChanges="true">
+
+        <RelativeLayout
+                android:id="@+id/timeline_time"
+                android:layout_width="@dimen/time_box_width"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="@dimen/small_margin"
+                android:layout_marginRight="@dimen/small_margin"
+                android:background="@drawable/timeline_background"
+                android:padding="@dimen/small_margin"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toLeftOf="@id/entry_container"
+                app:layout_constraintTop_toTopOf="parent">
+
+            <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="17:11"
+                    android:textColor="@color/baseTextColorInverted"
+                    android:textSize="8sp" />
+        </RelativeLayout>
+
+        <View
+                android:id="@+id/timeline_top"
+                android:layout_width="2dp"
+                android:layout_height="0dp"
+                android:background="@color/timeline_line"
+                app:layout_constraintBottom_toTopOf="@id/timeline_time"
+                app:layout_constraintLeft_toLeftOf="@id/timeline_time"
+                app:layout_constraintRight_toRightOf="@id/timeline_time"
+                app:layout_constraintTop_toTopOf="parent"
+                app:showIf="@{!last}" />
+
+        <View
+                android:id="@+id/timeline_bottom"
+                android:layout_width="2dp"
+                android:layout_height="0dp"
+                android:background="@color/timeline_line"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintLeft_toLeftOf="@id/timeline_time"
+                app:layout_constraintRight_toRightOf="@id/timeline_time"
+                app:layout_constraintTop_toBottomOf="@id/timeline_time"
+                app:showIf="@{!first}" />
+
+        <com.google.android.material.card.MaterialCardView
+                xmlns:android="http://schemas.android.com/apk/res/android"
+                android:id="@+id/entry_container"
+                style="@style/LivetickerCard"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintLeft_toRightOf="@id/timeline_time"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
+
+            <ImageView
+                    android:layout_width="match_parent"
+                    android:layout_height="200dp"
+                    android:scaleType="centerCrop"
+                    app:fromUrl="@{entry.image}" />
+
+        </com.google.android.material.card.MaterialCardView>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

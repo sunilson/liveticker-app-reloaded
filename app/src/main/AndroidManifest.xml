@@ -18,7 +18,9 @@
 
         <activity
                 android:name="at.sunilson.liveticker.MainActivity"
-                android:windowSoftInputMode="adjustPan">
+                android:windowSoftInputMode="adjustPan"
+                android:screenOrientation="portrait"
+                >
             <nav-graph android:value="@navigation/app_graph"/>
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>

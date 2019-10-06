@@ -6,8 +6,10 @@ import android.view.View
 import android.view.View.GONE
 import android.view.View.VISIBLE
 import android.widget.ImageView
+import android.widget.TextView
 import androidx.databinding.BindingAdapter
 import androidx.recyclerview.widget.RecyclerView
+import at.sunilson.liveticker.core.padZero
 import at.sunilson.liveticker.core.readable
 import at.sunilson.liveticker.presentation.baseClasses.recyclerView.BaseDiffRecyclerAdapter
 import at.sunilson.liveticker.presentation.baseClasses.recyclerView.BaseRecyclerAdapter
@@ -17,7 +19,16 @@ import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.textfield.TextInputLayout
 import com.hannesdorfmann.adapterdelegates4.AbsDelegationAdapter
+import org.joda.time.DateTime
 import java.io.File
+
+@BindingAdapter("app:timeFromTimestamp")
+fun TextView.timeFromTimestamp(time: Long?) {
+    if (time != null) {
+        val date = DateTime(time)
+        text = "${date.hourOfDay.padZero()}:${date.minuteOfHour.padZero()}"
+    }
+}
 
 @BindingAdapter("app:hideIfNull")
 fun View.hideIfNull(obj: Any?) {
@@ -47,7 +58,7 @@ fun View.hide(value: Boolean?) {
 }
 
 @BindingAdapter("app:entries")
-fun <T> RecyclerView.setEntries(entries: List<T>?) {
+fun RecyclerView.setEntries(entries: List<Any>?) {
     when {
         entries == null -> return
         adapter is BaseDiffRecyclerAdapter -> (adapter as? BaseDiffRecyclerAdapter)?.items = entries

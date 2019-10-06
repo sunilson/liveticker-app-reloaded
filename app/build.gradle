@@ -41,6 +41,7 @@ dependencies {
     implementation AndroidX.androidx_core
     implementation AndroidX.navigation_fragment
     implementation AndroidX.navigation_ui
+    implementation AndroidX.workManager
 
     implementation FirebaseLibs.core
 

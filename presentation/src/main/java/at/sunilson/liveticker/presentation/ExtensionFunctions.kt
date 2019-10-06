@@ -26,6 +26,11 @@ import androidx.core.view.marginBottom
 import androidx.core.view.marginLeft
 import androidx.core.view.marginRight
 import androidx.core.view.marginTop
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.Observer
+import com.google.android.material.bottomsheet.BottomSheetBehavior
+import java.util.*
 
 
 //Converts dp to px
@@ -186,4 +191,25 @@ fun View.setMargins(
             )
         }
     }
+}
+
+fun <T> LiveData<T>.observeOnce(lifecycleOwner: LifecycleOwner, observer: Observer<T>) {
+    observe(lifecycleOwner, object : Observer<T> {
+        override fun onChanged(t: T?) {
+            observer.onChanged(t)
+            removeObserver(this)
+        }
+    })
+}
+
+fun <T : View> BottomSheetBehavior<T>.close() {
+    state = BottomSheetBehavior.STATE_HIDDEN
+}
+
+fun <T : View> BottomSheetBehavior<T>.collapse() {
+    state = BottomSheetBehavior.STATE_COLLAPSED
+}
+
+fun <T : View> BottomSheetBehavior<T>.expand() {
+    state = BottomSheetBehavior.STATE_EXPANDED
 }

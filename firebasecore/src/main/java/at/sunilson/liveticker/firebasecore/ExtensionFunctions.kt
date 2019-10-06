@@ -1,9 +1,14 @@
 package at.sunilson.liveticker.firebasecore
 
+import android.net.Uri
 import at.sunilson.liveticker.core.ObservationResult
 import com.github.kittinunf.result.coroutines.SuspendableResult
 import com.google.android.gms.tasks.OnCompleteListener
+import com.google.android.gms.tasks.Task
 import com.google.firebase.firestore.*
+import com.google.firebase.storage.FirebaseStorage
+import com.google.firebase.storage.StorageReference
+import com.google.firebase.storage.UploadTask
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.channels.sendBlocking
@@ -19,15 +24,38 @@ import kotlin.coroutines.resume
 abstract class FirebaseEntity(@Exclude var id: String, @ServerTimestamp val timestamp: Date? = null)
 
 /**
+ * Uploads given file to Firebase storage and suspends until successful or failed
+ */
+suspend inline fun StorageReference.awaitPut(uri: Uri): SuspendableResult<String, FirebaseOperationException> {
+    return suspendCancellableCoroutine { cont ->
+        val task = putFile(uri)
+        task.continueWithTask {
+            if (!it.isSuccessful) {
+                throw it.exception ?: FirebaseOperationException.Failed(null)
+            }
+            downloadUrl
+        }.addOnCompleteListener {
+            if (!it.isSuccessful) {
+                cont.resume(handleException(it.exception))
+            } else {
+                cont.resume(
+                    SuspendableResult.Success(
+                        it.result?.toString() ?: throw FirebaseOperationException.Failed(null)
+                    )
+                )
+            }
+        }
+
+        cont.invokeOnCancellation { task.cancel() }
+    }
+}
+
+/**
  * Gets a document or returns [EmptyResult]
  */
 suspend inline fun <reified T : Any> DocumentReference.awaitGet(): SuspendableResult<T, FirebaseOperationException> {
     val snapshot: SuspendableResult<DocumentSnapshot, FirebaseOperationException> =
-        suspendCancellableCoroutine { cont ->
-            get().addOnCompleteListener(
-                generateResultCompletionListener(cont)
-            )
-        }
+        suspendCancellableCoroutine { cont -> get().addListeners(cont) }
 
     return SuspendableResult.of {
         try {
@@ -43,9 +71,7 @@ suspend inline fun <reified T : Any> DocumentReference.awaitGet(): SuspendableRe
  */
 suspend inline fun <reified T : Any> Query.awaitGet(): SuspendableResult<List<T>, FirebaseOperationException> {
     val snapshot: SuspendableResult<QuerySnapshot, FirebaseOperationException> =
-        suspendCancellableCoroutine { cont ->
-            get().addOnCompleteListener(generateResultCompletionListener(cont))
-        }
+        suspendCancellableCoroutine { cont -> get().addListeners(cont) }
 
     return SuspendableResult.of {
         snapshot.get().documents.map {
@@ -63,45 +89,35 @@ suspend inline fun <reified T : Any> Query.awaitGet(): SuspendableResult<List<T>
  * Deletes a [DocumentReference] and waits for the callback to finish.
  */
 suspend fun DocumentReference.awaitDelete(): SuspendableResult<Unit, FirebaseOperationException> {
-    return suspendCancellableCoroutine { cont ->
-        delete().addOnCompleteListener(generateCompletionListener(cont))
-    }
+    return suspendCancellableCoroutine { cont -> delete().addEmptyListeners(cont) }
 }
 
 /**
  * Sets a [DocumentReference] to the given [data] and waits for the callback to finish.
  */
 suspend fun DocumentReference.awaitSet(data: FirebaseEntity): SuspendableResult<Unit, FirebaseOperationException> {
-    return suspendCancellableCoroutine { cont ->
-        set(data).addOnCompleteListener(generateCompletionListener(cont))
-    }
+    return suspendCancellableCoroutine { cont -> set(data).addEmptyListeners(cont) }
 }
 
 /**
  * Adds to a [CollectionReference] the given [data] and waits for the callback to finish.
  */
 suspend fun CollectionReference.awaitAdd(data: FirebaseEntity): SuspendableResult<String, FirebaseOperationException> {
-    return suspendCancellableCoroutine { cont ->
-        add(data).addOnCompleteListener(generateIdCompletionListener(cont))
-    }
+    return suspendCancellableCoroutine { cont -> add(data).addListeners(cont) }
 }
 
 /**
  * Updates a document and waits for operation to finish
  */
 suspend fun DocumentReference.awaitUpdate(map: Map<String, Any>): SuspendableResult<Unit, FirebaseOperationException> {
-    return suspendCancellableCoroutine { cont ->
-        update(map).addOnCompleteListener(generateCompletionListener(cont))
-    }
+    return suspendCancellableCoroutine { cont -> update(map).addEmptyListeners(cont) }
 }
 
 /**
  * Commits the batch and waits for that operation to finish
  */
 suspend fun WriteBatch.awaitCommit(): SuspendableResult<Unit, FirebaseOperationException> {
-    return suspendCancellableCoroutine { cont ->
-        commit().addOnCompleteListener(generateCompletionListener(cont))
-    }
+    return suspendCancellableCoroutine { cont -> commit().addEmptyListeners(cont) }
 }
 
 /**
@@ -175,59 +191,29 @@ inline fun <reified T : FirebaseEntity, R : Any> DocumentReference.observe(cross
         awaitClose { listener.remove() }
     }
 
-fun <T> generateCompletionListener(cont: Continuation<SuspendableResult<Unit, FirebaseOperationException>>): OnCompleteListener<T> {
-    return OnCompleteListener {
-        try {
-            when {
-                it.isCanceled -> cont.resume(SuspendableResult.error(FirebaseOperationException.Cancelled()))
-                it.isSuccessful -> cont.resume(SuspendableResult.Success(Unit))
-                else -> cont.resume(SuspendableResult.error(FirebaseOperationException.Failed("")))
-            }
-        } catch (error: Exception) {
-            when (it.exception) {
-                is FirebaseFirestoreException -> cont.resume(SuspendableResult.error((it.exception as FirebaseFirestoreException).convert()))
-                else -> cont.resume(SuspendableResult.error(FirebaseOperationException.Failed(error.message)))
-            }
-        }
-    }
+@JvmName("addEmptyListeners")
+fun Task<*>.addEmptyListeners(cont: Continuation<SuspendableResult<Unit, FirebaseOperationException>>) {
+    addOnCanceledListener { cont.resume(SuspendableResult.error(FirebaseOperationException.Cancelled())) }
+    addOnSuccessListener { cont.resume(SuspendableResult.Success(Unit)) }
+    addOnFailureListener { cont.resume(handleException(it)) }
 }
 
-fun <T> generateIdCompletionListener(cont: Continuation<SuspendableResult<String, FirebaseOperationException>>): OnCompleteListener<T> {
-    return OnCompleteListener {
-        try {
-            val id = (it.result as? DocumentReference)?.id
-            when {
-                it.isCanceled -> cont.resume(SuspendableResult.error(FirebaseOperationException.Cancelled()))
-                id == null -> cont.resume(SuspendableResult.error(FirebaseOperationException.EmptyResult()))
-                it.isSuccessful -> cont.resume(SuspendableResult.Success(id))
-                else -> cont.resume(SuspendableResult.error(FirebaseOperationException.Failed("")))
-            }
-        } catch (error: Exception) {
-            when (it.exception) {
-                is FirebaseFirestoreException -> cont.resume(SuspendableResult.error((it.exception as FirebaseFirestoreException).convert()))
-                else -> cont.resume(SuspendableResult.error(FirebaseOperationException.Failed(error.message)))
-            }
-        }
-    }
+@JvmName("addIdListeners")
+fun Task<DocumentReference>.addListeners(cont: Continuation<SuspendableResult<String, FirebaseOperationException>>) {
+    addOnCanceledListener { cont.resume(SuspendableResult.error(FirebaseOperationException.Cancelled())) }
+    addOnSuccessListener { cont.resume(SuspendableResult.Success(it.id)) }
+    addOnFailureListener { cont.resume(handleException(it)) }
 }
 
-fun <T : Any> generateResultCompletionListener(cont: Continuation<SuspendableResult<T, FirebaseOperationException>>): OnCompleteListener<T> {
-    return OnCompleteListener {
-        try {
-            val result = it.result
-            when {
-                it.isCanceled -> cont.resume(SuspendableResult.error(FirebaseOperationException.Cancelled()))
-                result == null -> cont.resume(SuspendableResult.error(FirebaseOperationException.EmptyResult()))
-                it.isSuccessful -> cont.resume(SuspendableResult.Success(result))
-                else -> cont.resume(SuspendableResult.error(FirebaseOperationException.Failed("")))
-            }
-        } catch (error: Exception) {
-            when (it.exception) {
-                is FirebaseFirestoreException -> cont.resume(SuspendableResult.error((it.exception as FirebaseFirestoreException).convert()))
-                else -> cont.resume(SuspendableResult.error(FirebaseOperationException.Failed(error.message)))
-            }
-        }
-    }
+fun <T : Any> Task<T>.addListeners(cont: Continuation<SuspendableResult<T, FirebaseOperationException>>) {
+    addOnCanceledListener { cont.resume(SuspendableResult.error(FirebaseOperationException.Cancelled())) }
+    addOnSuccessListener { cont.resume(SuspendableResult.Success(it)) }
+    addOnFailureListener { cont.resume(handleException(it)) }
+}
+
+fun handleException(error: Exception?) = when (error) {
+    is FirebaseFirestoreException -> SuspendableResult.error(error.convert())
+    else -> SuspendableResult.error(FirebaseOperationException.Failed(error?.message))
 }
 
 /**

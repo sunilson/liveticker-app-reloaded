@@ -1,6 +1,7 @@
 const val room_version = "2.1.0-beta01"
 const val nav_version = "2.2.0-alpha02"
 const val koin_version = "2.0.0"
+const val workmanager_version = "2.2.0"
 
 object AndroidX {
     val constraintLayout = "androidx.constraintlayout:constraintlayout:2.0.0-beta1"
@@ -17,6 +18,7 @@ object AndroidX {
     val navigation_fragment = "androidx.navigation:navigation-fragment-ktx:$nav_version"
     val navigation_ui = "androidx.navigation:navigation-ui-ktx:$nav_version"
     val navigation_safe_args = "androidx.navigation:navigation-safe-args-gradle-plugin:$nav_version"
+    val workManager = "androidx.work:work-runtime-ktx:$workmanager_version"
 }
 
 object Kotlin {
@@ -64,5 +66,6 @@ object GoogleLibs {
 object FirebaseLibs {
     val core = "com.google.firebase:firebase-core:16.0.9"
     val fireStore = "com.google.firebase:firebase-firestore:19.0.0"
+    val firebaseStorage = "com.google.firebase:firebase-storage:19.1.0"
     val authentication = "com.google.firebase:firebase-auth:17.0.0"
 }

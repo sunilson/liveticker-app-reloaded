@@ -4,6 +4,7 @@ import android.Manifest.permission.READ_EXTERNAL_STORAGE
 import android.app.Activity.RESULT_OK
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.graphics.drawable.Animatable
 import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
@@ -17,14 +18,18 @@ import androidx.constraintlayout.motion.widget.MotionLayout
 import androidx.constraintlayout.motion.widget.MotionScene
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.view.ViewCompat
+import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
-import at.sunilson.liveticker.core.models.TextLiveTickerEntry
+import androidx.work.WorkInfo
+import androidx.work.WorkManager
+import at.sunilson.liveticker.core.models.LiveTickerEntry
 import at.sunilson.liveticker.core.utils.Do
 import at.sunilson.liveticker.liveticker.LivetickerNavigation
 import at.sunilson.liveticker.liveticker.R
 import at.sunilson.liveticker.liveticker.databinding.FragmentLivetickerBinding
+import at.sunilson.liveticker.liveticker.presentation.UploadViewModel
 import at.sunilson.liveticker.liveticker.presentation.comments.CommentsRecyclerAdapter
 import at.sunilson.liveticker.liveticker.presentation.liveticker.recyclerView.LivetickerEntryRecyclerAdapter
 import at.sunilson.liveticker.location.MapFragmentCreator
@@ -35,10 +40,13 @@ import at.sunilson.liveticker.presentation.dialogs.inputDialog.InputDialog
 import at.sunilson.liveticker.presentation.interfaces.InputDialogListener
 import at.sunilson.liveticker.presentation.views.LockableBottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetBehavior.*
+import com.google.android.material.snackbar.Snackbar
 import kotlinx.android.synthetic.main.fragment_liveticker.*
+import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.koin.android.ext.android.inject
+import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import timber.log.Timber
 
@@ -46,6 +54,7 @@ class LivetickerFragment : BaseFragment<LivetickerViewModel, LivetickerNavigatio
     InputDialogListener {
 
     override val viewModel: LivetickerViewModel by viewModel()
+    private val uploadViewModel: UploadViewModel by sharedViewModel()
     private val livetickerNavigation: LivetickerNavigation by inject()
     private val mapFragmentCreator: MapFragmentCreator by inject()
     private val arguments: LivetickerFragmentArgs by navArgs()
@@ -56,7 +65,7 @@ class LivetickerFragment : BaseFragment<LivetickerViewModel, LivetickerNavigatio
 
     private val addBehavior: LockableBottomSheetBehavior<ConstraintLayout>
         get() = from(liveticker_add_bottom_sheet) as LockableBottomSheetBehavior
-    
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -68,8 +77,8 @@ class LivetickerFragment : BaseFragment<LivetickerViewModel, LivetickerNavigatio
 
         requireActivity().onBackPressedDispatcher.addCallback(this, enabled = true) {
             when {
-                addBehavior.state == STATE_EXPANDED -> addBehavior.state = STATE_COLLAPSED
-                addBehavior.state == STATE_COLLAPSED -> addBehavior.state = STATE_HIDDEN
+                addBehavior.state == STATE_EXPANDED -> addBehavior.collapse()
+                addBehavior.state == STATE_COLLAPSED -> addBehavior.close()
                 commentsBehavior.state != STATE_COLLAPSED && commentsBehavior.state != STATE_HIDDEN -> commentsBehavior.state =
                     STATE_HIDDEN
                 fab_motion_layout.currentState != fab_motion_layout.startState -> fab_motion_layout.transitionToStart()
@@ -107,6 +116,11 @@ class LivetickerFragment : BaseFragment<LivetickerViewModel, LivetickerNavigatio
             container
         )
         binding.viewModel = viewModel
+
+        binding.root.post {
+            addBehavior.close()
+        }
+
         return binding.root
     }
 
@@ -124,6 +138,46 @@ class LivetickerFragment : BaseFragment<LivetickerViewModel, LivetickerNavigatio
         initializeCommentsBottomSheet()
         initializeAddBottomSheet()
         initializeInsets()
+        observeInputText()
+        observeUploadTasks()
+        observeEntries()
+    }
+
+    private fun observeEntries() {
+        viewModel.entries.observe(viewLifecycleOwner, Observer {
+            liveticker_list.smoothScrollToPosition(0)
+            hideKeyboard()
+            addBehavior.close()
+        })
+    }
+
+    private fun observeInputText() {
+        viewModel.entryText.observe(viewLifecycleOwner, Observer {
+            if (it.isNullOrEmpty()) {
+                if (!send_button.isSelected) return@Observer
+                send_button.setImageResource(R.drawable.mic_anim)
+                (send_button.drawable as Animatable).start()
+                send_button.isSelected = false
+            } else {
+                if (send_button.isSelected) return@Observer
+                send_button.setImageResource(R.drawable.mic_anim_reverse)
+                (send_button.drawable as Animatable).start()
+                send_button.isSelected = true
+            }
+        })
+    }
+
+    private fun observeUploadTasks() {
+        viewModel.liveTicker.observeOnce(viewLifecycleOwner, Observer {
+            uploadViewModel.getRunningWorkForLiveticker(it.id)
+                .observe(viewLifecycleOwner, Observer {
+                    requireContext().showToast(
+                        it
+                            .filter { it.state == WorkInfo.State.RUNNING }
+                            .size
+                            .toString())
+                })
+        })
     }
 
     override fun inputHappened(string: String) {
@@ -143,8 +197,8 @@ class LivetickerFragment : BaseFragment<LivetickerViewModel, LivetickerNavigatio
             )
             is LivetickerNavigationEvent.ShowComments -> {
                 hideFabs()
-                addBehavior.state = STATE_HIDDEN
-                commentsBehavior.state = STATE_EXPANDED
+                addBehavior.close()
+                commentsBehavior.expand()
             }
             is LivetickerNavigationEvent.AddEntry -> {
                 hideFabs()
@@ -156,7 +210,12 @@ class LivetickerFragment : BaseFragment<LivetickerViewModel, LivetickerNavigatio
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         if (requestCode == IMAGE_INTENT && resultCode == RESULT_OK) {
-            findNavController().navigate(LivetickerFragmentDirections.moveToPhoto(currentImageUri.toString()))
+            findNavController().navigate(
+                LivetickerFragmentDirections.moveToPhoto(
+                    currentImageUri.toString(),
+                    viewModel.liveTicker.value?.id ?: return
+                )
+            )
         }
     }
 
@@ -172,7 +231,7 @@ class LivetickerFragment : BaseFragment<LivetickerViewModel, LivetickerNavigatio
 
     private fun checkImagePermissions() {
         if (requireContext().hasPermissions(READ_EXTERNAL_STORAGE)) {
-            addBehavior.state = STATE_COLLAPSED
+            addBehavior.collapse()
             viewModel.loadImages()
         } else {
             requestPermissions(
@@ -188,7 +247,7 @@ class LivetickerFragment : BaseFragment<LivetickerViewModel, LivetickerNavigatio
         grantResults: IntArray
     ) {
         if (requestCode == PERMISSION_REQUEST) {
-            addBehavior.state = STATE_COLLAPSED
+            addBehavior.collapse()
             if (grantResults.all { it == PackageManager.PERMISSION_GRANTED }) {
                 viewModel.loadImages()
             }
@@ -210,7 +269,12 @@ class LivetickerFragment : BaseFragment<LivetickerViewModel, LivetickerNavigatio
 
     private fun initializeImageList() {
         image_list.adapter = ImageRecyclerAdapter {
-            findNavController().navigate(LivetickerFragmentDirections.moveToPhoto(it.uri.toString()))
+            findNavController().navigate(
+                LivetickerFragmentDirections.moveToPhoto(
+                    it.uri.toString(),
+                    viewModel.liveTicker.value?.id ?: return@ImageRecyclerAdapter
+                )
+            )
         }
     }
 
@@ -220,22 +284,6 @@ class LivetickerFragment : BaseFragment<LivetickerViewModel, LivetickerNavigatio
 
     private fun initializeEntryList() {
         liveticker_list.adapter = LivetickerEntryRecyclerAdapter {}
-        liveticker_list.setEntries(
-            listOf(
-                TextLiveTickerEntry("", 0L, "", ""),
-                TextLiveTickerEntry("", 0L, "", ""),
-                TextLiveTickerEntry("", 0L, "", ""),
-                TextLiveTickerEntry("", 0L, "", ""),
-                TextLiveTickerEntry("", 0L, "", ""),
-                TextLiveTickerEntry("", 0L, "", ""),
-                TextLiveTickerEntry("", 0L, "", ""),
-                TextLiveTickerEntry("", 0L, "", ""),
-                TextLiveTickerEntry("", 0L, "", ""),
-                TextLiveTickerEntry("", 0L, "", ""),
-                TextLiveTickerEntry("", 0L, "", ""),
-                TextLiveTickerEntry("", 0L, "", "")
-            )
-        )
     }
 
     private fun initializeMap() {
@@ -268,12 +316,12 @@ class LivetickerFragment : BaseFragment<LivetickerViewModel, LivetickerNavigatio
     }
 
     private fun initializeAddBottomSheet() {
-        addBehavior.state = STATE_HIDDEN
+        addBehavior.close()
         addBehavior.locked = false
     }
 
     private fun initializeCommentsBottomSheet() {
-        commentsBehavior.state = STATE_HIDDEN
+        commentsBehavior.close()
         commentsBehavior.locked = false
     }
 

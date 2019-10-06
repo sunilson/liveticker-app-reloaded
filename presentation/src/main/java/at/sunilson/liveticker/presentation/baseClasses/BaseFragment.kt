@@ -23,6 +23,7 @@ import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
 import at.sunilson.liveticker.core.utils.Do
 import at.sunilson.liveticker.presentation.R
+import at.sunilson.liveticker.presentation.convertToPx
 import at.sunilson.liveticker.presentation.interfaces.BackpressInterceptor
 import at.sunilson.liveticker.presentation.showToast
 import kotlinx.coroutines.CoroutineScope
@@ -60,19 +61,17 @@ abstract class BaseFragment<ViewModel : BaseViewModel<E>, E> : Fragment(), Corou
         return binding
     }
 
-    /*
     override fun onCreateAnimation(transit: Int, enter: Boolean, nextAnim: Int): Animation? {
 
         //Show above previous fragment for animation purposes
         if (nextAnim == R.anim.move_in_from_right || nextAnim == R.anim.move_out_to_right) {
-            ViewCompat.setTranslationZ(view!!, 200f)
+            ViewCompat.setElevation(requireView(), 10f.convertToPx(requireContext()))
         } else if (nextAnim == R.anim.move_in_from_left_slightly || nextAnim == R.anim.move_out_to_left_slightly) {
-            ViewCompat.setTranslationZ(view!!, 100f)
+            ViewCompat.setTranslationZ(requireView(), 0f)
         }
 
         return super.onCreateAnimation(transit, enter, nextAnim)
     }
-     */
 
     protected fun setNavColors(
         @ColorRes statusColor: Int = android.R.color.white,

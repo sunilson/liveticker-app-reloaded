@@ -11,4 +11,5 @@
     <dimen name="controls_height_negative">-60dp</dimen>
     <dimen name="timeline_circle_size">15dp</dimen>#
     <dimen name="gallery_item_size">150dp</dimen>
+    <dimen name="time_box_width">40dp</dimen>
 </resources>

@@ -45,6 +45,7 @@ dependencies {
     implementation AndroidX.navigation_fragment
     implementation AndroidX.navigation_ui
     implementation AndroidX.lifecycle_scope
+    implementation AndroidX.workManager
 
     implementation DILibs.koin
     implementation DILibs.koinLifecycle

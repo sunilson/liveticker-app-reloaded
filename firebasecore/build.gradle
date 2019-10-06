@@ -24,6 +24,7 @@ dependencies {
     implementation DILibs.koin
     api FirebaseLibs.core
     api FirebaseLibs.fireStore
+    api FirebaseLibs.firebaseStorage
     api Kotlin.coroutines
     api ThirdPartyLibs.result
 }

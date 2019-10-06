@@ -1,8 +1,8 @@
 package at.sunilson.liveticker.authentication
 
 import at.sunilson.liveticker.core.models.User
-import at.sunilson.liveticker.firebasecore.generateCompletionListener
-import at.sunilson.liveticker.firebasecore.generateResultCompletionListener
+import at.sunilson.liveticker.firebasecore.addEmptyListeners
+import at.sunilson.liveticker.firebasecore.addListeners
 import com.github.kittinunf.result.Result
 import com.github.kittinunf.result.coroutines.SuspendableResult
 import com.google.firebase.auth.AuthResult
@@ -53,15 +53,12 @@ internal class FirebaseAuthenticationRepository(private val firebaseAuth: Fireba
     }
 
     override suspend fun anonymousLogin(): SuspendableResult<Unit, Exception> {
-        return suspendCancellableCoroutine {
-            firebaseAuth.signInAnonymously().addOnCompleteListener(generateCompletionListener(it))
-        }
+        return suspendCancellableCoroutine { firebaseAuth.signInAnonymously().addEmptyListeners(it) }
     }
 
     override suspend fun login(email: String, password: String): SuspendableResult<Unit, Exception> {
         return suspendCancellableCoroutine {
-            firebaseAuth.signInWithEmailAndPassword(email, password)
-                .addOnCompleteListener(generateCompletionListener(it))
+            firebaseAuth.signInWithEmailAndPassword(email, password).addEmptyListeners(it)
         }
     }
 
@@ -71,8 +68,7 @@ internal class FirebaseAuthenticationRepository(private val firebaseAuth: Fireba
 
     override suspend fun register(email: String, userName: String, password: String): SuspendableResult<Unit, Exception> {
         val (result, error) = suspendCancellableCoroutine<SuspendableResult<AuthResult, Exception>> {
-            firebaseAuth.createUserWithEmailAndPassword(email, password)
-                .addOnCompleteListener(generateResultCompletionListener(it))
+            firebaseAuth.createUserWithEmailAndPassword(email, password).addListeners(it)
         }
 
         if (error != null) return SuspendableResult.error(error)
@@ -82,7 +78,7 @@ internal class FirebaseAuthenticationRepository(private val firebaseAuth: Fireba
             result
                 .user
                 .updateProfile(UserProfileChangeRequest.Builder().setDisplayName(userName).build())
-                .addOnCompleteListener(generateCompletionListener(it))
+                .addEmptyListeners(it)
         }
     }
 }

@@ -155,6 +155,7 @@
                         android:background="@color/accentedBackgroundColor"
                         android:clipChildren="false"
                         android:clipToPadding="false"
+                        app:entries="@{viewModel.entries}"
                         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintTop_toBottomOf="@id/liveticker_preview_controls"
@@ -178,9 +179,7 @@
                         android:id="@+id/fab_motion_layout"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        app:layoutDescription="@xml/liveticker_fab_animation"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintRight_toRightOf="parent">
+                        app:layoutDescription="@xml/liveticker_fab_animation">
 
                     <com.google.android.material.floatingactionbutton.FloatingActionButton
                             android:id="@+id/one"
@@ -291,14 +290,23 @@
                         app:endIconDrawable="@drawable/ic_photo_camera_black_24dp"
                         app:endIconMode="custom"
                         app:layout_constraintLeft_toLeftOf="parent"
-                        app:layout_constraintRight_toLeftOf="@id/send_button"
+                        app:layout_constraintRight_toLeftOf="@id/button_barrier"
                         app:layout_constraintTop_toBottomOf="@id/add_bottom_sheet_anchor"
                         app:onEndIconClicked="@{viewModel::takePicture}">
 
                     <com.google.android.material.textfield.TextInputEditText
                             android:layout_width="match_parent"
-                            android:layout_height="wrap_content" />
+                            android:layout_height="wrap_content"
+                            android:text="@={viewModel.entryText}" />
                 </com.google.android.material.textfield.TextInputLayout>
+
+
+                <androidx.constraintlayout.widget.Barrier
+                        android:id="@+id/button_barrier"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        app:barrierDirection="left"
+                        app:constraint_referenced_ids="send_button" />
 
                 <com.google.android.material.floatingactionbutton.FloatingActionButton
                         android:id="@+id/send_button"
@@ -306,6 +314,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginEnd="@dimen/medium_margin"
                         app:backgroundTint="@color/colorAccent"
+                        android:onClick="@{viewModel::postTextLivetickerEntry}"
                         app:layout_constraintBottom_toBottomOf="@id/add_bottom_sheet_input"
                         app:layout_constraintRight_toRightOf="parent"
                         app:layout_constraintTop_toTopOf="@id/add_bottom_sheet_input"

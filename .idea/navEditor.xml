@@ -163,7 +163,7 @@
                         </option>
                         <option name="myPositions">
                           <map>
-                            <entry key="action_livetickerFragment_to_photoFragment">
+                            <entry key="move_to_photo">
                               <value>
                                 <LayoutPositions />
                               </value>

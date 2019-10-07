@@ -84,6 +84,11 @@ fun Context.hasPermissions(vararg permissions: String): Boolean {
     return true
 }
 
+fun Fragment.showKeyboard() {
+    val imm = requireContext().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+    imm.toggleSoftInput(InputMethodManager.SHOW_IMPLICIT, 0)
+}
+
 fun Fragment.hideKeyboard() {
     val imm =
         requireActivity().getSystemService(Activity.INPUT_METHOD_SERVICE) as InputMethodManager

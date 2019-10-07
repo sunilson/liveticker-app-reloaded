@@ -6,44 +6,73 @@
 
         <variable
                 name="viewModel"
-                type="at.sunilson.liveticker.livetickercreation.presentation.locationPickerDialog.LocationPickerDialogViewModel"/>
+                type="at.sunilson.liveticker.livetickercreation.presentation.locationPickerDialog.LocationPickerDialogViewModel" />
     </data>
 
-    <androidx.coordinatorlayout.widget.CoordinatorLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
             xmlns:android="http://schemas.android.com/apk/res/android"
-            android:orientation="vertical"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:animateLayoutChanges="true"
             android:background="@color/defaultBackgroundColor">
 
         <FrameLayout
                 android:id="@+id/dialog_fragment_location_picker_map"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"/>
+                android:layout_height="match_parent"
+                app:layout_constraintTop_toTopOf="parent" />
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
                 android:id="@+id/search_fab"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="bottom|left"
                 android:layout_margin="@dimen/medium_margin"
-                app:srcCompat="@drawable/ic_search_black_24dp"
-                app:tint="@color/baseTextColorInverted"
-                app:backgroundTint="@color/colorPrimary"
                 android:onClick="@{viewModel::searchClicked}"
-                />
+                app:backgroundTint="@color/colorPrimary"
+                app:layout_constraintBottom_toTopOf="@id/search_bar"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:srcCompat="@drawable/ic_search_black_24dp"
+                app:tint="@color/baseTextColorInverted" />
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
                 android:id="@+id/confirm_fab"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="bottom|right"
                 android:layout_margin="@dimen/medium_margin"
-                app:srcCompat="@drawable/ic_check_black_24dp"
-                app:tint="@color/baseTextColorInverted"
-                app:backgroundTint="@color/colorAccent"
                 android:onClick="@{viewModel::tryFinish}"
-                />
+                app:backgroundTint="@color/colorAccent"
+                app:layout_constraintBottom_toTopOf="@id/search_bar"
+                app:layout_constraintRight_toRightOf="parent"
+                app:srcCompat="@drawable/ic_check_black_24dp"
+                app:tint="@color/baseTextColorInverted" />
 
-    </androidx.coordinatorlayout.widget.CoordinatorLayout>
+        <EditText
+                android:id="@+id/search_bar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="@dimen/medium_margin"
+                android:layout_marginTop="0dp"
+                android:background="@drawable/location_picker_search_bar"
+                android:clickable="true"
+                android:drawableStart="@drawable/ic_search_black_24dp"
+                android:drawablePadding="@dimen/medium_margin"
+                android:elevation="6dp"
+                android:focusable="true"
+                android:focusableInTouchMode="true"
+                android:gravity="center_vertical"
+                android:hint="Enter exact address to search..."
+                android:inputType="text"
+                android:maxLines="1"
+                android:padding="@dimen/medium_margin"
+                android:text="@={viewModel.searchQuery}"
+                app:layout_constraintBottom_toTopOf="@id/bottom_navigation_spacer"
+                app:showIf="@{viewModel.search}" />
+
+        <Space
+                android:id="@+id/bottom_navigation_spacer"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:layout_constraintBottom_toBottomOf="parent" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

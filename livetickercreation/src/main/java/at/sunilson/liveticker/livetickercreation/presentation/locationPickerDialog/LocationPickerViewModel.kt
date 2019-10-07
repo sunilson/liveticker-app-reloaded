@@ -13,6 +13,8 @@ import kotlinx.coroutines.withContext
 
 abstract class LocationPickerDialogViewModel : BaseViewModel<LocationPickerNavigationEvent>() {
     abstract val selectedLocation: MutableLiveData<Coordinates>
+    abstract val searchQuery: MutableLiveData<String>
+    abstract val search: MutableLiveData<Boolean>
 
     abstract fun searchClicked(view: Any? = null)
     abstract fun tryFinish(view: Any? = null)
@@ -20,9 +22,9 @@ abstract class LocationPickerDialogViewModel : BaseViewModel<LocationPickerNavig
 }
 
 sealed class LocationPickerNavigationEvent {
-    object SearchClicked : LocationPickerNavigationEvent()
     data class LocationFound(val location: Location) : LocationPickerNavigationEvent()
     data class UserFound(val coordinates: Coordinates) : LocationPickerNavigationEvent()
+    data class SearchResult(val coordinates: Coordinates) : LocationPickerNavigationEvent()
 }
 
 class LocationPickerDialogViewModelImpl(
@@ -32,6 +34,8 @@ class LocationPickerDialogViewModelImpl(
     LocationPickerDialogViewModel() {
 
     override val selectedLocation: MutableLiveData<Coordinates> = MutableLiveData()
+    override val search: MutableLiveData<Boolean> = MutableLiveData()
+    override val searchQuery: MutableLiveData<String> = MutableLiveData()
 
     override fun searchUser() {
         locationFinder {
@@ -51,23 +55,40 @@ class LocationPickerDialogViewModelImpl(
     }
 
     override fun searchClicked(view: Any?) {
-        navigationEvents.postValue(LocationPickerNavigationEvent.SearchClicked)
+        val search = search.value ?: false
+        this.search.value = !search
     }
 
     override fun tryFinish(view: Any?) {
-        loading.postValue(true)
-
         viewModelScope.launch {
-            val selectedLocation = selectedLocation.value ?: return@launch
-            val location = withContext(Dispatchers.Default) { addressResolver(selectedLocation) }
+            if (searchQuery.value.isNullOrEmpty()) {
+                loading.postValue(true)
 
-            location.fold(
-                { navigationEvents.postValue(LocationPickerNavigationEvent.LocationFound(it)) },
-                {
-                    //TODO Show error message
-                    loading.postValue(false)
+                val selectedLocation = selectedLocation.value ?: return@launch
+                val location = withContext(Dispatchers.Default) {
+                    addressResolver.resolveLocationForCoordinates(selectedLocation)
                 }
-            )
+
+                location.fold(
+                    { navigationEvents.postValue(LocationPickerNavigationEvent.LocationFound(it)) },
+                    {
+                        //TODO Show error message
+                        loading.postValue(false)
+                    }
+                )
+            } else {
+                addressResolver.resolveLocationForAddress(searchQuery.value ?: return@launch).fold(
+                    {
+                        navigationEvents.postValue(LocationPickerNavigationEvent.SearchResult(it.coordinates))
+                    },
+                    {
+                        //TODO Show error message
+                    }
+                )
+                searchQuery.value = null
+                search.value = false
+                loading.postValue(false)
+            }
         }
     }
 }

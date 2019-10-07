@@ -58,8 +58,8 @@ object TestLibs {
 object GoogleLibs {
     val auth = "com.google.android.gms:play-services-auth:16.0.1"
     val material_components = "com.google.android.material:material:1.1.0-alpha07"
-    val maps = "com.google.android.gms:play-services-maps:16.1.0"
-    val places = "com.google.android.libraries.places:places:1.1.0"
+    val maps = "com.google.android.gms:play-services-maps:17.0.0"
+    val places = "com.google.android.libraries.places:places:2.0.0"
 
 }
 

@@ -181,8 +181,8 @@ fun View.setMargins(
         this.layoutParams = layoutParams.apply {
             setMargins(
                 left,
-                right,
                 top,
+                right,
                 bottom
             )
         }
@@ -190,8 +190,8 @@ fun View.setMargins(
         this.layoutParams = layoutParams.apply {
             setMargins(
                 left,
-                right,
                 top,
+                right,
                 bottom
             )
         }

@@ -39,7 +39,7 @@ class HomeFragment : BaseFragment<HomeViewModel, HomeNavigationEvent>() {
     override fun onResume() {
         super.onResume()
         requireActivity().window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE)
-        setNavColors(R.color.lightStatusBarColor, darkStatus = false)
+        setNavCololrs(R.color.lightStatusBarColor, darkStatus = false)
     }
 
     override fun onPause() {

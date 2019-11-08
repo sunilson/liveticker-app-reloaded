@@ -20,6 +20,7 @@ import kotlinx.coroutines.suspendCancellableCoroutine
 import java.util.*
 import kotlin.coroutines.Continuation
 import kotlin.coroutines.resume
+import kotlin.coroutines.suspendCoroutine
 
 abstract class FirebaseEntity(@Exclude var id: String, @ServerTimestamp val timestamp: Date? = null)
 
@@ -55,7 +56,7 @@ suspend inline fun StorageReference.awaitPut(uri: Uri): SuspendableResult<String
  */
 suspend inline fun <reified T : Any> DocumentReference.awaitGet(): SuspendableResult<T, FirebaseOperationException> {
     val snapshot: SuspendableResult<DocumentSnapshot, FirebaseOperationException> =
-        suspendCancellableCoroutine { cont -> get().addListeners(cont) }
+        suspendCoroutine { cont -> get().addListeners(cont) }
 
     return SuspendableResult.of {
         try {
@@ -71,7 +72,7 @@ suspend inline fun <reified T : Any> DocumentReference.awaitGet(): SuspendableRe
  */
 suspend inline fun <reified T : Any> Query.awaitGet(): SuspendableResult<List<T>, FirebaseOperationException> {
     val snapshot: SuspendableResult<QuerySnapshot, FirebaseOperationException> =
-        suspendCancellableCoroutine { cont -> get().addListeners(cont) }
+        suspendCoroutine { cont -> get().addListeners(cont) }
 
     return SuspendableResult.of {
         snapshot.get().documents.map {
@@ -89,35 +90,35 @@ suspend inline fun <reified T : Any> Query.awaitGet(): SuspendableResult<List<T>
  * Deletes a [DocumentReference] and waits for the callback to finish.
  */
 suspend fun DocumentReference.awaitDelete(): SuspendableResult<Unit, FirebaseOperationException> {
-    return suspendCancellableCoroutine { cont -> delete().addEmptyListeners(cont) }
+    return suspendCoroutine { cont -> delete().addEmptyListeners(cont) }
 }
 
 /**
  * Sets a [DocumentReference] to the given [data] and waits for the callback to finish.
  */
 suspend fun DocumentReference.awaitSet(data: FirebaseEntity): SuspendableResult<Unit, FirebaseOperationException> {
-    return suspendCancellableCoroutine { cont -> set(data).addEmptyListeners(cont) }
+    return suspendCoroutine { cont -> set(data).addEmptyListeners(cont) }
 }
 
 /**
  * Adds to a [CollectionReference] the given [data] and waits for the callback to finish.
  */
 suspend fun CollectionReference.awaitAdd(data: FirebaseEntity): SuspendableResult<String, FirebaseOperationException> {
-    return suspendCancellableCoroutine { cont -> add(data).addListeners(cont) }
+    return suspendCoroutine { cont -> add(data).addListeners(cont) }
 }
 
 /**
  * Updates a document and waits for operation to finish
  */
 suspend fun DocumentReference.awaitUpdate(map: Map<String, Any>): SuspendableResult<Unit, FirebaseOperationException> {
-    return suspendCancellableCoroutine { cont -> update(map).addEmptyListeners(cont) }
+    return suspendCoroutine { cont -> update(map).addEmptyListeners(cont) }
 }
 
 /**
  * Commits the batch and waits for that operation to finish
  */
 suspend fun WriteBatch.awaitCommit(): SuspendableResult<Unit, FirebaseOperationException> {
-    return suspendCancellableCoroutine { cont -> commit().addEmptyListeners(cont) }
+    return suspendCoroutine { cont -> commit().addEmptyListeners(cont) }
 }
 
 /**
